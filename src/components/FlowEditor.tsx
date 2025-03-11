@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -25,8 +24,10 @@ import FlowConnector from './FlowConnector';
 import FlowControls from './FlowControls';
 import { initialFlowData } from '@/utils/initialData';
 import { nanoid } from 'nanoid';
+import JSZip from 'jszip';
 
 import 'reactflow/dist/style.css';
+import CardTypeSelector, { CardType } from './CardTypeSelector';
 
 // Template data
 const templates = {
@@ -181,6 +182,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
+  const [cardTypeSelectorOpen, setCardTypeSelectorOpen] = useState(false);
 
   // Convert cards to nodes
   const initialNodes: Node[] = initialData.cards.map((card) => ({
@@ -503,67 +505,111 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [setNodes, setEdges, fitView, toast]);
 
-  // Generate backup ZIP
-  const onGenerateBackup = useCallback(() => {
-    // This is a simplified version - in a real app we would need to use a proper ZIP library
-    
-    // Convert nodes and edges to flow data
-    const cards: FlowCard[] = nodes.map((node) => ({
-      id: node.id,
-      title: node.data.title,
-      description: node.data.description,
-      content: node.data.content,
-      position: node.position,
-      type: node.data.type,
-    }));
+  // Add this new function to handle new card creation
+  const handleNewCard = () => {
+    setCardTypeSelectorOpen(true);
+  };
 
-    const connections: FlowConnection[] = edges.map((edge) => ({
-      id: edge.id,
-      start: edge.source,
-      end: edge.target,
-      type: (edge.data?.type || 'neutral') as 'positive' | 'negative' | 'neutral',
-    }));
+  // Add this function to handle card type selection
+  const handleCardTypeSelect = (type: CardType) => {
+    const newNode = {
+      id: `node-${nanoid(6)}`,
+      type: 'flowCard',
+      position: { x: 100, y: 100 },
+      data: {
+        id: `card-${nanoid(6)}`,
+        title: 'Novo Cartão',
+        description: 'Descrição do cartão',
+        content: 'Conteúdo do cartão',
+        type: type
+      }
+    };
 
-    const flowData: FlowData = { cards, connections };
-    
-    // Create simplified HTML file with the flow data
+    setNodes(nodes => [...nodes, newNode]);
+    setCardTypeSelectorOpen(false);
+  };
+
+  // Update the backup generation function
+  const onGenerateBackup = useCallback(async () => {
+    const zip = new JSZip();
+
+    // Add the HTML file
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backup do Fluxo de Atendimento</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/reactflow@11/dist/style.css"></script>
-  <script src="https://unpkg.com/reactflow@11/dist/umd/index.min.js"></script>
-  <style>
-    body { margin: 0; font-family: sans-serif; }
-    .flow-container { width: 100vw; height: 100vh; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup do Fluxo de Atendimento</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/reactflow@11/dist/style.css"></script>
+    <script src="https://unpkg.com/reactflow@11/dist/umd/index.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="root" class="flow-container"></div>
-  <script>
-    // Flow data
-    const flowData = ${JSON.stringify(flowData, null, 2)};
-  </script>
+    <div id="root"></div>
+    <script src="app.js"></script>
 </body>
-</html>
-    `;
+</html>`;
+
+    // Add the CSS file
+    const cssContent = `
+body { margin: 0; font-family: sans-serif; }
+.flow-container { width: 100vw; height: 100vh; }
+.react-flow__node { background: white; padding: 10px; border-radius: 3px; }
+.react-flow__edge-path { stroke: #333; stroke-width: 2; }
+.flow-connection-delete-btn { display: none; }
+.react-flow__edge:hover .flow-connection-delete-btn { display: block; }`;
+
+    // Add the JS file with the flow data
+    const jsContent = `
+const flowData = ${JSON.stringify({ nodes, edges }, null, 2)};
+
+// Initialize React Flow
+const { ReactFlow, Background, Controls, MiniMap } = ReactFlow;
+
+function Flow() {
+    return (
+        <ReactFlow
+            nodes={flowData.nodes}
+            edges={flowData.edges}
+            fitView
+        >
+            <Background />
+            <Controls />
+            <MiniMap />
+        </ReactFlow>
+    );
+}
+
+ReactDOM.render(
+    <Flow />,
+    document.getElementById('root')
+);`;
+
+    // Add files to the zip
+    zip.file('index.html', htmlContent);
+    zip.file('styles.css', cssContent);
+    zip.file('app.js', jsContent);
+    zip.file('flow-data.json', JSON.stringify({ nodes, edges }, null, 2));
+
+    // Generate the zip file
+    const content = await zip.generateAsync({ type: 'blob' });
     
     // Create download link
-    const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
-    const exportFileName = 'flow-backup.html';
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileName);
-    linkElement.click();
+    const url = window.URL.createObjectURL(content);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'flow-backup.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
     
     toast({
       title: 'Backup Gerado',
-      description: 'Arquivo HTML de backup do fluxo foi gerado com sucesso.',
+      description: 'Arquivo ZIP de backup do fluxo foi gerado com sucesso.',
       duration: 2000,
     });
   }, [nodes, edges, toast]);
@@ -630,6 +676,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           onScript={onGenerateScript}
           onTemplate={() => setTemplateModalOpen(true)}
           onBackup={onGenerateBackup}
+          onNewCard={handleNewCard}
         />
         
         {/* JSON Import Modal */}
@@ -734,26 +781,4 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
               </div>
               <div className="flex justify-end gap-3 mt-4">
                 <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setTemplateModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-      </ReactFlow>
-    </div>
-  );
-};
-
-const FlowEditorWithProvider: React.FC<FlowEditorProps> = (props) => {
-  return (
-    <ReactFlowProvider>
-      <FlowEditor {...props} />
-    </ReactFlowProvider>
-  );
-};
-
-export default FlowEditorWithProvider;
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors
