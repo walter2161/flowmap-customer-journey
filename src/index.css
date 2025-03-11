@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -191,11 +192,11 @@
 
 /* Dark theme for the flow editor */
 .react-flow {
-  background-color: #1a1a1a;
+  background-color: #f9fafb;
 }
 
 .react-flow__background {
-  @apply bg-gray-900;
+  @apply bg-gray-50;
 }
 
 /* Connection line styles */
@@ -203,4 +204,14 @@
   stroke: #6B7280;
   stroke-width: 3;
   stroke-linecap: round;
+}
+
+/* Remove arrow markers from edges */
+.react-flow__edge-path {
+  marker-end: none !important;
+}
+
+/* Hide any marker elements that might be present */
+.react-flow__arrowhead {
+  display: none !important;
 }

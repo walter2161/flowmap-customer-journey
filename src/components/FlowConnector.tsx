@@ -25,7 +25,6 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   targetPosition,
   style = {},
   data,
-  markerEnd
 }) => {
   const connectionType = data?.type || 'neutral';
   const strokeColor = connectionColors[connectionType];
@@ -52,7 +51,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           strokeLinecap: 'round',
         }}
         d={edgePath}
-        markerEnd={markerEnd}
+        // Removed markerEnd to eliminate the arrow vector
       />
       
       {/* Add a small "X" button in the middle of the path for deletion */}

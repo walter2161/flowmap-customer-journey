@@ -15,7 +15,6 @@ import ReactFlow, {
   useReactFlow,
   EdgeTypes,
   ConnectionLineType,
-  MarkerType,
   Panel
 } from 'reactflow';
 import { useToast } from '@/components/ui/use-toast';
@@ -63,17 +62,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     target: connection.end,
     type: 'flowConnector',
     data: { type: connection.type },
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 20,
-      height: 20,
-      color: connection.type === 'positive' ? '#32CD32' : 
-             connection.type === 'negative' ? '#FF4136' : '#AAAAAA',
-    },
+    // Removed markerEnd property to eliminate the arrow vector
     style: {
       strokeWidth: 3,
-      stroke: connection.type === 'positive' ? '#32CD32' : 
-              connection.type === 'negative' ? '#FF4136' : '#AAAAAA',
+      stroke: connection.type === 'positive' ? '#10B981' : 
+              connection.type === 'negative' ? '#EF4444' : '#6B7280',
     },
   }));
 
@@ -94,17 +87,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         id: `edge-${nanoid(6)}`,
         type: 'flowConnector',
         data: { type: connectionType },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-          color: connectionType === 'positive' ? '#32CD32' : 
-                 connectionType === 'negative' ? '#FF4136' : '#AAAAAA',
-        },
+        // Removed markerEnd property to eliminate the arrow vector
         style: {
           strokeWidth: 3,
-          stroke: connectionType === 'positive' ? '#32CD32' : 
-                  connectionType === 'negative' ? '#FF4136' : '#AAAAAA',
+          stroke: connectionType === 'positive' ? '#10B981' : 
+                  connectionType === 'negative' ? '#EF4444' : '#6B7280',
         },
       };
       
@@ -189,17 +176,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         target: connection.end,
         type: 'flowConnector',
         data: { type: connection.type },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 20,
-          height: 20,
-          color: connection.type === 'positive' ? '#32CD32' : 
-                 connection.type === 'negative' ? '#FF4136' : '#AAAAAA',
-        },
+        // Removed markerEnd property to eliminate the arrow vector
         style: {
           strokeWidth: 3,
-          stroke: connection.type === 'positive' ? '#32CD32' : 
-                  connection.type === 'negative' ? '#FF4136' : '#AAAAAA',
+          stroke: connection.type === 'positive' ? '#10B981' : 
+                  connection.type === 'negative' ? '#EF4444' : '#6B7280',
         },
       }));
       
@@ -289,12 +270,10 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionLineType={ConnectionLineType.Bezier}
-        connectionLineStyle={{ stroke: '#AAAAAA', strokeWidth: 3 }}
+        connectionLineStyle={{ stroke: '#6B7280', strokeWidth: 3 }}
         defaultEdgeOptions={{
           type: 'flowConnector',
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-          },
+          // Removed markerEnd property to eliminate the arrow vector
         }}
         fitView
         minZoom={0.1}
@@ -305,8 +284,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         <MiniMap 
           nodeColor={(node) => {
             const type = node.data?.type || 'regular';
-            return type === 'initial' ? '#1E88E5' : 
-                   type === 'end' ? '#6200EA' : '#424242';
+            return type === 'initial' ? '#10B981' : 
+                   type === 'end' ? '#EF4444' : '#6B7280';
           }}
           maskColor="rgba(255, 255, 255, 0.7)"
           className="m-4 bg-white/90 backdrop-blur-md"
