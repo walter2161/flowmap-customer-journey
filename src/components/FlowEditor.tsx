@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -386,7 +385,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Generate AI script from flow
+  // Generate AI script from flow with detailed pathways
   const onGenerateScript = useCallback(() => {
     // Convert nodes to a readable script
     let script = "# Script de Atendimento Detalhado\n\n";
@@ -402,6 +401,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         script += `## Início: ${startNode.data.title}\n\n`;
         script += `### Descrição\n${startNode.data.description}\n\n`;
         script += `### Mensagem Inicial\n${startNode.data.content}\n\n`;
+        script += `### Tipo de Cartão: ${startNode.data.type}\n\n`;
         
         // Find connections from this node
         const nodeConnections = edges.filter(edge => edge.source === startNode.id);
@@ -418,27 +418,69 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
             if (targetNode) {
               script += `#### Resposta ${responseType}: ${targetNode.data.title}\n\n`;
               script += `* **Descrição**: ${targetNode.data.description}\n`;
-              script += `* **Conteúdo**: ${targetNode.data.content}\n\n`;
+              script += `* **Conteúdo**: ${targetNode.data.content}\n`;
+              script += `* **Tipo de Cartão**: ${targetNode.data.type}\n`;
+              script += `* **ID da Conexão**: ${connection.id}\n`;
+              script += `* **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\n\n`;
               
-              // Recursively process next nodes (simplified, doesn't handle loops)
-              const nextConnections = edges.filter(edge => edge.source === targetNode.id);
-              if (nextConnections.length > 0) {
-                script += "* **Próximos Passos**:\n";
-                nextConnections.forEach(nextConn => {
-                  const nextNode = nodes.find(node => node.id === nextConn.target);
-                  if (nextNode) {
-                    script += `  * ${nextNode.data.title}\n`;
-                  }
-                });
-                script += "\n";
-              } else if (targetNode.data.type === 'end') {
-                script += "* **Finalização do Atendimento**\n\n";
-              }
+              // Process target node (next level)
+              processNodeConnections(targetNode, 2, script, [startNode.id]);
             }
           });
         }
       });
     }
+    
+    // Function to recursively process node connections
+    function processNodeConnections(node, level, scriptText, visitedNodes = []) {
+      if (visitedNodes.includes(node.id)) {
+        return "* **Ciclo detectado**\n\n";
+      }
+      
+      const newVisitedNodes = [...visitedNodes, node.id];
+      const nodeConnections = edges.filter(edge => edge.source === node.id);
+      let pathText = "";
+      
+      if (nodeConnections.length > 0) {
+        pathText += `${"#".repeat(level + 2)} Próximos passos a partir de ${node.data.title}\n\n`;
+        
+        nodeConnections.forEach(connection => {
+          const targetNode = nodes.find(n => n.id === connection.target);
+          const responseType = connection.data?.type === 'positive' ? 'Positiva' : 
+                              connection.data?.type === 'negative' ? 'Negativa' : 'Neutra';
+          
+          if (targetNode) {
+            pathText += `* **Caminho ${responseType}**: ${targetNode.data.title}\n`;
+            pathText += `  * **Descrição**: ${targetNode.data.description}\n`;
+            pathText += `  * **Conteúdo**: ${targetNode.data.content}\n`;
+            pathText += `  * **Tipo de Cartão**: ${targetNode.data.type}\n`;
+            pathText += `  * **ID da Conexão**: ${connection.id}\n`;
+            pathText += `  * **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\n\n`;
+            
+            // Only go deeper if level is not too high
+            if (level < 5) {
+              pathText += processNodeConnections(targetNode, level + 1, "", newVisitedNodes);
+            }
+          }
+        });
+      } else if (node.data.type === 'end') {
+        pathText += "* **Finalização do Atendimento**\n\n";
+      }
+      
+      return pathText;
+    }
+    
+    script += "\n## Mapa Completo de Conexões\n\n";
+    edges.forEach(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      
+      if (sourceNode && targetNode) {
+        script += `* **${sourceNode.data.title}** (${sourceNode.data.type}) → **${targetNode.data.title}** (${targetNode.data.type})\n`;
+        script += `  * **Tipo de Conexão**: ${edge.data?.type || 'neutral'}\n`;
+        script += `  * **ID da Conexão**: ${edge.id}\n\n`;
+      }
+    });
     
     // Add general guidelines for AI
     script += "## Diretrizes Gerais para Assistente AI\n\n";
@@ -530,277 +572,277 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setCardTypeSelectorOpen(false);
   };
 
-  // Update the backup generation function
+  // Update the backup generation function to include all necessary files
   const onGenerateBackup = useCallback(async () => {
     const zip = new JSZip();
-
-    // Add the HTML file
+    
+    // Create project structure folders
+    const srcFolder = zip.folder("src");
+    const componentsFolder = srcFolder.folder("components");
+    const utilsFolder = srcFolder.folder("utils");
+    const pagesFolder = srcFolder.folder("pages");
+    const libFolder = srcFolder.folder("lib");
+    const publicFolder = zip.folder("public");
+    
+    // Add the package.json
+    const packageJsonContent = {
+      "name": "flow-editor-backup",
+      "version": "1.0.0",
+      "description": "Backup of Flow Editor project",
+      "type": "module",
+      "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview"
+      },
+      "dependencies": {
+        "@radix-ui/react-dialog": "^1.1.2",
+        "jszip": "^3.10.1",
+        "nanoid": "^5.0.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.15.0",
+        "reactflow": "^11.8.3"
+      },
+      "devDependencies": {
+        "@types/react": "^18.2.15",
+        "@types/react-dom": "^18.2.7",
+        "@vitejs/plugin-react": "^4.0.3",
+        "autoprefixer": "^10.4.14",
+        "postcss": "^8.4.27",
+        "tailwindcss": "^3.3.3",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.5"
+      }
+    };
+    
+    // Convert current flow data to JSON for saving
+    const flowData = {
+      cards: nodes.map(node => ({
+        id: node.id,
+        title: node.data.title,
+        description: node.data.description,
+        content: node.data.content,
+        position: node.position,
+        type: node.data.type,
+      })),
+      connections: edges.map(edge => ({
+        id: edge.id,
+        start: edge.source,
+        end: edge.target,
+        type: (edge.data?.type || 'neutral'),
+      }))
+    };
+    
+    // Index.html
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backup do Fluxo de Atendimento</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/reactflow@11/dist/style.css"></script>
-    <script src="https://unpkg.com/reactflow@11/dist/umd/index.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editor de Fluxo de Atendimento</title>
+  </head>
+  <body>
     <div id="root"></div>
-    <script src="app.js"></script>
-</body>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>`;
+    
+    // Main.tsx
+    const mainTsxContent = `
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App.tsx'
+import './index.css'
 
-    // Add the CSS file
-    const cssContent = `
-body { margin: 0; font-family: sans-serif; }
-.flow-container { width: 100vw; height: 100vh; }
-.react-flow__node { background: white; padding: 10px; border-radius: 3px; }
-.react-flow__edge-path { stroke: #333; stroke-width: 2; }
-.flow-connection-delete-btn { display: none; }
-.react-flow__edge:hover .flow-connection-delete-btn { display: block; }`;
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>,
+)`;
+    
+    // App.tsx
+    const appTsxContent = `
+import { Routes, Route } from 'react-router-dom'
+import Index from './pages/Index'
+import { Toaster } from './components/ui/toaster'
+import { ReactFlowProvider } from 'reactflow'
+import './App.css'
 
-    // Add the JS file with the flow data
-    const jsContent = `
-const flowData = ${JSON.stringify({ nodes, edges }, null, 2)};
-
-// Initialize React Flow
-const { ReactFlow, Background, Controls, MiniMap } = ReactFlow;
-
-function Flow() {
-    return (
-        <ReactFlow
-            nodes={flowData.nodes}
-            edges={flowData.edges}
-            fitView
-        >
-            <Background />
-            <Controls />
-            <MiniMap />
-        </ReactFlow>
-    );
+function App() {
+  return (
+    <>
+      <ReactFlowProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+        </Routes>
+      </ReactFlowProvider>
+      <Toaster />
+    </>
+  )
 }
 
-ReactDOM.render(
-    <Flow />,
-    document.getElementById('root')
-);`;
-
-    // Add files to the zip
-    zip.file('index.html', htmlContent);
-    zip.file('styles.css', cssContent);
-    zip.file('app.js', jsContent);
-    zip.file('flow-data.json', JSON.stringify({ nodes, edges }, null, 2));
-
-    // Generate the zip file
-    const content = await zip.generateAsync({ type: 'blob' });
+export default App`;
     
-    // Create download link
-    const url = window.URL.createObjectURL(content);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'flow-backup.zip';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    // App.css
+    const appCssContent = `
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+}
+
+.react-flow__handle-right {
+  right: -5px;
+}
+
+.react-flow__handle-left {
+  left: -5px;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.flow-connection-delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.react-flow__edge:hover .flow-connection-delete-btn {
+  opacity: 1;
+}`;
     
-    toast({
-      title: 'Backup Gerado',
-      description: 'Arquivo ZIP de backup do fluxo foi gerado com sucesso.',
-      duration: 2000,
-    });
-  }, [nodes, edges, toast]);
+    // Index.css
+    const indexCssContent = `
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  // Initialize
-  useEffect(() => {
-    setTimeout(() => {
-      fitView({ padding: 0.2, duration: 800 });
-    }, 100);
-  }, [fitView]);
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
 
-  return (
-    <div className="w-full h-screen" ref={reactFlowWrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        connectionLineType={ConnectionLineType.Straight}
-        connectionLineStyle={{
-          stroke: '#6B7280',
-          strokeWidth: 3,
-          strokeLinecap: 'round',
-        }}
-        defaultEdgeOptions={{
-          type: 'flowConnector',
-          style: {
-            strokeWidth: 3,
-          },
-        }}
-        fitView
-        minZoom={0.1}
-        maxZoom={2}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Controls className="m-4" showInteractive={false} />
-        <MiniMap 
-          nodeColor={(node) => {
-            const type = node.data?.type || 'regular';
-            return type === 'initial' ? '#10B981' : 
-                   type === 'end' ? '#EF4444' : '#6B7280';
-          }}
-          maskColor="rgba(255, 255, 255, 0.7)"
-          className="m-4 bg-white/90 backdrop-blur-md"
-        />
-        <Background 
-          variant={BackgroundVariant.Dots} 
-          gap={15} 
-          size={1} 
-          color="#CCCCCC" 
-          className="bg-gradient-to-br from-gray-50 to-blue-50"
-        />
-        
-        <FlowControls
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
-          onReset={onResetView}
-          onSave={onSaveFlow}
-          onLoad={onLoadFlow}
-          onExport={onExportFlow}
-          onScript={onGenerateScript}
-          onTemplate={() => setTemplateModalOpen(true)}
-          onBackup={onGenerateBackup}
-          onNewCard={handleNewCard}
-        />
-        
-        {/* Card Type Selector */}
-        <CardTypeSelector 
-          isOpen={cardTypeSelectorOpen} 
-          onClose={() => setCardTypeSelectorOpen(false)}
-          onSelect={handleCardTypeSelect}
-        />
-        
-        {/* JSON Import Modal */}
-        {jsonModalOpen && (
-          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-[600px] p-6 animate-scale-in">
-              <h2 className="text-xl font-bold mb-4">Importar Fluxo (JSON)</h2>
-              <textarea
-                className="w-full h-[300px] p-3 border border-gray-300 rounded-lg font-mono text-sm"
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-                placeholder='{"cards": [...], "connections": [...]}'
-              />
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setJsonModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                  onClick={handleJsonImport}
-                >
-                  Importar
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-        
-        {/* Script Generator Modal */}
-        {scriptModalOpen && (
-          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in max-h-[90vh] flex flex-col">
-              <h2 className="text-xl font-bold mb-4">Script Detalhado para IA</h2>
-              <div className="flex-1 overflow-auto">
-                <pre className="w-full h-full p-3 border border-gray-300 rounded-lg font-mono text-sm whitespace-pre-wrap">
-                  {generatedScript}
-                </pre>
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setScriptModalOpen(false)}
-                >
-                  Fechar
-                </button>
-                <button
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                  onClick={() => {
-                    // Copy to clipboard
-                    navigator.clipboard.writeText(generatedScript);
-                    toast({
-                      title: 'Script Copiado',
-                      description: 'O script foi copiado para a área de transferência.',
-                      duration: 2000,
-                    });
-                  }}
-                >
-                  Copiar Script
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-        
-        {/* Template Selection Modal */}
-        {templateModalOpen && (
-          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in">
-              <h2 className="text-xl font-bold mb-4">Escolher Template</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div 
-                  onClick={() => onLoadTemplate('imobiliaria')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Imobiliária</h3>
-                  <p className="text-sm text-gray-600">Template para atendimento de imobiliária com fluxos para compra e aluguel de imóveis.</p>
-                </div>
-                <div 
-                  onClick={() => onLoadTemplate('coworking')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Coworking</h3>
-                  <p className="text-sm text-gray-600">Template para espaços de coworking com fluxos para informações sobre planos e visitas.</p>
-                </div>
-                <div 
-                  onClick={() => onLoadTemplate('clinica')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Clínica</h3>
-                  <p className="text-sm text-gray-600">Template para clínicas médicas com fluxos para agendamento de consultas e informações.</p>
-                </div>
-                <div 
-                  onClick={() => onLoadTemplate('marketing')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
-                  <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button 
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setTemplateModalOpen(false)}
-                >
-                  Fechar
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-      </ReactFlow>
-    </div>
-  );
-};
+#root {
+  height: 100%;
+  width: 100%;
+}`;
+    
+    // Utils.ts
+    const utilsContent = `
+export function cn(...classes: (string | undefined)[]) {
+  return classes.filter(Boolean).join(' ')
+}`;
+    
+    // Vite config
+    const viteConfigContent = `
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
-export default FlowEditor;
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})`;
+    
+    // Tailwind config
+    const tailwindConfigContent = `
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}`;
+    
+    // Postcss config
+    const postcssConfigContent = `
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}`;
+    
+    // TSConfig
+    const tsConfigContent = `
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}`;
+    
+    const tsConfigNodeContent = `
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["vite.config.ts"]
+}`;
+
+    // Add all files to the ZIP
+    zip.file("package.json", JSON.stringify(packageJsonContent, null, 2));
+    zip.file("index.html", htmlContent);
+    zip.file("vite.config.ts", viteConfigContent);
+    zip.file("tailwind.config.js", tailwindConfigContent);
+    zip.file("postcss.config.js", postcssConfigContent);
+    zip.file("tsconfig.json", tsConfigContent);
+    zip.file("tsconfig.node.json", tsConfigNodeContent);
+    zip.file("flow-data.json", JSON.stringify(flowData, null, 2));
+
+    srcFolder.file("main.tsx", mainTsxContent);
+    srcFolder.file("App.tsx", appTsxContent);
+    srcFolder.file("App.css", appCssContent);
+    srcFolder.file("index.css", indexCssContent);
+    libFolder.file("utils.ts

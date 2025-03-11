@@ -41,7 +41,8 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     C ${startX + offsetX} ${startY}, ${endX - offsetX} ${endY}, ${endX} ${endY}
   `;
 
-  const handleDelete = () => {
+  const handleDelete = (event) => {
+    event.stopPropagation();
     setEdges(edges => edges.filter(edge => edge.id !== id));
   };
   
