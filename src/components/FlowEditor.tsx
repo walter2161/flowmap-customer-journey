@@ -679,6 +679,13 @@ ReactDOM.render(
           onNewCard={handleNewCard}
         />
         
+        {/* Card Type Selector */}
+        <CardTypeSelector 
+          isOpen={cardTypeSelectorOpen} 
+          onClose={() => setCardTypeSelectorOpen(false)}
+          onSelect={handleCardTypeSelect}
+        />
+        
         {/* JSON Import Modal */}
         {jsonModalOpen && (
           <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
@@ -778,7 +785,3 @@ ReactDOM.render(
                   <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
                   <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
                 </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors
