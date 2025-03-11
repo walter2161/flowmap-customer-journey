@@ -423,8 +423,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
               script += `* **ID da Conexão**: ${connection.id}\n`;
               script += `* **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\n\n`;
               
-              // Process target node (next level)
-              processNodeConnections(targetNode, 2, script, [startNode.id]);
+              // Process target node (next level)\n              processNodeConnections(targetNode, 2, script, [startNode.id]);
             }
           });
         }
@@ -658,12 +657,12 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!.render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 )`;
     
     // App.tsx
