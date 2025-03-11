@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -197,6 +196,37 @@
 
 .react-flow__background {
   @apply bg-gray-50;
+}
+
+/* Connection line styles */
+.react-flow__edge {
+  pointer-events: all;
+}
+
+.react-flow__edge-path {
+  marker-end: none !important;
+  marker-start: none !important;
+  marker: none !important;
+}
+
+.react-flow__connectionline {
+  stroke: #6B7280;
+  stroke-width: 3;
+  stroke-linecap: round;
+  marker-end: none !important;
+}
+
+/* Completely hide any marker elements */
+.react-flow__arrowhead,
+.react-flow__edge-textwrapper marker,
+.react-flow__marker {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Remove any marker definitions */
+.react-flow__marker-definitions {
+  display: none !important;
 }
 
 /* Connection line styles */

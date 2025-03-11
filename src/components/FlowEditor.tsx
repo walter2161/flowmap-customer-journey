@@ -55,14 +55,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     data: card,
   }));
 
-  // Convert connections to edges
+  // Remove MarkerType and add any missing imports
   const initialEdges: Edge[] = initialData.connections.map((connection) => ({
     id: connection.id,
     source: connection.start,
     target: connection.end,
     type: 'flowConnector',
     data: { type: connection.type },
-    // Removed markerEnd property to eliminate the arrow vector
     style: {
       strokeWidth: 3,
       stroke: connection.type === 'positive' ? '#10B981' : 
@@ -74,20 +73,18 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
-  // Handle connections
+  // Update the onConnect callback
   const onConnect: OnConnect = useCallback(
     (connection) => {
-      // Extract connection type from the source handle
       const sourceHandleId = connection.sourceHandle;
       const connectionType = sourceHandleId === 'positive' ? 'positive' : 
-                             sourceHandleId === 'negative' ? 'negative' : 'neutral';
+                           sourceHandleId === 'negative' ? 'negative' : 'neutral';
       
       const newEdge: Edge = {
         ...connection,
         id: `edge-${nanoid(6)}`,
         type: 'flowConnector',
         data: { type: connectionType },
-        // Removed markerEnd property to eliminate the arrow vector
         style: {
           strokeWidth: 3,
           stroke: connectionType === 'positive' ? '#10B981' : 
@@ -176,7 +173,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         target: connection.end,
         type: 'flowConnector',
         data: { type: connection.type },
-        // Removed markerEnd property to eliminate the arrow vector
         style: {
           strokeWidth: 3,
           stroke: connection.type === 'positive' ? '#10B981' : 
@@ -270,10 +266,16 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionLineType={ConnectionLineType.Bezier}
-        connectionLineStyle={{ stroke: '#6B7280', strokeWidth: 3 }}
+        connectionLineStyle={{
+          stroke: '#6B7280',
+          strokeWidth: 3,
+          strokeLinecap: 'round',
+        }}
         defaultEdgeOptions={{
           type: 'flowConnector',
-          // Removed markerEnd property to eliminate the arrow vector
+          style: {
+            strokeWidth: 3,
+          },
         }}
         fitView
         minZoom={0.1}
