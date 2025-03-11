@@ -421,91 +421,10 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
               script += `* **Conteúdo**: ${targetNode.data.content}\n`;
               script += `* **Tipo de Cartão**: ${targetNode.data.type}\n`;
               script += `* **ID da Conexão**: ${connection.id}\n`;
-              script += `* **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\n\n`;
+              script += `* **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\\n\\n`;
               
-              // Process target node (next level)
-              processNodeConnections(targetNode, 2, script, [startNode.id]);
-            }
-          });
-        }
-      });
-    }
-    
-    // Function to recursively process node connections
-    function processNodeConnections(node, level, scriptText, visitedNodes = []) {
-      if (visitedNodes.includes(node.id)) {
-        return "* **Ciclo detectado**\n\n";
-      }
-      
-      const newVisitedNodes = [...visitedNodes, node.id];
-      const nodeConnections = edges.filter(edge => edge.source === node.id);
-      let pathText = "";
-      
-      if (nodeConnections.length > 0) {
-        pathText += `${"#".repeat(level + 2)} Próximos passos a partir de ${node.data.title}\n\n`;
-        
-        nodeConnections.forEach(connection => {
-          const targetNode = nodes.find(n => n.id === connection.target);
-          const responseType = connection.data?.type === 'positive' ? 'Positiva' : 
-                              connection.data?.type === 'negative' ? 'Negativa' : 'Neutra';
-          
-          if (targetNode) {
-            pathText += `* **Caminho ${responseType}**: ${targetNode.data.title}\n`;
-            pathText += `  * **Descrição**: ${targetNode.data.description}\n`;
-            pathText += `  * **Conteúdo**: ${targetNode.data.content}\n`;
-            pathText += `  * **Tipo de Cartão**: ${targetNode.data.type}\n`;
-            pathText += `  * **ID da Conexão**: ${connection.id}\n`;
-            pathText += `  * **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\n\n`;
-            
-            // Only go deeper if level is not too high
-            if (level < 5) {
-              pathText += processNodeConnections(targetNode, level + 1, "", newVisitedNodes);
-            }
-          }
-        });
-      } else if (node.data.type === 'end') {
-        pathText += "* **Finalização do Atendimento**\n\n";
-      }
-      
-      return pathText;
-    }
-    
-    script += "\n## Mapa Completo de Conexões\n\n";
-    edges.forEach(edge => {
-      const sourceNode = nodes.find(n => n.id === edge.source);
-      const targetNode = nodes.find(n => n.id === edge.target);
-      
-      if (sourceNode && targetNode) {
-        script += `* **${sourceNode.data.title}** (${sourceNode.data.type}) → **${targetNode.data.title}** (${targetNode.data.type})\n`;
-        script += `  * **Tipo de Conexão**: ${edge.data?.type || 'neutral'}\n`;
-        script += `  * **ID da Conexão**: ${edge.id}\n\n`;
-      }
-    });
-    
-    // Add general guidelines for AI
-    script += "## Diretrizes Gerais para Assistente AI\n\n";
-    script += "1. **Saudação**: Sempre inicie a conversa de forma educada e amigável.\n";
-    script += "2. **Personalização**: Use o nome do cliente quando disponível.\n";
-    script += "3. **Clareza**: Seja objetivo e claro em todas as respostas.\n";
-    script += "4. **Empatia**: Demonstre compreensão às necessidades do cliente.\n";
-    script += "5. **Flexibilidade**: Adapte-se às perguntas fora do fluxo principal.\n";
-    script += "6. **Conclusão**: Sempre finalize verificando se há mais alguma dúvida.\n\n";
-    
-    script += "## Respostas para Perguntas Frequentes\n\n";
-    
-    // Generate some generic FAQs based on the node contents
-    const topics = nodes.map(node => node.data.title.toLowerCase());
-    const uniqueTopics = [...new Set(topics)];
-    
-    uniqueTopics.slice(0, 5).forEach(topic => {
-      script += `### Sobre ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n`;
-      script += `Q: Quais são os detalhes sobre ${topic}?\n`;
-      script += `A: Base sua resposta no conteúdo dos cartões relacionados a este tópico.\n\n`;
-    });
-    
-    setGeneratedScript(script);
-    setScriptModalOpen(true);
-  }, [nodes, edges]);
+              // Process target node (next level)\n              processNodeConnections(targetNode, 2, script, [startNode.id]);
+            }\n          });\n        }\n      });\n    }\n    \n    // Function to recursively process node connections\n    function processNodeConnections(node, level, scriptText, visitedNodes = []) {\n      if (visitedNodes.includes(node.id)) {\n        return \"* **Ciclo detectado**\\n\\n\";\n      }\n      \n      const newVisitedNodes = [...visitedNodes, node.id];\n      const nodeConnections = edges.filter(edge => edge.source === node.id);\n      let pathText = \"\";\n      \n      if (nodeConnections.length > 0) {\n        pathText += `${\"#\".repeat(level + 2)} Próximos passos a partir de ${node.data.title}\\n\\n`;\n        \n        nodeConnections.forEach(connection => {\n          const targetNode = nodes.find(n => n.id === connection.target);\n          const responseType = connection.data?.type === 'positive' ? 'Positiva' : \n                              connection.data?.type === 'negative' ? 'Negativa' : 'Neutra';\n          \n          if (targetNode) {\n            pathText += `* **Caminho ${responseType}**: ${targetNode.data.title}\\n`;\n            pathText += `  * **Descrição**: ${targetNode.data.description}\\n`;\n            pathText += `  * **Conteúdo**: ${targetNode.data.content}\\n`;\n            pathText += `  * **Tipo de Cartão**: ${targetNode.data.type}\\n`;\n            pathText += `  * **ID da Conexão**: ${connection.id}\\n`;\n            pathText += `  * **Tipo da Conexão**: ${connection.data?.type || 'neutral'}\\n\\n`;\n            \n            // Only go deeper if level is not too high\n            if (level < 5) {\n              pathText += processNodeConnections(targetNode, level + 1, \"\", newVisitedNodes);\n            }\n          }\n        });\n      } else if (node.data.type === 'end') {\n        pathText += \"* **Finalização do Atendimento**\\n\\n\";\n      }\n      \n      return pathText;\n    }\n    \n    script += \"\\n## Mapa Completo de Conexões\\n\\n\";\n    edges.forEach(edge => {\n      const sourceNode = nodes.find(n => n.id === edge.source);\n      const targetNode = nodes.find(n => n.id === edge.target);\n      \n      if (sourceNode && targetNode) {\n        script += `* **${sourceNode.data.title}** (${sourceNode.data.type}) → **${targetNode.data.title}** (${targetNode.data.type})\\n`;\n        script += `  * **Tipo de Conexão**: ${edge.data?.type || 'neutral'}\\n`;\n        script += `  * **ID da Conexão**: ${edge.id}\\n\\n`;\n      }\n    });\n    \n    // Add general guidelines for AI\n    script += \"## Diretrizes Gerais para Assistente AI\\n\\n\";\n    script += \"1. **Saudação**: Sempre inicie a conversa de forma educada e amigável.\\n\";\n    script += \"2. **Personalização**: Use o nome do cliente quando disponível.\\n\";\n    script += \"3. **Clareza**: Seja objetivo e claro em todas as respostas.\\n\";\n    script += \"4. **Empatia**: Demonstre compreensão às necessidades do cliente.\\n\";\n    script += \"5. **Flexibilidade**: Adapte-se às perguntas fora do fluxo principal.\\n\";\n    script += \"6. **Conclusão**: Sempre finalize verificando se há mais alguma dúvida.\\n\\n\";\n    \n    script += \"## Respostas para Perguntas Frequentes\\n\\n\";\n    \n    // Generate some generic FAQs based on the node contents\n    const topics = nodes.map(node => node.data.title.toLowerCase());\n    const uniqueTopics = [...new Set(topics)];\n    \n    uniqueTopics.slice(0, 5).forEach(topic => {\n      script += `### Sobre ${topic.charAt(0).toUpperCase() + topic.slice(1)}\\n`;\n      script += `Q: Quais são os detalhes sobre ${topic}?\\n`;\n      script += `A: Base sua resposta no conteúdo dos cartões relacionados a este tópico.\\n\\n`;\n    });\n    \n    setGeneratedScript(script);\n    setScriptModalOpen(true);\n  }, [nodes, edges]);
 
   // Load template
   const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
@@ -841,8 +760,4 @@ export default {
     zip.file("tsconfig.node.json", tsConfigNodeContent);
     zip.file("flow-data.json", JSON.stringify(flowData, null, 2));
 
-    srcFolder.file("main.tsx", mainTsxContent);
-    srcFolder.file("App.tsx", appTsxContent);
-    srcFolder.file("App.css", appCssContent);
-    srcFolder.file("index.css", indexCssContent);
-    libFolder.file("utils.ts
+    srcFolder.file("main.tsx", main
