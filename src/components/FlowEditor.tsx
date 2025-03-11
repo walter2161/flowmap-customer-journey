@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -785,3 +786,21 @@ ReactDOM.render(
                   <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
                   <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
                 </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button 
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setTemplateModalOpen(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+      </ReactFlow>
+    </div>
+  );
+};
+
+export default FlowEditor;
