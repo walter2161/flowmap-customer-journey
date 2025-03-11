@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -55,7 +56,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     data: card,
   }));
 
-  // Remove MarkerType and add any missing imports
+  // Convert connections to edges with no markers
   const initialEdges: Edge[] = initialData.connections.map((connection) => ({
     id: connection.id,
     source: connection.start,
@@ -73,7 +74,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
-  // Update the onConnect callback
+  // Create connections with custom styling
   const onConnect: OnConnect = useCallback(
     (connection) => {
       const sourceHandleId = connection.sourceHandle;
@@ -166,7 +167,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         data: card,
       }));
 
-      // Convert connections to edges
+      // Convert connections to edges without markers
       const newEdges: Edge[] = parsedData.connections.map((connection: FlowConnection) => ({
         id: connection.id,
         source: connection.start,
@@ -265,7 +266,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        connectionLineType={ConnectionLineType.Bezier}
+        connectionLineType={ConnectionLineType.Straight}
         connectionLineStyle={{
           stroke: '#6B7280',
           strokeWidth: 3,

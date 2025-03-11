@@ -29,15 +29,23 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   const connectionType = data?.type || 'neutral';
   const strokeColor = connectionColors[connectionType];
   
-  const [edgePath] = getBezierPath({
-    sourceX,
-    sourceY,
-    sourcePosition,
-    targetX,
-    targetY,
-    targetPosition,
-    curvature: 0.8 // Higher curvature for more pronounced curves
-  });
+  // Simple bezier curve drawing - custom implementation
+  // Start point
+  const startX = sourceX;
+  const startY = sourceY;
+  
+  // End point
+  const endX = targetX;
+  const endY = targetY;
+  
+  // Control points - for a nice curve
+  const offsetX = Math.abs(endX - startX) * 0.5;
+  
+  // Define the SVG path using bezier curve
+  const path = `
+    M ${startX} ${startY}
+    C ${startX + offsetX} ${startY}, ${endX - offsetX} ${endY}, ${endX} ${endY}
+  `;
   
   return (
     <>
@@ -49,12 +57,12 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           stroke: strokeColor,
           strokeWidth: 3,
           strokeLinecap: 'round',
+          fill: 'none'
         }}
-        d={edgePath}
-        // Removed markerEnd to eliminate the arrow vector
+        d={path}
       />
       
-      {/* Add a small "X" button in the middle of the path for deletion */}
+      {/* Delete button in the middle of the path */}
       <foreignObject
         width={20}
         height={20}

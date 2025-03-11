@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -113,6 +114,8 @@
 
 .react-flow__edge-path {
   @apply stroke-[3] transition-all duration-300 ease-in-out;
+  marker-end: none !important;
+  marker-start: none !important;
 }
 
 .react-flow__controls {
@@ -150,6 +153,7 @@
 /* Flow Connection Animations */
 .flow-connection {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  fill: none;
 }
 
 .flow-connection-delete-btn {
@@ -198,15 +202,18 @@
   @apply bg-gray-50;
 }
 
-/* Connection line styles */
+/* Custom Connection Styles - W3C Compatible SVG Solutions */
+/* Remove ALL arrow markers */
 .react-flow__edge {
   pointer-events: all;
 }
 
-.react-flow__edge-path {
+.react-flow__edge-path, 
+.react-flow__connection-path {
   marker-end: none !important;
   marker-start: none !important;
   marker: none !important;
+  fill: none;
 }
 
 .react-flow__connectionline {
@@ -214,9 +221,10 @@
   stroke-width: 3;
   stroke-linecap: round;
   marker-end: none !important;
+  fill: none;
 }
 
-/* Completely hide any marker elements */
+/* Override ReactFlow's default markers */
 .react-flow__arrowhead,
 .react-flow__edge-textwrapper marker,
 .react-flow__marker {
@@ -224,24 +232,27 @@
   visibility: hidden !important;
 }
 
-/* Remove any marker definitions */
-.react-flow__marker-definitions {
+/* Remove marker definitions from SVG */
+.react-flow__marker-definitions,
+defs marker {
   display: none !important;
+  visibility: hidden !important;
 }
 
-/* Connection line styles */
-.react-flow__connectionline {
-  stroke: #6B7280;
-  stroke-width: 3;
-  stroke-linecap: round;
+/* Hide any arrow elements */
+.react-flow__arrowhead {
+  display: none !important;
+  visibility: hidden !important;
 }
 
-/* Remove arrow markers from edges */
-.react-flow__edge-path {
+/* Ensure SVG doesn't render any markers */
+svg[data-id^="edge-"] * {
+  marker: none !important;
+  marker-start: none !important;
   marker-end: none !important;
 }
 
-/* Hide any marker elements that might be present */
-.react-flow__arrowhead {
-  display: none !important;
+/* Force all SVG paths to have no fill */
+.react-flow__edge path {
+  fill: none !important;
 }
