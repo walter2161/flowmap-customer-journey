@@ -324,7 +324,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       
       setTimeout(() => {
         fitView({ padding: 0.2, duration: 800 });
-      }, 100);\
+      }, 100);
       
       toast({
         title: 'Fluxo Carregado',
@@ -658,7 +658,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root')!.render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
@@ -845,4 +845,4 @@ export default {
     srcFolder.file("App.tsx", appTsxContent);
     srcFolder.file("App.css", appCssContent);
     srcFolder.file("index.css", indexCssContent);
-    libFolder.file("utils.ts
+    libFolder.file("utils.ts", utilsContent
