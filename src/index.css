@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -105,13 +104,11 @@
 }
 
 .react-flow__handle {
-  @apply w-4 h-4 border-2 rounded-full bg-white opacity-0 transition-opacity duration-200 ease-in-out;
+  @apply w-4 h-4 border-2 rounded-full bg-white opacity-100 transition-opacity duration-200 ease-in-out;
 }
 
-.react-flow__node:hover .react-flow__handle,
-.react-flow__handle.connecting,
-.react-flow__handle:hover {
-  @apply opacity-100;
+.react-flow__node .react-flow__handle:hover {
+  @apply scale-125 transition-transform;
 }
 
 .react-flow__edge-path {
@@ -152,14 +149,17 @@
 
 /* Flow Connection Animations */
 .flow-connection {
-  stroke-dasharray: 10;
-  animation: flowAnimation 30s linear infinite;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
-@keyframes flowAnimation {
-  to {
-    stroke-dashoffset: 1000;
-  }
+.flow-connection-delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: all;
+}
+
+.react-flow__edge:hover .flow-connection-delete-btn {
+  opacity: 1;
 }
 
 .connector-handle {
@@ -187,4 +187,20 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* Dark theme for the flow editor */
+.react-flow {
+  background-color: #1a1a1a;
+}
+
+.react-flow__background {
+  @apply bg-gray-900;
+}
+
+/* Connection line styles */
+.react-flow__connectionline {
+  stroke: #6B7280;
+  stroke-width: 3;
+  stroke-linecap: round;
 }
