@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -331,7 +330,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         
         {/* JSON Import Modal */}
         {jsonModalOpen && (
-          <Panel className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
             <div className="bg-white rounded-xl shadow-2xl w-[600px] p-6 animate-scale-in">
               <h2 className="text-xl font-bold mb-4">Importar Fluxo (JSON)</h2>
               <textarea
