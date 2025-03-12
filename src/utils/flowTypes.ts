@@ -30,21 +30,15 @@ export interface FlowData {
   connections: FlowConnection[];
 }
 
-// ReactFlow specific interfaces
-export interface FlowCardNode {
-  id: string;
-  type: string;
-  position: Position;
+export interface FlowCardNode extends FlowCard {
   data: FlowCard;
-  draggable?: boolean;
+  position: Position;
 }
 
-export interface FlowConnectionEdge {
-  id: string;
+export interface FlowConnectionEdge extends FlowConnection {
   source: string;
   target: string;
-  type?: string;
-  sourceHandle?: string;
+  type: ConnectionType;
   data?: {
     type: ConnectionType;
   };
