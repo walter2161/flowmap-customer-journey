@@ -30,6 +30,7 @@ export interface FlowData {
   connections: FlowConnection[];
 }
 
+// Adding the missing node and edge interfaces
 export interface FlowCardNode extends FlowCard {
   data: FlowCard;
   position: Position;
@@ -43,3 +44,4 @@ export interface FlowConnectionEdge extends FlowConnection {
     type: ConnectionType;
   };
 }
+
