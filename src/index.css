@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -106,32 +105,30 @@
 
 .react-flow__handle {
   @apply w-4 h-4 border-2 rounded-full bg-white opacity-100 transition-opacity duration-200 ease-in-out;
+  z-index: 10 !important; /* Ensure handles are on top */
+}
+
+.react-flow__node .react-flow__handle {
+  @apply border-2;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .react-flow__node .react-flow__handle:hover {
   @apply scale-125 transition-transform;
 }
 
-.react-flow__edge-path {
-  @apply stroke-[3] transition-all duration-300 ease-in-out;
-  marker-end: none !important;
-  marker-start: none !important;
+/* Make sure handles are visible and on top */
+.connector-handle {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: all !important;
 }
 
-.react-flow__controls {
-  @apply rounded-xl overflow-hidden shadow-lg backdrop-blur-md bg-white/90 border border-gray-100;
-}
-
-.react-flow__controls-button {
-  @apply border-gray-100 bg-transparent hover:bg-gray-50;
-}
-
-.react-flow__controls-button svg {
-  @apply fill-gray-500;
-}
-
-.react-flow__minimap {
-  @apply rounded-xl overflow-hidden shadow-lg backdrop-blur-md bg-white/90 border border-gray-100;
+.connector-handle:hover {
+  transform: scale(1.3);
 }
 
 /* Flow Card Animations */

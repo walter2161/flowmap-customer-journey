@@ -1,13 +1,7 @@
-
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard } from '@/utils/flowTypes';
 import { PlusCircle, MinusCircle, Edit } from 'lucide-react';
-
-interface FlowCardProps {
-  data: FlowCard;
-  selected: boolean;
-}
 
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
@@ -59,6 +53,11 @@ const cardTypeLabels = {
   acao: 'AÇÃO',
   html: 'HTML'
 };
+
+interface FlowCardProps {
+  data: FlowCard;
+  selected: boolean;
+}
 
 const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -325,12 +324,13 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         cardTypeClasses[data.type]
       } ${selected ? 'ring-2 ring-blue-400 shadow-xl' : ''}`}
     >
-      {/* Left handle - entry point */}
-      <div className="absolute left-0 top-[30px] ml-[-8px]">
+      {/* Left handle - entry point - now more visible */}
+      <div className="absolute left-0 top-[30px] ml-[-8px] z-20">
         <Handle
           type="target"
           position={Position.Left}
           className="connector-handle !bg-blue-500 !border-white w-4 h-4 rounded-full"
+          style={{ zIndex: 20 }}
         />
       </div>
       
@@ -415,8 +415,8 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         </div>
       )}
       
-      {/* Bottom right connectors - exit points */}
-      <div className="absolute right-[-8px] bottom-10 flex flex-col gap-4">
+      {/* Bottom right connectors - exit points - now more visible */}
+      <div className="absolute right-[-8px] bottom-10 flex flex-col gap-4 z-20">
         {/* Positive handle */}
         <div className="relative group">
           <Handle
@@ -424,6 +424,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
             type="source"
             position={Position.Right}
             className="connector-handle !bg-green-500 !border-white w-4 h-4 rounded-full"
+            style={{ zIndex: 20 }}
           />
           <div className="absolute right-[-30px] opacity-0 group-hover:opacity-100 transition-opacity">
             <PlusCircle className="w-4 h-4 text-green-500" />
@@ -437,6 +438,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
             type="source"
             position={Position.Right}
             className="connector-handle !bg-red-500 !border-white w-4 h-4 rounded-full"
+            style={{ zIndex: 20 }}
           />
           <div className="absolute right-[-30px] opacity-0 group-hover:opacity-100 transition-opacity">
             <MinusCircle className="w-4 h-4 text-red-500" />
