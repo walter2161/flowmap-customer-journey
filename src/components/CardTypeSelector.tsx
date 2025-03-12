@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
 
@@ -21,7 +20,12 @@ export const cardTypeLabels: Record<CardType, string> = {
   'ordem-servico': 'Ordem de Serviço',
   'briefing': 'Briefing',
   'acao': 'Ação',
-  'html': 'HTML'
+  'html': 'HTML',
+  'imovel-lancamento': 'Imóvel Lançamento',
+  'imovel-usado': 'Imóvel Usado',
+  'imovel-comercial': 'Imóvel Comercial',
+  'agendar-visita': 'Agendar Visita',
+  'agendar-reuniao': 'Agendar Reunião'
 };
 
 const cardTypeColors: Record<CardType, string> = {
@@ -38,7 +42,12 @@ const cardTypeColors: Record<CardType, string> = {
   'ordem-servico': 'bg-teal-100 border-teal-500 text-teal-700',
   'briefing': 'bg-orange-100 border-orange-500 text-orange-700',
   'acao': 'bg-emerald-100 border-emerald-500 text-emerald-700',
-  'html': 'bg-gray-100 border-gray-500 text-gray-700'
+  'html': 'bg-gray-100 border-gray-500 text-gray-700',
+  'imovel-lancamento': 'bg-pink-100 border-pink-500 text-pink-700',
+  'imovel-usado': 'bg-violet-100 border-violet-500 text-violet-700',
+  'imovel-comercial': 'bg-sky-100 border-sky-500 text-sky-700',
+  'agendar-visita': 'bg-fuchsia-100 border-fuchsia-500 text-fuchsia-700',
+  'agendar-reuniao': 'bg-lime-100 border-lime-500 text-lime-700'
 };
 
 const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }) => {
@@ -66,6 +75,59 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
         initialData.vagas = '';
         initialData.tipo = 'Apartamento';
         initialData.finalidade = 'Venda';
+        break;
+      case 'imovel-lancamento':
+        initialData.endereco = '';
+        initialData.preco = '';
+        initialData.area = '';
+        initialData.quartos = '';
+        initialData.banheiros = '';
+        initialData.vagas = '';
+        initialData.construtora = '';
+        initialData.previsaoEntrega = '';
+        initialData.imagens = [];
+        initialData.mapa = '';
+        break;
+      case 'imovel-usado':
+        initialData.endereco = '';
+        initialData.preco = '';
+        initialData.area = '';
+        initialData.quartos = '';
+        initialData.banheiros = '';
+        initialData.vagas = '';
+        initialData.idade = '';
+        initialData.reformado = false;
+        initialData.imagens = [];
+        break;
+      case 'imovel-comercial':
+        initialData.endereco = '';
+        initialData.valorAluguel = '';
+        initialData.valorCondominio = '';
+        initialData.iptu = '';
+        initialData.area = '';
+        initialData.tipoComercial = 'Loja';
+        initialData.possuiVitrine = false;
+        initialData.estacionamento = '';
+        break;
+      case 'agendar-visita':
+        initialData.imovel = '';
+        initialData.enderecoImovel = '';
+        initialData.data = '';
+        initialData.horario = '';
+        initialData.nomeCliente = '';
+        initialData.telefoneCliente = '';
+        initialData.emailCliente = '';
+        initialData.observacoes = '';
+        break;
+      case 'agendar-reuniao':
+        initialData.assunto = '';
+        initialData.data = '';
+        initialData.horario = '';
+        initialData.local = 'Escritório';
+        initialData.nomeCliente = '';
+        initialData.telefoneCliente = '';
+        initialData.emailCliente = '';
+        initialData.observacoes = '';
         break;
       case 'servico':
         initialData.nome = '';
@@ -274,18 +336,18 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
             </div>
           </>
         );
-        
-      case 'servico':
+      
+      case 'imovel-lancamento':
         return (
           <>
             {commonFields}
             <div className="grid grid-cols-2 gap-4">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Serviço</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
                 <input
                   type="text"
-                  value={formData.nome}
-                  onChange={(e) => handleInputChange('nome', e.target.value)}
+                  value={formData.endereco}
+                  onChange={(e) => handleInputChange('endereco', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -299,74 +361,56 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Duração</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Área (m²)</label>
                 <input
                   type="text"
-                  value={formData.duracao}
-                  onChange={(e) => handleInputChange('duracao', e.target.value)}
+                  value={formData.area}
+                  onChange={(e) => handleInputChange('area', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-                <input
-                  type="text"
-                  value={formData.categoria}
-                  onChange={(e) => handleInputChange('categoria', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-          </>
-        );
-        
-      case 'produto':
-        return (
-          <>
-            {commonFields}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Produto</label>
-                <input
-                  type="text"
-                  value={formData.nome}
-                  onChange={(e) => handleInputChange('nome', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Preço</label>
-                <input
-                  type="text"
-                  value={formData.preco}
-                  onChange={(e) => handleInputChange('preco', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estoque</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Quartos</label>
                 <input
                   type="number"
-                  value={formData.estoque}
-                  onChange={(e) => handleInputChange('estoque', e.target.value)}
+                  value={formData.quartos}
+                  onChange={(e) => handleInputChange('quartos', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Banheiros</label>
                 <input
-                  type="text"
-                  value={formData.categoria}
-                  onChange={(e) => handleInputChange('categoria', e.target.value)}
+                  type="number"
+                  value={formData.banheiros}
+                  onChange={(e) => handleInputChange('banheiros', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vagas</label>
+                <input
+                  type="number"
+                  value={formData.vagas}
+                  onChange={(e) => handleInputChange('vagas', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Construtora</label>
                 <input
                   type="text"
-                  value={formData.codigo}
-                  onChange={(e) => handleInputChange('codigo', e.target.value)}
+                  value={formData.construtora}
+                  onChange={(e) => handleInputChange('construtora', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Previsão de Entrega</label>
+                <input
+                  type="text"
+                  value={formData.previsaoEntrega}
+                  onChange={(e) => handleInputChange('previsaoEntrega', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
@@ -374,133 +418,199 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
           </>
         );
         
-      case 'multipla-escolha':
-        return (
-          <>
-            {commonFields}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Opções</label>
-              {formData.opcoes.map((opcao: string, index: number) => (
-                <div key={index} className="flex mb-2">
-                  <input
-                    type="text"
-                    value={opcao}
-                    onChange={(e) => handleArrayChange('opcoes', index, e.target.value)}
-                    className="flex-1 p-2 border border-gray-300 rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveArrayItem('opcoes', index)}
-                    className="ml-2 px-3 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200"
-                  >
-                    X
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => handleAddArrayItem('opcoes')}
-                className="mt-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
-              >
-                Adicionar Opção
-              </button>
-            </div>
-          </>
-        );
-        
-      case 'pergunta-respostas':
-        return (
-          <>
-            {commonFields}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pergunta</label>
-              <input
-                type="text"
-                value={formData.pergunta}
-                onChange={(e) => handleInputChange('pergunta', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Respostas</label>
-              {formData.respostas.map((resposta: string, index: number) => (
-                <div key={index} className="flex mb-2">
-                  <input
-                    type="text"
-                    value={resposta}
-                    onChange={(e) => handleArrayChange('respostas', index, e.target.value)}
-                    className="flex-1 p-2 border border-gray-300 rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveArrayItem('respostas', index)}
-                    className="ml-2 px-3 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200"
-                  >
-                    X
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => handleAddArrayItem('respostas')}
-                className="mt-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
-              >
-                Adicionar Resposta
-              </button>
-            </div>
-          </>
-        );
-        
-      case 'contatos':
+      case 'imovel-usado':
         return (
           <>
             {commonFields}
             <div className="grid grid-cols-2 gap-4">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
                 <input
                   type="text"
-                  value={formData.nome}
-                  onChange={(e) => handleInputChange('nome', e.target.value)}
+                  value={formData.endereco}
+                  onChange={(e) => handleInputChange('endereco', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Preço</label>
                 <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  type="text"
+                  value={formData.preco}
+                  onChange={(e) => handleInputChange('preco', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Área (m²)</label>
                 <input
-                  type="tel"
-                  value={formData.telefone}
-                  onChange={(e) => handleInputChange('telefone', e.target.value)}
+                  type="text"
+                  value={formData.area}
+                  onChange={(e) => handleInputChange('area', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-              <textarea
-                value={formData.mensagem}
-                onChange={(e) => handleInputChange('mensagem', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={3}
-              />
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Quartos</label>
+                <input
+                  type="number"
+                  value={formData.quartos}
+                  onChange={(e) => handleInputChange('quartos', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Banheiros</label>
+                <input
+                  type="number"
+                  value={formData.banheiros}
+                  onChange={(e) => handleInputChange('banheiros', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vagas</label>
+                <input
+                  type="number"
+                  value={formData.vagas}
+                  onChange={(e) => handleInputChange('vagas', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Idade do imóvel</label>
+                <input
+                  type="text"
+                  value={formData.idade}
+                  onChange={(e) => handleInputChange('idade', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reformado</label>
+                <select
+                  value={formData.reformado ? "sim" : "nao"}
+                  onChange={(e) => handleInputChange('reformado', e.target.value === "sim")}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="sim">Sim</option>
+                  <option value="nao">Não</option>
+                </select>
+              </div>
             </div>
           </>
         );
         
-      case 'agendar':
+      case 'imovel-comercial':
         return (
           <>
             {commonFields}
             <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                <input
+                  type="text"
+                  value={formData.endereco}
+                  onChange={(e) => handleInputChange('endereco', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Valor do Aluguel</label>
+                <input
+                  type="text"
+                  value={formData.valorAluguel}
+                  onChange={(e) => handleInputChange('valorAluguel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Condomínio</label>
+                <input
+                  type="text"
+                  value={formData.valorCondominio}
+                  onChange={(e) => handleInputChange('valorCondominio', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">IPTU</label>
+                <input
+                  type="text"
+                  value={formData.iptu}
+                  onChange={(e) => handleInputChange('iptu', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Área (m²)</label>
+                <input
+                  type="text"
+                  value={formData.area}
+                  onChange={(e) => handleInputChange('area', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                <select
+                  value={formData.tipoComercial}
+                  onChange={(e) => handleInputChange('tipoComercial', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="Loja">Loja</option>
+                  <option value="Sala">Sala Comercial</option>
+                  <option value="Galpão">Galpão</option>
+                  <option value="Ponto">Ponto Comercial</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Possui Vitrine</label>
+                <select
+                  value={formData.possuiVitrine ? "sim" : "nao"}
+                  onChange={(e) => handleInputChange('possuiVitrine', e.target.value === "sim")}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="sim">Sim</option>
+                  <option value="nao">Não</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estacionamento</label>
+                <input
+                  type="text"
+                  value={formData.estacionamento}
+                  onChange={(e) => handleInputChange('estacionamento', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </>
+        );
+        
+      case 'agendar-visita':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Imóvel</label>
+                <input
+                  type="text"
+                  value={formData.imovel}
+                  onChange={(e) => handleInputChange('imovel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endereço do Imóvel</label>
+                <input
+                  type="text"
+                  value={formData.enderecoImovel}
+                  onChange={(e) => handleInputChange('enderecoImovel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
                 <input
@@ -520,74 +630,38 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
                 <input
                   type="text"
-                  value={formData.servico}
-                  onChange={(e) => handleInputChange('servico', e.target.value)}
+                  value={formData.nomeCliente}
+                  onChange={(e) => handleInputChange('nomeCliente', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Profissional</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
                 <input
-                  type="text"
-                  value={formData.profissional}
-                  onChange={(e) => handleInputChange('profissional', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-          </>
-        );
-        
-      case 'ordem-servico':
-        return (
-          <>
-            {commonFields}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-                <input
-                  type="text"
-                  value={formData.cliente}
-                  onChange={(e) => handleInputChange('cliente', e.target.value)}
+                  type="tel"
+                  value={formData.telefoneCliente}
+                  onChange={(e) => handleInputChange('telefoneCliente', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
-                  type="text"
-                  value={formData.servico}
-                  onChange={(e) => handleInputChange('servico', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
-                <input
-                  type="text"
-                  value={formData.valor}
-                  onChange={(e) => handleInputChange('valor', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo</label>
-                <input
-                  type="date"
-                  value={formData.prazo}
-                  onChange={(e) => handleInputChange('prazo', e.target.value)}
+                  type="email"
+                  value={formData.emailCliente}
+                  onChange={(e) => handleInputChange('emailCliente', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
               <textarea
-                value={formData.descricao}
-                onChange={(e) => handleInputChange('descricao', e.target.value)}
+                value={formData.observacoes}
+                onChange={(e) => handleInputChange('observacoes', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md"
                 rows={3}
               />
@@ -595,175 +669,78 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
           </>
         );
         
-      case 'briefing':
+      case 'agendar-reuniao':
         return (
           <>
             {commonFields}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Objetivo</label>
-              <textarea
-                value={formData.objetivo}
-                onChange={(e) => handleInputChange('objetivo', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={2}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Público-Alvo</label>
-              <textarea
-                value={formData.publico}
-                onChange={(e) => handleInputChange('publico', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={2}
-              />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo</label>
-                <input
-                  type="date"
-                  value={formData.prazo}
-                  onChange={(e) => handleInputChange('prazo', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Orçamento</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
                 <input
                   type="text"
-                  value={formData.orcamento}
-                  onChange={(e) => handleInputChange('orcamento', e.target.value)}
+                  value={formData.assunto}
+                  onChange={(e) => handleInputChange('assunto', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Referências</label>
-              <textarea
-                value={formData.referencias}
-                onChange={(e) => handleInputChange('referencias', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={2}
-              />
-            </div>
-          </>
-        );
-        
-      case 'acao':
-        return (
-          <>
-            {commonFields}
-            <div className="grid grid-cols-2 gap-4">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Local</label>
                 <select
-                  value={formData.tipo}
-                  onChange={(e) => handleInputChange('tipo', e.target.value)}
+                  value={formData.local}
+                  onChange={(e) => handleInputChange('local', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 >
-                  <option value="botão">Botão</option>
-                  <option value="link">Link</option>
-                  <option value="redirecionamento">Redirecionamento</option>
+                  <option value="Escritório">Escritório</option>
+                  <option value="Imóvel">No Imóvel</option>
+                  <option value="Virtual">Reunião Virtual</option>
+                  <option value="Outro">Outro Local</option>
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Texto</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={formData.horario}
+                  onChange={(e) => handleInputChange('horario', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
                 <input
                   type="text"
-                  value={formData.texto}
-                  onChange={(e) => handleInputChange('texto', e.target.value)}
+                  value={formData.nomeCliente}
+                  onChange={(e) => handleInputChange('nomeCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input
+                  type="tel"
+                  value={formData.telefoneCliente}
+                  onChange={(e) => handleInputChange('telefoneCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.emailCliente}
+                  onChange={(e) => handleInputChange('emailCliente', e.target.value)}
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
-              <input
-                type="url"
-                value={formData.url}
-                onChange={(e) => handleInputChange('url', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-          </>
-        );
-        
-      case 'html':
-        return (
-          <>
-            {commonFields}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Código HTML</label>
-              <textarea
-                value={formData.codigo}
-                onChange={(e) => handleInputChange('codigo', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md font-mono"
-                rows={10}
-              />
-            </div>
-          </>
-        );
-        
-      default:
-        return commonFields;
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
-      <div 
-        className="bg-white rounded-xl shadow-2xl w-[700px] p-6 animate-scale-in max-h-[90vh] overflow-hidden flex flex-col" 
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-xl font-bold mb-4">Selecione o Tipo de Cartão</h2>
-        
-        {!selectedType ? (
-          <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto py-2">
-            {cardTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => handleSelectType(type)}
-                className={`p-4 border-2 rounded-lg text-left hover:opacity-80 transition-colors ${cardTypeColors[type]}`}
-              >
-                <h3 className="text-lg font-semibold">{cardTypeLabels[type]}</h3>
-                <p className="text-sm opacity-80">Cartão tipo {cardTypeLabels[type]}</p>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto pr-2">
-            {renderFormFields()}
-          </div>
-        )}
-        
-        <div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
-          {selectedType ? (
-            <>
-              <button
-                onClick={() => setSelectedType(null)}
-                className="px-4 py-2 mr-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Voltar
-              </button>
-              <button
-                onClick={() => onSelect(selectedType, formData)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Criar Cartão
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Cancelar
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default CardTypeSelector;
+              <label className
