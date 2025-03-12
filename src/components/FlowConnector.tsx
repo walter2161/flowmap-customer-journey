@@ -7,6 +7,7 @@ interface FlowConnectorProps extends EdgeProps {
   data?: {
     type: ConnectionType;
   };
+  sourceHandle?: string;
 }
 
 const connectionColors = {
@@ -25,8 +26,19 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   targetPosition,
   style = {},
   data,
+  sourceHandle,
 }) => {
-  const connectionType = data?.type || 'neutral';
+  // Determine the connection type from the sourceHandle or data
+  let connectionType: ConnectionType = 'neutral';
+  
+  if (sourceHandle === 'positive') {
+    connectionType = 'positive';
+  } else if (sourceHandle === 'negative') {
+    connectionType = 'negative';
+  } else if (data?.type) {
+    connectionType = data.type;
+  }
+  
   const strokeColor = connectionColors[connectionType];
   
   // Get the bezier path and extract just the path string

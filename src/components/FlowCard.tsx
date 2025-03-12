@@ -418,13 +418,14 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         </div>
       )}
       
-      {/* Output handles (right side) */}
+      {/* Output handles (bottom right) */}
       <Handle
         type="source"
         position={Position.Right}
         id="positive"
         style={{
-          top: '60px',
+          bottom: '30px',
+          top: 'auto',
           zIndex: 9999,
           backgroundColor: '#10B981', // Green for positive
           border: '2px solid white',
@@ -437,17 +438,14 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         position={Position.Right}
         id="negative"
         style={{
-          top: '90px',
+          bottom: '60px',
+          top: 'auto',
           zIndex: 9999, 
           backgroundColor: '#EF4444', // Red for negative
           border: '2px solid white',
         }}
         className="handle-negative !visible"
       />
-      
-      {/* Visual indicators for handle types */}
-      
-      
     </div>
   );
 };
