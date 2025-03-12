@@ -25,7 +25,6 @@ import FlowControls from './FlowControls';
 import { initialFlowData } from '@/utils/initialData';
 import { nanoid } from 'nanoid';
 import CardTypeSelector, { cardTypeLabels } from './CardTypeSelector';
-import { PlusCircle } from 'lucide-react';
 
 import 'reactflow/dist/style.css';
 
@@ -256,6 +255,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       content: node.data.content,
       position: node.position,
       type: node.data.type,
+      fields: { ...node.data.fields }
     }));
 
     // Convert edges back to connections
@@ -352,6 +352,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       content: node.data.content,
       position: node.position,
       type: node.data.type,
+      fields: { ...node.data.fields }
     }));
 
     // Convert edges back to connections
@@ -512,7 +513,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   }, []);
 
   // Handle card type selection
-  const handleCardTypeSelect = useCallback((type: CardType) => {
+  const handleCardTypeSelect = useCallback((type: CardType, formData: any) => {
     const { x, y, zoom } = reactFlowInstance.getViewport();
     
     // Calculate position in the center of the current view
@@ -527,10 +528,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       position,
       data: {
         id: `card-${nanoid(6)}`,
-        title: `Novo Cartão ${cardTypeLabels[type]}`,
-        description: 'Descrição do cartão',
-        content: 'Conteúdo do cartão',
-        type: type
+        title: formData.title || `Novo Cartão ${cardTypeLabels[type]}`,
+        description: formData.description || 'Descrição do cartão',
+        content: formData.content || 'Conteúdo do cartão',
+        type: type,
+        fields: { ...formData }
       }
     };
 
@@ -596,17 +598,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           className="bg-gradient-to-br from-gray-50 to-blue-50"
         />
         
-        {/* Create New Card button */}
-        <Panel position="top-right" className="mr-20 mt-4">
-          <button
-            onClick={handleNewCard}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors"
-          >
-            <PlusCircle className="w-5 h-5" />
-            Criar Novo Cartão
-          </button>
-        </Panel>
-        
         <FlowControls
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
@@ -616,6 +607,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           onExport={onExportFlow}
           onScript={onGenerateScript}
           onTemplate={() => setTemplateModalOpen(true)}
+          onNewCard={handleNewCard}
         />
         
         {/* JSON Import Modal */}

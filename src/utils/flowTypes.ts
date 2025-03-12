@@ -14,6 +14,7 @@ export interface FlowCard {
   content: string;
   position: Position;
   type: CardType;
+  fields?: any; // Additional fields specific to the card type
 }
 
 export interface FlowConnection {

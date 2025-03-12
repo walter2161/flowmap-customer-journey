@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Panel } from 'reactflow';
-import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate } from 'lucide-react';
+import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
 
 interface FlowControlsProps {
   onZoomIn: () => void;
@@ -12,6 +12,7 @@ interface FlowControlsProps {
   onExport: () => void;
   onScript: () => void;
   onTemplate: () => void;
+  onNewCard: () => void;
 }
 
 const FlowControls: React.FC<FlowControlsProps> = ({
@@ -22,7 +23,8 @@ const FlowControls: React.FC<FlowControlsProps> = ({
   onLoad,
   onExport,
   onScript,
-  onTemplate
+  onTemplate,
+  onNewCard
 }) => {
   return (
     <>
@@ -54,6 +56,13 @@ const FlowControls: React.FC<FlowControlsProps> = ({
           </div>
 
           <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
+            <button
+              onClick={onNewCard}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              title="Criar Novo Cartão"
+            >
+              <PlusCircle className="w-5 h-5 text-gray-700" />
+            </button>
             <button
               onClick={onScript}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
