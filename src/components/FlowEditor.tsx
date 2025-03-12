@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -592,4 +593,371 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const { fitView, zoomIn, zoomOut, setViewport } = useReactFlow();
   const [jsonModalOpen, setJsonModalOpen] = useState(false);
   const [scriptModalOpen, setScriptModalOpen] = useState(false);
-  const
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [nodes, setNodes, onNodesChange] = useNodesState<FlowCardNode>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<FlowConnectionEdge>([]);
+  const [selectedCard, setSelectedCard] = useState<FlowCard | null>(null);
+  const [flowData, setFlowData] = useState<FlowData>(initialData);
+  const reactFlowWrapper = useRef(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  // Convert FlowCards to nodes
+  const createNodesFromCards = useCallback((cards: FlowCard[]) => {
+    return cards.map((card) => ({
+      id: card.id,
+      type: 'flowCard',
+      position: card.position,
+      data: card,
+      draggable: true,
+    }));
+  }, []);
+
+  // Convert FlowConnections to edges
+  const createEdgesFromConnections = useCallback((connections: FlowConnection[]) => {
+    return connections.map((connection) => ({
+      id: connection.id,
+      type: 'flowConnector',
+      source: connection.start,
+      target: connection.end,
+      data: {
+        type: connection.type,
+      },
+      sourceHandle: connection.sourceHandle,
+    }));
+  }, []);
+
+  // Initialize the flow with data
+  useEffect(() => {
+    const newNodes = createNodesFromCards(flowData.cards);
+    const newEdges = createEdgesFromConnections(flowData.connections);
+    
+    setNodes(newNodes);
+    setEdges(newEdges);
+    
+    // Give time for nodes to render, then fit view
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.2 });
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [flowData, createNodesFromCards, createEdgesFromConnections, setNodes, setEdges, fitView]);
+
+  // Handle node add
+  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  // Handle adding new cards
+  const onDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      
+      const type = event.dataTransfer.getData('application/reactflow/type') as CardType;
+      
+      if (!type || !reactFlowInstance) {
+        return;
+      }
+      
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      
+      const id = nanoid(6);
+      const title = `${cardTypeLabels[type] || 'Novo'} Card`;
+      
+      const newCard: FlowCard = {
+        id,
+        title,
+        description: 'Descrição do cartão',
+        type,
+        content: 'Conteúdo do cartão',
+        position,
+        fields: {}, // Initialize with empty fields
+      };
+      
+      // Update flowData with the new card
+      const updatedFlowData = {
+        ...flowData,
+        cards: [...flowData.cards, newCard],
+      };
+      
+      setFlowData(updatedFlowData);
+      setSelectedCard(newCard); // Automatically select the new card
+      
+      toast({
+        title: 'Cartão adicionado',
+        description: `Um novo cartão do tipo "${cardTypeLabels[type]}" foi adicionado.`,
+      });
+    },
+    [reactFlowInstance, flowData, toast]
+  );
+
+  // Handle connections between nodes
+  const onConnect: OnConnect = useCallback(
+    (params) => {
+      // Create a new connection
+      const id = nanoid(6);
+      const type: ConnectionType = 'neutral'; // Default to neutral
+      
+      const newConnection: FlowConnection = {
+        id,
+        start: params.source,
+        end: params.target,
+        type,
+        sourceHandle: params.sourceHandle,
+      };
+      
+      // Update flowData with the new connection
+      const updatedFlowData = {
+        ...flowData,
+        connections: [...flowData.connections, newConnection],
+      };
+      
+      setFlowData(updatedFlowData);
+      
+      // Also update the edges in the React Flow state
+      setEdges((eds) => 
+        addEdge(
+          { 
+            ...params, 
+            id, 
+            type: 'flowConnector',
+            data: { type },
+          }, 
+          eds
+        )
+      );
+    },
+    [flowData, setEdges]
+  );
+
+  // Handle card selection
+  const onNodeClick = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      const card = flowData.cards.find((c) => c.id === node.id);
+      if (card) {
+        setSelectedCard(card);
+      }
+    },
+    [flowData.cards]
+  );
+
+  // Update card data
+  const updateCard = useCallback(
+    (updatedCard: FlowCard) => {
+      const updatedCards = flowData.cards.map((card) =>
+        card.id === updatedCard.id ? updatedCard : card
+      );
+      
+      setFlowData({
+        ...flowData,
+        cards: updatedCards,
+      });
+      
+      setSelectedCard(updatedCard);
+      
+      toast({
+        title: 'Cartão atualizado',
+        description: `O cartão "${updatedCard.title}" foi atualizado.`,
+      });
+    },
+    [flowData, toast]
+  );
+
+  // Delete a card
+  const deleteCard = useCallback(
+    (cardId: string) => {
+      // Remove the card
+      const updatedCards = flowData.cards.filter((card) => card.id !== cardId);
+      
+      // Also remove any connections involving this card
+      const updatedConnections = flowData.connections.filter(
+        (conn) => conn.start !== cardId && conn.end !== cardId
+      );
+      
+      setFlowData({
+        cards: updatedCards,
+        connections: updatedConnections,
+      });
+      
+      setSelectedCard(null);
+      
+      toast({
+        title: 'Cartão removido',
+        description: 'O cartão foi removido com sucesso.',
+      });
+    },
+    [flowData, toast]
+  );
+
+  // Handle node position change
+  const onNodeDragStop = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      const updatedCards = flowData.cards.map((card) =>
+        card.id === node.id
+          ? { ...card, position: { x: node.position.x, y: node.position.y } }
+          : card
+      );
+      
+      setFlowData({
+        ...flowData,
+        cards: updatedCards,
+      });
+    },
+    [flowData]
+  );
+
+  // Export flow as JSON
+  const exportJson = useCallback(() => {
+    const jsonString = JSON.stringify(flowData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'flow-export.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setJsonModalOpen(false);
+  }, [flowData]);
+
+  // Load flow from JSON
+  const importJson = useCallback((jsonData: string) => {
+    try {
+      const importedData = JSON.parse(jsonData) as FlowData;
+      
+      if (!importedData.cards || !importedData.connections) {
+        throw new Error('Invalid JSON format');
+      }
+      
+      setFlowData(importedData);
+      setJsonModalOpen(false);
+      
+      toast({
+        title: 'Fluxo importado',
+        description: 'O fluxo foi importado com sucesso.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro na importação',
+        description: 'O formato do JSON é inválido.',
+        variant: 'destructive',
+      });
+    }
+  }, [toast]);
+
+  // Generate a script from the flow
+  const generateScript = useCallback(() => {
+    // This is a simple example - in a real app, you'd have more sophisticated logic here
+    let script = '# Script de Atendimento\n\n';
+    
+    // Sort cards by their position from top to bottom and left to right
+    const sortedCards = [...flowData.cards].sort((a, b) => {
+      const yDiff = a.position.y - b.position.y;
+      return yDiff !== 0 ? yDiff : a.position.x - b.position.x;
+    });
+    
+    sortedCards.forEach((card) => {
+      script += `## ${card.title}\n`;
+      script += `${card.description}\n\n`;
+      script += `"${card.content}"\n\n`;
+      
+      // Add possible responses based on connections
+      const outgoingConnections = flowData.connections.filter((conn) => conn.start === card.id);
+      
+      if (outgoingConnections.length > 0) {
+        script += 'Respostas possíveis:\n';
+        
+        outgoingConnections.forEach((conn) => {
+          const targetCard = flowData.cards.find((c) => c.id === conn.end);
+          if (targetCard) {
+            script += `- ${conn.type.toUpperCase()}: → ${targetCard.title}\n`;
+          }
+        });
+        
+        script += '\n';
+      }
+    });
+    
+    return script;
+  }, [flowData]);
+
+  // Apply a template
+  const applyTemplate = useCallback((templateName: keyof typeof templates) => {
+    if (templates[templateName]) {
+      setFlowData(templates[templateName]);
+      setTemplateModalOpen(false);
+      toast({
+        title: 'Template aplicado',
+        description: `O template "${templateName}" foi aplicado com sucesso.`,
+      });
+    }
+  }, [toast]);
+
+  return (
+    <div className="h-full w-full flex flex-col">
+      <ReactFlowProvider>
+        <div className="flex-grow" ref={reactFlowWrapper}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onInit={setReactFlowInstance}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onNodeClick={onNodeClick}
+            onNodeDragStop={onNodeDragStop}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            deleteKeyCode="Delete"
+            multiSelectionKeyCode="Control"
+            connectionLineType={ConnectionLineType.Bezier}
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+            minZoom={0.2}
+            maxZoom={4}
+            fitView
+          >
+            <Controls />
+            <MiniMap 
+              nodeColor={(node) => {
+                switch (node.data.type) {
+                  case 'initial':
+                    return '#10B981'; // Green for initial
+                  case 'end':
+                    return '#EF4444'; // Red for end
+                  default:
+                    return '#6B7280'; // Gray for others
+                }
+              }} 
+              zoomable 
+              pannable 
+            />
+            <Background color="#aaa" gap={16} />
+            
+            <Panel position="top-right" className="bg-white px-4 py-3 rounded-lg shadow">
+              <FlowControls 
+                onZoomIn={zoomIn} 
+                onZoomOut={zoomOut} 
+                onFitView={() => fitView({ padding: 0.2 })}
+                onExportJson={() => setJsonModalOpen(true)}
+                onGenerateScript={() => setScriptModalOpen(true)}
+                onLoadTemplate={() => setTemplateModalOpen(true)}
+              />
+            </Panel>
+            
+            <Panel position="top-left" className="bg-white px-4 py-3 rounded-lg shadow">
+              <CardTypeSelector />
+            </Panel>
+          </ReactFlow>
+        </div>
+      </ReactFlowProvider>
+    </div>
+  );
+};
+
+export default FlowEditor;
+
