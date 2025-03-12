@@ -22,6 +22,7 @@ export interface FlowConnection {
   start: string;
   end: string;
   type: ConnectionType;
+  sourceHandle?: string; // Adding the sourceHandle property as optional
 }
 
 export interface FlowData {
