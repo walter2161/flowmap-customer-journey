@@ -333,7 +333,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         style={{
           zIndex: 9999,
           border: '2px solid white',
-          top: '50%',
+          top: '30px',
         }}
         className="!visible"
       />
@@ -425,7 +425,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         position={Position.Right}
         id="positive"
         style={{
-          top: '40%',
+          top: '60px',
           zIndex: 9999,
           backgroundColor: '#10B981', // Green for positive
           border: '2px solid white',
@@ -438,7 +438,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         position={Position.Right}
         id="negative"
         style={{
-          top: '60%',
+          top: '90px',
           zIndex: 9999, 
           backgroundColor: '#EF4444', // Red for negative
           border: '2px solid white',
@@ -447,11 +447,11 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       />
       
       {/* Visual indicators for handle types */}
-      <div className="absolute right-4 top-[40%] flex items-center">
+      <div className="absolute right-4 top-[60px] flex items-center">
         <PlusCircle className="w-4 h-4 text-green-500" />
       </div>
       
-      <div className="absolute right-4 top-[60%] flex items-center">
+      <div className="absolute right-4 top-[90px] flex items-center">
         <MinusCircle className="w-4 h-4 text-red-500" />
       </div>
     </div>
