@@ -29,9 +29,8 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   const connectionType = data?.type || 'neutral';
   const strokeColor = connectionColors[connectionType];
   
-  // getBezierPath returns an array with [path, labelX, labelY, offsetX, offsetY]
-  // Extract only the path string which is the first element
-  const [edgePath, labelX, labelY] = getBezierPath({
+  // getBezierPath returns an array - we need to extract just the path string
+  const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,

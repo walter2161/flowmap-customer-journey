@@ -1,3 +1,4 @@
+
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard } from '@/utils/flowTypes';
@@ -320,7 +321,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
 
   return (
     <div
-      className={`w-[320px] rounded-xl shadow-lg transition-all duration-300 overflow-hidden flow-card-appear ${
+      className={`w-[320px] rounded-xl shadow-lg transition-all duration-300 overflow-visible flow-card-appear ${
         cardTypeClasses[data.type]
       } ${selected ? 'ring-2 ring-blue-400 shadow-xl' : ''}`}
     >
@@ -330,11 +331,11 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         position={Position.Left}
         id="input"
         style={{
-          zIndex: 1000,
-          top: '30px',
-          backgroundColor: '#3b82f6',
+          zIndex: 9999,
           border: '2px solid white',
+          top: '30px',
         }}
+        className="!visible"
       />
       
       {/* Header */}
@@ -425,11 +426,11 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         id="positive"
         style={{
           top: '60px',
-          zIndex: 1000,
+          zIndex: 9999,
           backgroundColor: '#10B981', // Green for positive
           border: '2px solid white',
         }}
-        className="handle-positive"
+        className="handle-positive !visible"
       />
       
       <Handle
@@ -438,11 +439,11 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         id="negative"
         style={{
           top: '90px',
-          zIndex: 1000, 
+          zIndex: 9999, 
           backgroundColor: '#EF4444', // Red for negative
           border: '2px solid white',
         }}
-        className="handle-negative"
+        className="handle-negative !visible"
       />
       
       {/* Visual indicators for handle types */}

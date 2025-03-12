@@ -111,10 +111,11 @@
   border: 2px solid #3b82f6 !important;
   opacity: 1 !important;
   visibility: visible !important;
-  z-index: 100 !important;
+  z-index: 9999 !important;
   min-width: 12px !important;
   min-height: 12px !important;
   pointer-events: all !important;
+  position: absolute !important;
 }
 
 .react-flow__handle-left {
@@ -135,7 +136,8 @@
 .react-flow__handle.target {
   opacity: 1 !important;
   visibility: visible !important;
-  z-index: 100 !important;
+  z-index: 9999 !important;
+  pointer-events: all !important;
 }
 
 /* Flow Card Animations */
@@ -267,9 +269,18 @@ svg[data-id^="edge-"] * {
 
 /* Ensure connections are visible */
 .react-flow__connection {
-  z-index: 1000 !important;
+  z-index: 9999 !important;
 }
 
 .react-flow__edge {
-  z-index: 1000 !important;
+  z-index: 9999 !important;
+}
+
+/* Make connection points visible */
+.react-flow__handle-connecting {
+  background: #ff6060 !important;
+}
+
+.react-flow__handle-valid {
+  background: #55dd99 !important;
 }
