@@ -191,12 +191,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     data: card,
   }));
 
-  // Convert connections to edges with no markers
+  // Convert connections to edges with source handles based on connection type
   const initialEdges: Edge[] = initialData.connections.map((connection) => ({
     id: connection.id,
     source: connection.start,
     target: connection.end,
     type: 'flowConnector',
+    sourceHandle: connection.type, // Use connection type as sourceHandle
     data: { type: connection.type },
     style: {
       strokeWidth: 3,
@@ -210,7 +211,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
 
-  // Create connections with custom styling
+  // Create connections with custom styling and correct handle
   const onConnect: OnConnect = useCallback(
     (connection) => {
       const sourceHandleId = connection.sourceHandle;
@@ -221,6 +222,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         ...connection,
         id: `edge-${nanoid(6)}`,
         type: 'flowConnector',
+        sourceHandle: connectionType, // Set sourceHandle to match the connection type
         data: { type: connectionType },
         style: {
           strokeWidth: 3,
@@ -287,7 +289,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setJsonModalOpen(true);
   }, []);
 
-  // Handle JSON import
+  // Handle JSON import - ensure connections use proper sourceHandle
   const handleJsonImport = useCallback(() => {
     try {
       const parsedData = JSON.parse(jsonInput);
@@ -304,12 +306,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         data: card,
       }));
 
-      // Convert connections to edges without markers
+      // Convert connections to edges with sourceHandle matching connection type
       const newEdges: Edge[] = parsedData.connections.map((connection: FlowConnection) => ({
         id: connection.id,
         source: connection.start,
         target: connection.end,
         type: 'flowConnector',
+        sourceHandle: connection.type, // Set sourceHandle to connection type
         data: { type: connection.type },
         style: {
           strokeWidth: 3,
@@ -466,7 +469,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setScriptModalOpen(true);
   }, [nodes, edges]);
 
-  // Load template
+  // Load template - ensure proper sourceHandle
   const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
     const templateData = templates[templateName];
     
@@ -478,12 +481,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       data: card,
     }));
 
-    // Convert template connections to edges
+    // Convert template connections to edges with sourceHandle matching connection type
     const newEdges: Edge[] = templateData.connections.map((connection) => ({
       id: connection.id,
       source: connection.start,
       target: connection.end,
       type: 'flowConnector',
+      sourceHandle: connection.type, // Set sourceHandle to connection type
       data: { type: connection.type },
       style: {
         strokeWidth: 3,
