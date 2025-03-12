@@ -503,71 +503,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [setNodes, setEdges, fitView, toast]);
 
-  // Generate backup ZIP
-  const onGenerateBackup = useCallback(() => {
-    // This is a simplified version - in a real app we would need to use a proper ZIP library
-    
-    // Convert nodes and edges to flow data
-    const cards: FlowCard[] = nodes.map((node) => ({
-      id: node.id,
-      title: node.data.title,
-      description: node.data.description,
-      content: node.data.content,
-      position: node.position,
-      type: node.data.type,
-    }));
-
-    const connections: FlowConnection[] = edges.map((edge) => ({
-      id: edge.id,
-      start: edge.source,
-      end: edge.target,
-      type: (edge.data?.type || 'neutral') as 'positive' | 'negative' | 'neutral',
-    }));
-
-    const flowData: FlowData = { cards, connections };
-    
-    // Create simplified HTML file with the flow data
-    const htmlContent = `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backup do Fluxo de Atendimento</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/reactflow@11/dist/style.css"></script>
-  <script src="https://unpkg.com/reactflow@11/dist/umd/index.min.js"></script>
-  <style>
-    body { margin: 0; font-family: sans-serif; }
-    .flow-container { width: 100vw; height: 100vh; }
-  </style>
-</head>
-<body>
-  <div id="root" class="flow-container"></div>
-  <script>
-    // Flow data
-    const flowData = ${JSON.stringify(flowData, null, 2)};
-  </script>
-</body>
-</html>
-    `;
-    
-    // Create download link
-    const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
-    const exportFileName = 'flow-backup.html';
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileName);
-    linkElement.click();
-    
-    toast({
-      title: 'Backup Gerado',
-      description: 'Arquivo HTML de backup do fluxo foi gerado com sucesso.',
-      duration: 2000,
-    });
-  }, [nodes, edges, toast]);
-
   // Initialize
   useEffect(() => {
     setTimeout(() => {
@@ -629,7 +564,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           onExport={onExportFlow}
           onScript={onGenerateScript}
           onTemplate={() => setTemplateModalOpen(true)}
-          onBackup={onGenerateBackup}
         />
         
         {/* JSON Import Modal */}
