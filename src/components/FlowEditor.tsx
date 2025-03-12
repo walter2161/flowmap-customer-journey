@@ -576,4 +576,4 @@ const templates: Record<string, FlowData> = {
     connections: [
       { id: "ass-conn-1", start: "ass-1", end: "ass-2", type: "positive" as ConnectionType, sourceHandle: "positive" },
       { id: "ass-conn-2", start: "ass-1", end: "ass-3", type: "neutral" as ConnectionType, sourceHandle: "neutral" },
-      { id: "ass-conn-3", start: "ass-1", end: "ass-4", type: "negative" as ConnectionType, source
+      { id: "ass-conn-3", start: "ass-1", end: "ass-4", type: "negative" as ConnectionType, sourceHandle: "
