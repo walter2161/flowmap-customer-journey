@@ -1,8 +1,7 @@
-
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard } from '@/utils/flowTypes';
-import { PlusCircle, MinusCircle, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
@@ -447,13 +446,8 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       />
       
       {/* Visual indicators for handle types */}
-      <div className="absolute right-4 top-[60px] flex items-center">
-        <PlusCircle className="w-4 h-4 text-green-500" />
-      </div>
       
-      <div className="absolute right-4 top-[90px] flex items-center">
-        <MinusCircle className="w-4 h-4 text-red-500" />
-      </div>
+      
     </div>
   );
 };
