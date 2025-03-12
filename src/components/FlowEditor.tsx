@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -25,6 +24,8 @@ import FlowConnector from './FlowConnector';
 import FlowControls from './FlowControls';
 import { initialFlowData } from '@/utils/initialData';
 import { nanoid } from 'nanoid';
+import CardTypeSelector, { CardType } from './CardTypeSelector';
+import { PlusCircle } from 'lucide-react';
 
 import 'reactflow/dist/style.css';
 
@@ -181,6 +182,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
+  const [cardTypeSelectorOpen, setCardTypeSelectorOpen] = useState(false);
 
   // Convert cards to nodes
   const initialNodes: Node[] = initialData.cards.map((card) => ({
@@ -503,6 +505,44 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [setNodes, setEdges, fitView, toast]);
 
+  // Add this new function to handle new card creation
+  const handleNewCard = useCallback(() => {
+    setCardTypeSelectorOpen(true);
+  }, []);
+
+  // Add this function to handle card type selection
+  const handleCardTypeSelect = useCallback((type: CardType) => {
+    const { x, y, zoom } = useReactFlow().getViewport();
+    
+    // Calculate position in the center of the current view
+    const position = {
+      x: (window.innerWidth / 2 - x) / zoom,
+      y: (window.innerHeight / 2 - 100 - y) / zoom
+    };
+    
+    const newNode = {
+      id: `node-${nanoid(6)}`,
+      type: 'flowCard',
+      position,
+      data: {
+        id: `card-${nanoid(6)}`,
+        title: `Novo Cartão ${type}`,
+        description: 'Descrição do cartão',
+        content: 'Conteúdo do cartão',
+        type: type
+      }
+    };
+
+    setNodes(nodes => [...nodes, newNode]);
+    setCardTypeSelectorOpen(false);
+    
+    toast({
+      title: 'Cartão Criado',
+      description: `Um novo cartão do tipo ${type} foi adicionado ao fluxo.`,
+      duration: 2000,
+    });
+  }, [setNodes, useReactFlow, toast]);
+
   // Generate backup ZIP
   const onGenerateBackup = useCallback(() => {
     // This is a simplified version - in a real app we would need to use a proper ZIP library
@@ -620,6 +660,17 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           className="bg-gradient-to-br from-gray-50 to-blue-50"
         />
         
+        {/* Add new card button */}
+        <Panel position="top-right" className="mr-16 mt-4">
+          <button
+            onClick={handleNewCard}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors"
+          >
+            <PlusCircle className="w-5 h-5" />
+            Criar Novo Cartão
+          </button>
+        </Panel>
+        
         <FlowControls
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
@@ -727,33 +778,3 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
                 <div 
                   onClick={() => onLoadTemplate('marketing')}
                   className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
-                  <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setTemplateModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-      </ReactFlow>
-    </div>
-  );
-};
-
-const FlowEditorWithProvider: React.FC<FlowEditorProps> = (props) => {
-  return (
-    <ReactFlowProvider>
-      <FlowEditor {...props} />
-    </ReactFlowProvider>
-  );
-};
-
-export default FlowEditorWithProvider;
