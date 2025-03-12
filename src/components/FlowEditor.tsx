@@ -405,7 +405,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       }
     });
 
-    let script = "# SCRIPT DE ATENDIMENTO ESTRUTURADO\n\n";
+    let script = "### **SCRIPT DE ATENDIMENTO ESTRUTURADO - FLUXO HUMANIZADO**\n\n";
     
     // Process nodes in order of their assigned IDs
     const sortedNodes = [...nodes].sort((a, b) => {
@@ -418,45 +418,59 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     sortedNodes.forEach(node => {
       const nodeId = idMap.get(node.id) || '00';
       
-      script += `id: ${nodeId} - ${node.data.title.toUpperCase()}\n`;
-      script += `Mensagem: ${node.data.content}\n\n`;
+      script += `#### **ID: ${nodeId} - ${node.data.title.toUpperCase()}**\n`;
+      script += `"${node.data.content}"\n\n`;
       
       // Find outgoing connections
       const nodeConnections = edges.filter(edge => edge.source === node.id);
       
       if (nodeConnections.length > 0) {
-        script += `Etapa "id: ${nodeId}":\n`;
-        
-        // Sort connections by type (positive first, then negative)
+        // Sort connections by type (positive first, then negative, then neutral)
         const sortedConnections = nodeConnections.sort((a, b) => {
           if (a.data?.type === 'positive' && b.data?.type !== 'positive') return -1;
           if (a.data?.type !== 'positive' && b.data?.type === 'positive') return 1;
+          if (a.data?.type === 'negative' && b.data?.type !== 'negative') return -1;
+          if (a.data?.type !== 'negative' && b.data?.type === 'negative') return 1;
           return 0;
         });
         
         sortedConnections.forEach(connection => {
           const targetNode = nodes.find(n => n.id === connection.target);
           const targetId = idMap.get(connection.target) || '00';
-          const outputLetter = connection.data?.type === 'positive' ? 'A' : 'B';
+          const connectionType = connection.data?.type || 'neutral';
+          
+          let conditionText = '';
+          if (connectionType === 'positive') {
+            conditionText = `**Se o usuário mencionar interesse ou responder positivamente**`;
+          } else if (connectionType === 'negative') {
+            conditionText = `**Se o usuário demonstrar desinteresse ou responder negativamente**`;
+          } else {
+            conditionText = `**Se o usuário estiver indeciso ou fizer perguntas adicionais**`;
+          }
           
           if (targetNode) {
-            script += `Se a resposta do usuário for **${
-              connection.data?.type === 'positive' ? 'positiva' : 'negativa'
-            } (${nodeId}${outputLetter})** → inicie a etapa "id: ${targetId}".\n`;
+            script += `🔹 ${conditionText} → Seguir para **ID: ${targetId}**\n`;
           }
         });
         
-        script += '\n';
+        script += '\n---\n\n';
+      } else if (node.data.type === 'end') {
+        // For end nodes without connections
+        script += "Este é um nó final. A conversa pode ser encerrada aqui.\n\n---\n\n";
+      } else {
+        script += "Sem fluxos de saída definidos.\n\n---\n\n";
       }
     });
   
-    // Add legend at the end
-    script += "# LEGENDA\n\n";
-    script += "- Saída A: Resposta positiva\n";
-    script += "- Saída B: Resposta negativa\n\n";
+    // Add guide section at the end
+    script += `\n### **POR QUE ESSA VERSÃO É MAIS HUMANIZADA?**\n`;
+    script += `✅ O assistente **não apresenta opções fechadas**, mas conduz a conversa naturalmente.\n`;
+    script += `✅ As respostas são **flexíveis e abertas**, permitindo que o usuário fale livremente.\n`;
+    script += `✅ Há **perguntas exploratórias**, ajudando o usuário a refletir e tomar decisões.\n`;
+    script += `✅ O fluxo se adapta ao usuário, respeitando seu nível de interesse e necessidade.\n\n`;
     
     // Add node reference
-    script += "# REFERÊNCIA DE IDs\n\n";
+    script += "### **REFERÊNCIA DE IDs**\n\n";
     sortedNodes.forEach(node => {
       const nodeId = idMap.get(node.id) || '00';
       script += `${nodeId}: ${node.data.title}\n`;
