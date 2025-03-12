@@ -390,80 +390,78 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Generate AI script from flow
+  // Generate AI script from flow with numbered IDs and lettered outputs
   const onGenerateScript = useCallback(() => {
-    // Convert nodes to a readable script
-    let script = "# Script de Atendimento Detalhado\n\n";
+    // Helper function to get a two-digit formatted number
+    const formatId = (num: number): string => num.toString().padStart(2, '0');
     
-    // Find initial nodes
+    // Create a map of existing IDs to sequential numbers
+    const idMap = new Map<string, number>();
+    let currentId = 1;
+    
+    // First, map all node IDs to sequential numbers
+    nodes.forEach(node => {
+      if (!idMap.has(node.id)) {
+        idMap.set(node.id, currentId++);
+      }
+    });
+
+    let script = "# SCRIPT DE ATENDIMENTO ESTRUTURADO\n\n";
+    
+    // Process initial nodes first
     const initialNodes = nodes.filter(node => node.data.type === 'initial');
     
     if (initialNodes.length === 0) {
-      script += "Este fluxo não possui um ponto de início definido.\n\n";
+      script += "AVISO: Este fluxo não possui um ponto de início definido.\n\n";
     } else {
-      // Process each initial node
-      initialNodes.forEach(startNode => {
-        script += `## Início: ${startNode.data.title}\n\n`;
-        script += `### Descrição\n${startNode.data.description}\n\n`;
-        script += `### Mensagem Inicial\n${startNode.data.content}\n\n`;
+      // Process each node and its connections
+      nodes.forEach(node => {
+        const nodeId = formatId(idMap.get(node.id) || 0);
         
-        // Find connections from this node
-        const nodeConnections = edges.filter(edge => edge.source === startNode.id);
+        script += `id: ${nodeId} - ${node.data.title.toUpperCase()}\n`;
+        script += `Mensagem: ${node.data.content}\n\n`;
+        
+        // Find outgoing connections
+        const nodeConnections = edges.filter(edge => edge.source === node.id);
         
         if (nodeConnections.length > 0) {
-          script += "### Possíveis Caminhos\n\n";
+          script += `Etapa "id: ${nodeId}":\n`;
           
-          // Process each connection
-          nodeConnections.forEach(connection => {
-            const targetNode = nodes.find(node => node.id === connection.target);
-            const responseType = connection.data?.type === 'positive' ? 'Positiva' : 
-                                connection.data?.type === 'negative' ? 'Negativa' : 'Neutra';
+          // Sort connections by type (positive first, then negative)
+          const sortedConnections = nodeConnections.sort((a, b) => {
+            const typeA = a.data?.type || 'neutral';
+            const typeB = b.data?.type || 'neutral';
+            return typeA === 'positive' ? -1 : typeB === 'positive' ? 1 : 0;
+          });
+          
+          sortedConnections.forEach(connection => {
+            const targetNode = nodes.find(n => n.id === connection.target);
+            const targetId = formatId(idMap.get(connection.target) || 0);
+            const outputLetter = connection.data?.type === 'positive' ? 'A' : 'B';
             
             if (targetNode) {
-              script += `#### Resposta ${responseType}: ${targetNode.data.title}\n\n`;
-              script += `* **Descrição**: ${targetNode.data.description}\n`;
-              script += `* **Conteúdo**: ${targetNode.data.content}\n\n`;
-              
-              // Recursively process next nodes (simplified, doesn't handle loops)
-              const nextConnections = edges.filter(edge => edge.source === targetNode.id);
-              if (nextConnections.length > 0) {
-                script += "* **Próximos Passos**:\n";
-                nextConnections.forEach(nextConn => {
-                  const nextNode = nodes.find(node => node.id === nextConn.target);
-                  if (nextNode) {
-                    script += `  * ${nextNode.data.title}\n`;
-                  }
-                });
-                script += "\n";
-              } else if (targetNode.data.type === 'end') {
-                script += "* **Finalização do Atendimento**\n\n";
-              }
+              script += `Se a resposta do usuário for **${
+                connection.data?.type === 'positive' ? 'positiva' : 'negativa'
+              } (${nodeId}${outputLetter})** → inicie a etapa "id: ${targetId}".\n`;
             }
           });
+          
+          script += '\n';
         }
       });
+      
+      // Add legend at the end
+      script += "# LEGENDA\n\n";
+      script += "- Saída A: Resposta positiva\n";
+      script += "- Saída B: Resposta negativa\n\n";
+      
+      // Add node reference
+      script += "# REFERÊNCIA DE IDs\n\n";
+      nodes.forEach(node => {
+        const nodeId = formatId(idMap.get(node.id) || 0);
+        script += `${nodeId}: ${node.data.title}\n`;
+      });
     }
-    
-    // Add general guidelines for AI
-    script += "## Diretrizes Gerais para Assistente AI\n\n";
-    script += "1. **Saudação**: Sempre inicie a conversa de forma educada e amigável.\n";
-    script += "2. **Personalização**: Use o nome do cliente quando disponível.\n";
-    script += "3. **Clareza**: Seja objetivo e claro em todas as respostas.\n";
-    script += "4. **Empatia**: Demonstre compreensão às necessidades do cliente.\n";
-    script += "5. **Flexibilidade**: Adapte-se às perguntas fora do fluxo principal.\n";
-    script += "6. **Conclusão**: Sempre finalize verificando se há mais alguma dúvida.\n\n";
-    
-    script += "## Respostas para Perguntas Frequentes\n\n";
-    
-    // Generate some generic FAQs based on the node contents
-    const topics = nodes.map(node => node.data.title.toLowerCase());
-    const uniqueTopics = [...new Set(topics)];
-    
-    uniqueTopics.slice(0, 5).forEach(topic => {
-      script += `### Sobre ${topic.charAt(0).toUpperCase() + topic.slice(1)}\n`;
-      script += `Q: Quais são os detalhes sobre ${topic}?\n`;
-      script += `A: Base sua resposta no conteúdo dos cartões relacionados a este tópico.\n\n`;
-    });
     
     setGeneratedScript(script);
     setScriptModalOpen(true);
