@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,31 +105,37 @@
 }
 
 .react-flow__handle {
-  @apply w-4 h-4 border-2 rounded-full bg-white opacity-100 transition-opacity duration-200 ease-in-out;
-  z-index: 10 !important; /* Ensure handles are on top */
-}
-
-.react-flow__node .react-flow__handle {
-  @apply border-2;
+  width: 12px !important;
+  height: 12px !important;
+  background-color: white !important;
+  border: 2px solid #3b82f6 !important;
   opacity: 1 !important;
   visibility: visible !important;
-}
-
-.react-flow__node .react-flow__handle:hover {
-  @apply scale-125 transition-transform;
-}
-
-/* Make sure handles are visible and on top */
-.connector-handle {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 20 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+  z-index: 100 !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
   pointer-events: all !important;
 }
 
-.connector-handle:hover {
+.react-flow__handle-left {
+  left: -6px !important;
+}
+
+.react-flow__handle-right {
+  right: -6px !important;
+}
+
+.react-flow__handle:hover {
   transform: scale(1.3);
+  transition: transform 0.2s ease;
+}
+
+/* Override any hidden styling */
+.react-flow__handle.source,
+.react-flow__handle.target {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 100 !important;
 }
 
 /* Flow Card Animations */
@@ -161,14 +168,6 @@
 
 .react-flow__edge:hover .flow-connection-delete-btn {
   opacity: 1;
-}
-
-.connector-handle {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.connector-handle:hover {
-  transform: scale(1.3);
 }
 
 /* Custom scrollbar */
@@ -211,6 +210,7 @@
   marker-start: none !important;
   marker: none !important;
   fill: none;
+  stroke-width: 3px !important;
 }
 
 .react-flow__connectionline {
@@ -252,4 +252,24 @@ svg[data-id^="edge-"] * {
 /* Force all SVG paths to have no fill */
 .react-flow__edge path {
   fill: none !important;
+}
+
+/* Custom handle styles for positive/negative connections */
+.handle-positive {
+  background-color: #10B981 !important;
+  border-color: white !important;
+}
+
+.handle-negative {
+  background-color: #EF4444 !important;
+  border-color: white !important;
+}
+
+/* Ensure connections are visible */
+.react-flow__connection {
+  z-index: 1000 !important;
+}
+
+.react-flow__edge {
+  z-index: 1000 !important;
 }

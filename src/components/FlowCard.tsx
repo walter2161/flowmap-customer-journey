@@ -324,15 +324,18 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         cardTypeClasses[data.type]
       } ${selected ? 'ring-2 ring-blue-400 shadow-xl' : ''}`}
     >
-      {/* Left handle - entry point - now more visible */}
-      <div className="absolute left-0 top-[30px] ml-[-8px] z-20">
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="connector-handle !bg-blue-500 !border-white w-4 h-4 rounded-full"
-          style={{ zIndex: 20 }}
-        />
-      </div>
+      {/* Input handle (left side) */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="input"
+        style={{
+          zIndex: 1000,
+          top: '30px',
+          backgroundColor: '#3b82f6',
+          border: '2px solid white',
+        }}
+      />
       
       {/* Header */}
       <div className={`p-3 ${cardTypeHeaders[data.type]} flex justify-between items-center`}>
@@ -415,35 +418,40 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         </div>
       )}
       
-      {/* Bottom right connectors - exit points - now more visible */}
-      <div className="absolute right-[-8px] bottom-10 flex flex-col gap-4 z-20">
-        {/* Positive handle */}
-        <div className="relative group">
-          <Handle
-            id="positive"
-            type="source"
-            position={Position.Right}
-            className="connector-handle !bg-green-500 !border-white w-4 h-4 rounded-full"
-            style={{ zIndex: 20 }}
-          />
-          <div className="absolute right-[-30px] opacity-0 group-hover:opacity-100 transition-opacity">
-            <PlusCircle className="w-4 h-4 text-green-500" />
-          </div>
-        </div>
-        
-        {/* Negative handle */}
-        <div className="relative group">
-          <Handle
-            id="negative"
-            type="source"
-            position={Position.Right}
-            className="connector-handle !bg-red-500 !border-white w-4 h-4 rounded-full"
-            style={{ zIndex: 20 }}
-          />
-          <div className="absolute right-[-30px] opacity-0 group-hover:opacity-100 transition-opacity">
-            <MinusCircle className="w-4 h-4 text-red-500" />
-          </div>
-        </div>
+      {/* Output handles (right side) */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="positive"
+        style={{
+          top: '60px',
+          zIndex: 1000,
+          backgroundColor: '#10B981', // Green for positive
+          border: '2px solid white',
+        }}
+        className="handle-positive"
+      />
+      
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="negative"
+        style={{
+          top: '90px',
+          zIndex: 1000, 
+          backgroundColor: '#EF4444', // Red for negative
+          border: '2px solid white',
+        }}
+        className="handle-negative"
+      />
+      
+      {/* Visual indicators for handle types */}
+      <div className="absolute right-4 top-[60px] flex items-center">
+        <PlusCircle className="w-4 h-4 text-green-500" />
+      </div>
+      
+      <div className="absolute right-4 top-[90px] flex items-center">
+        <MinusCircle className="w-4 h-4 text-red-500" />
       </div>
     </div>
   );
