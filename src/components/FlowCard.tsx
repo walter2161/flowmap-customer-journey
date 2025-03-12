@@ -3,22 +3,6 @@ import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard } from '@/utils/flowTypes';
 import { PlusCircle, MinusCircle, Edit } from 'lucide-react';
-import { 
-  Home, 
-  Flag, 
-  CheckSquare, 
-  Building, 
-  Wrench, 
-  Package, 
-  List, 
-  MessageSquareQuestion, 
-  User, 
-  Calendar, 
-  ClipboardList, 
-  FileText, 
-  Zap, 
-  Code
-} from 'lucide-react';
 
 interface FlowCardProps {
   data: FlowCard;
@@ -28,69 +12,19 @@ interface FlowCardProps {
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
   regular: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
-  end: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500',
-  imovel: 'bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-500',
-  servico: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-500',
-  produto: 'bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-500',
-  multipla_escolha: 'bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-500',
-  pergunta_resposta: 'bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-500',
-  contatos: 'bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-500',
-  agendar: 'bg-gradient-to-br from-cyan-50 to-cyan-100 border-2 border-cyan-500',
-  ordem_servico: 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500',
-  briefing: 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-500',
-  acao: 'bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-500',
-  html: 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-500'
+  end: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500'
 };
 
 const cardTypeHeaders = {
   initial: 'bg-green-500 text-white',
   regular: 'bg-blue-500 text-white',
-  end: 'bg-red-500 text-white',
-  imovel: 'bg-purple-500 text-white',
-  servico: 'bg-yellow-500 text-white',
-  produto: 'bg-indigo-500 text-white',
-  multipla_escolha: 'bg-pink-500 text-white',
-  pergunta_resposta: 'bg-orange-500 text-white',
-  contatos: 'bg-teal-500 text-white',
-  agendar: 'bg-cyan-500 text-white',
-  ordem_servico: 'bg-lime-500 text-white',
-  briefing: 'bg-emerald-500 text-white',
-  acao: 'bg-amber-500 text-white',
-  html: 'bg-gray-500 text-white'
-};
-
-const cardTypeIcons = {
-  initial: <Home className="w-4 h-4" />,
-  regular: <CheckSquare className="w-4 h-4" />,
-  end: <Flag className="w-4 h-4" />,
-  imovel: <Building className="w-4 h-4" />,
-  servico: <Wrench className="w-4 h-4" />,
-  produto: <Package className="w-4 h-4" />,
-  multipla_escolha: <List className="w-4 h-4" />,
-  pergunta_resposta: <MessageSquareQuestion className="w-4 h-4" />,
-  contatos: <User className="w-4 h-4" />,
-  agendar: <Calendar className="w-4 h-4" />,
-  ordem_servico: <ClipboardList className="w-4 h-4" />,
-  briefing: <FileText className="w-4 h-4" />,
-  acao: <Zap className="w-4 h-4" />,
-  html: <Code className="w-4 h-4" />
+  end: 'bg-red-500 text-white'
 };
 
 const cardTypeLabels = {
   initial: 'INÍCIO',
   regular: '',
-  end: 'FIM',
-  imovel: 'IMÓVEL',
-  servico: 'SERVIÇO',
-  produto: 'PRODUTO',
-  multipla_escolha: 'MÚLT.ESCOLHA',
-  pergunta_resposta: 'PERGUNTAS',
-  contatos: 'CONTATOS',
-  agendar: 'AGENDAR',
-  ordem_servico: 'OS',
-  briefing: 'BRIEFING',
-  acao: 'AÇÃO',
-  html: 'HTML'
+  end: 'FIM'
 };
 
 const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
@@ -122,7 +56,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   return (
     <div
       className={`w-[320px] rounded-xl shadow-lg transition-all duration-300 overflow-hidden flow-card-appear ${
-        cardTypeClasses[data.type] || cardTypeClasses.regular
+        cardTypeClasses[data.type]
       } ${selected ? 'ring-2 ring-blue-400 shadow-xl' : ''}`}
     >
       {/* Left handle - entry point */}
@@ -135,9 +69,9 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       </div>
       
       {/* Header */}
-      <div className={`p-3 ${cardTypeHeaders[data.type] || cardTypeHeaders.regular} flex justify-between items-center`}>
-        <span className="font-bold text-xs px-2 py-1 rounded bg-white/20 flex items-center gap-1">
-          {cardTypeIcons[data.type]} {cardTypeLabels[data.type]}
+      <div className={`p-3 ${cardTypeHeaders[data.type]} flex justify-between items-center`}>
+        <span className="font-bold text-xs px-2 py-1 rounded bg-white/20">
+          {cardTypeLabels[data.type]}
         </span>
         <h3 className="font-bold text-center uppercase tracking-wide flex-1">
           {data.title}
