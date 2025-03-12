@@ -1,18 +1,21 @@
 
 import React from 'react';
-import { Panel } from 'reactflow';
 import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
 
 interface FlowControlsProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
-  onReset: () => void;
-  onSave: () => void;
-  onLoad: () => void;
-  onExport: () => void;
-  onScript: () => void;
-  onTemplate: () => void;
-  onNewCard: () => void;
+  onReset?: () => void;
+  onSave?: () => void;
+  onLoad?: () => void;
+  onExport?: () => void;
+  onScript?: () => void;
+  onTemplate?: () => void;
+  onNewCard?: () => void;
+  onExportJson?: () => void;
+  onGenerateScript?: () => void;
+  onLoadTemplate?: () => void;
+  onFitView?: () => boolean | void;
 }
 
 const FlowControls: React.FC<FlowControlsProps> = ({
@@ -24,90 +27,70 @@ const FlowControls: React.FC<FlowControlsProps> = ({
   onExport,
   onScript,
   onTemplate,
-  onNewCard
+  onNewCard,
+  onExportJson,
+  onGenerateScript,
+  onLoadTemplate,
+  onFitView
 }) => {
   return (
-    <>
-      {/* File operations */}
-      <Panel position="top-right" className="p-2">
-        <div className="flex flex-col gap-2">
-          <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
-            <button
-              onClick={onSave}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Save Flow"
-            >
-              <Save className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onLoad}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Load Flow"
-            >
-              <Upload className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onExport}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Export Flow"
-            >
-              <Download className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
+    <div className="flex flex-col space-y-2">
+      <div className="bg-white p-2 rounded-lg shadow-md flex flex-col space-y-2">
+        <button
+          onClick={onZoomIn}
+          className="p-2 rounded hover:bg-gray-100 transition-colors"
+          title="Zoom In"
+        >
+          <Plus size={20} />
+        </button>
+        <button
+          onClick={onZoomOut}
+          className="p-2 rounded hover:bg-gray-100 transition-colors"
+          title="Zoom Out"
+        >
+          <Minus size={20} />
+        </button>
+        {onFitView && (
+          <button
+            onClick={onFitView}
+            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            title="Fit View"
+          >
+            <RotateCw size={20} />
+          </button>
+        )}
+      </div>
 
-          <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
-            <button
-              onClick={onNewCard}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Criar Novo Cartão"
-            >
-              <PlusCircle className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onScript}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Gerar Script AI"
-            >
-              <FileText className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onTemplate}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Escolher Template"
-            >
-              <LayoutTemplate className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      </Panel>
-
-      {/* Zoom controls - moved to bottom right */}
-      <Panel position="bottom-right" className="p-2 mb-4 mr-4">
-        <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
+      <div className="bg-white p-2 rounded-lg shadow-md flex flex-col space-y-2">
+        {onExportJson && (
           <button
-            onClick={onZoomIn}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            title="Zoom In"
+            onClick={onExportJson}
+            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            title="Export JSON"
           >
-            <Plus className="w-5 h-5 text-gray-700" />
+            <Download size={20} />
           </button>
+        )}
+        {onGenerateScript && (
           <button
-            onClick={onZoomOut}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            title="Zoom Out"
+            onClick={onGenerateScript}
+            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            title="Generate Script"
           >
-            <Minus className="w-5 h-5 text-gray-700" />
+            <FileText size={20} />
           </button>
+        )}
+        {onLoadTemplate && (
           <button
-            onClick={onReset}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            title="Reset View"
+            onClick={onLoadTemplate}
+            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            title="Load Template"
           >
-            <RotateCw className="w-5 h-5 text-gray-700" />
+            <LayoutTemplate size={20} />
           </button>
-        </div>
-      </Panel>
-    </>
+        )}
+      </div>
+    </div>
   );
 };
 
