@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -19,12 +18,14 @@ import ReactFlow, {
   Panel
 } from 'reactflow';
 import { useToast } from '@/components/ui/use-toast';
-import { FlowCard, FlowConnection, FlowData } from '@/utils/flowTypes';
+import { FlowCard, FlowConnection, FlowData, CardType } from '@/utils/flowTypes';
 import FlowCardComponent from './FlowCard';
 import FlowConnector from './FlowConnector';
 import FlowControls from './FlowControls';
 import { initialFlowData } from '@/utils/initialData';
 import { nanoid } from 'nanoid';
+import CardTypeSelector, { cardTypeLabels } from './CardTypeSelector';
+import { PlusCircle } from 'lucide-react';
 
 import 'reactflow/dist/style.css';
 
@@ -179,6 +180,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const [jsonModalOpen, setJsonModalOpen] = useState(false);
   const [scriptModalOpen, setScriptModalOpen] = useState(false);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [cardTypeSelectorOpen, setCardTypeSelectorOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
 
@@ -207,6 +209,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const reactFlowInstance = useReactFlow();
 
   // Create connections with custom styling
   const onConnect: OnConnect = useCallback(
@@ -503,6 +506,44 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [setNodes, setEdges, fitView, toast]);
 
+  // Handle creating a new card
+  const handleNewCard = useCallback(() => {
+    setCardTypeSelectorOpen(true);
+  }, []);
+
+  // Handle card type selection
+  const handleCardTypeSelect = useCallback((type: CardType) => {
+    const { x, y, zoom } = reactFlowInstance.getViewport();
+    
+    // Calculate position in the center of the current view
+    const position = {
+      x: (window.innerWidth / 2 - x) / zoom,
+      y: (window.innerHeight / 2 - 100 - y) / zoom
+    };
+    
+    const newNode = {
+      id: `node-${nanoid(6)}`,
+      type: 'flowCard',
+      position,
+      data: {
+        id: `card-${nanoid(6)}`,
+        title: `Novo Cartão ${cardTypeLabels[type]}`,
+        description: 'Descrição do cartão',
+        content: 'Conteúdo do cartão',
+        type: type
+      }
+    };
+
+    setNodes(nodes => [...nodes, newNode]);
+    setCardTypeSelectorOpen(false);
+    
+    toast({
+      title: 'Cartão Criado',
+      description: `Um novo cartão do tipo ${cardTypeLabels[type]} foi adicionado ao fluxo.`,
+      duration: 2000,
+    });
+  }, [setNodes, reactFlowInstance, toast]);
+
   // Initialize
   useEffect(() => {
     setTimeout(() => {
@@ -554,6 +595,17 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           color="#CCCCCC" 
           className="bg-gradient-to-br from-gray-50 to-blue-50"
         />
+        
+        {/* Create New Card button */}
+        <Panel position="top-right" className="mr-20 mt-4">
+          <button
+            onClick={handleNewCard}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors"
+          >
+            <PlusCircle className="w-5 h-5" />
+            Criar Novo Cartão
+          </button>
+        </Panel>
         
         <FlowControls
           onZoomIn={zoomIn}
@@ -676,6 +728,14 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
               </div>
             </div>
           </Panel>
+        )}
+
+        {/* Card Type Selector Modal */}
+        {cardTypeSelectorOpen && (
+          <CardTypeSelector 
+            onSelect={handleCardTypeSelect}
+            onClose={() => setCardTypeSelectorOpen(false)}
+          />
         )}
       </ReactFlow>
     </div>
