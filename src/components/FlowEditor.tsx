@@ -390,79 +390,78 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Generate AI script from flow with numbered IDs and lettered outputs
   const onGenerateScript = useCallback(() => {
-    // Helper function to get a two-digit formatted number
-    const formatId = (num: number): string => num.toString().padStart(2, '0');
-    
     // Create a map of existing IDs to sequential numbers
-    const idMap = new Map<string, number>();
+    const idMap = new Map<string, string>();
     let currentId = 1;
     
     // First, map all node IDs to sequential numbers
     nodes.forEach(node => {
       if (!idMap.has(node.id)) {
-        idMap.set(node.id, currentId++);
+        // Format numbers to always have 2 digits (01, 02, etc)
+        const formattedId = currentId.toString().padStart(2, '0');
+        idMap.set(node.id, formattedId);
+        currentId++;
       }
     });
 
     let script = "# SCRIPT DE ATENDIMENTO ESTRUTURADO\n\n";
     
-    // Process initial nodes first
-    const initialNodes = nodes.filter(node => node.data.type === 'initial');
-    
-    if (initialNodes.length === 0) {
-      script += "AVISO: Este fluxo não possui um ponto de início definido.\n\n";
-    } else {
-      // Process each node and its connections
-      nodes.forEach(node => {
-        const nodeId = formatId(idMap.get(node.id) || 0);
-        
-        script += `id: ${nodeId} - ${node.data.title.toUpperCase()}\n`;
-        script += `Mensagem: ${node.data.content}\n\n`;
-        
-        // Find outgoing connections
-        const nodeConnections = edges.filter(edge => edge.source === node.id);
-        
-        if (nodeConnections.length > 0) {
-          script += `Etapa "id: ${nodeId}":\n`;
-          
-          // Sort connections by type (positive first, then negative)
-          const sortedConnections = nodeConnections.sort((a, b) => {
-            const typeA = a.data?.type || 'neutral';
-            const typeB = b.data?.type || 'neutral';
-            return typeA === 'positive' ? -1 : typeB === 'positive' ? 1 : 0;
-          });
-          
-          sortedConnections.forEach(connection => {
-            const targetNode = nodes.find(n => n.id === connection.target);
-            const targetId = formatId(idMap.get(connection.target) || 0);
-            const outputLetter = connection.data?.type === 'positive' ? 'A' : 'B';
-            
-            if (targetNode) {
-              script += `Se a resposta do usuário for **${
-                connection.data?.type === 'positive' ? 'positiva' : 'negativa'
-              } (${nodeId}${outputLetter})** → inicie a etapa "id: ${targetId}".\n`;
-            }
-          });
-          
-          script += '\n';
-        }
-      });
+    // Process nodes in order of their assigned IDs
+    const sortedNodes = [...nodes].sort((a, b) => {
+      const idA = parseInt(idMap.get(a.id) || '99');
+      const idB = parseInt(idMap.get(b.id) || '99');
+      return idA - idB;
+    });
+
+    // Process each node and its connections
+    sortedNodes.forEach(node => {
+      const nodeId = idMap.get(node.id) || '00';
       
-      // Add legend at the end
-      script += "# LEGENDA\n\n";
-      script += "- Saída A: Resposta positiva\n";
-      script += "- Saída B: Resposta negativa\n\n";
+      script += `id: ${nodeId} - ${node.data.title.toUpperCase()}\n`;
+      script += `Mensagem: ${node.data.content}\n\n`;
       
-      // Add node reference
-      script += "# REFERÊNCIA DE IDs\n\n";
-      nodes.forEach(node => {
-        const nodeId = formatId(idMap.get(node.id) || 0);
-        script += `${nodeId}: ${node.data.title}\n`;
-      });
-    }
+      // Find outgoing connections
+      const nodeConnections = edges.filter(edge => edge.source === node.id);
+      
+      if (nodeConnections.length > 0) {
+        script += `Etapa "id: ${nodeId}":\n`;
+        
+        // Sort connections by type (positive first, then negative)
+        const sortedConnections = nodeConnections.sort((a, b) => {
+          if (a.data?.type === 'positive' && b.data?.type !== 'positive') return -1;
+          if (a.data?.type !== 'positive' && b.data?.type === 'positive') return 1;
+          return 0;
+        });
+        
+        sortedConnections.forEach(connection => {
+          const targetNode = nodes.find(n => n.id === connection.target);
+          const targetId = idMap.get(connection.target) || '00';
+          const outputLetter = connection.data?.type === 'positive' ? 'A' : 'B';
+          
+          if (targetNode) {
+            script += `Se a resposta do usuário for **${
+              connection.data?.type === 'positive' ? 'positiva' : 'negativa'
+            } (${nodeId}${outputLetter})** → inicie a etapa "id: ${targetId}".\n`;
+          }
+        });
+        
+        script += '\n';
+      }
+    });
+  
+    // Add legend at the end
+    script += "# LEGENDA\n\n";
+    script += "- Saída A: Resposta positiva\n";
+    script += "- Saída B: Resposta negativa\n\n";
     
+    // Add node reference
+    script += "# REFERÊNCIA DE IDs\n\n";
+    sortedNodes.forEach(node => {
+      const nodeId = idMap.get(node.id) || '00';
+      script += `${nodeId}: ${node.data.title}\n`;
+    });
+  
     setGeneratedScript(script);
     setScriptModalOpen(true);
   }, [nodes, edges]);
