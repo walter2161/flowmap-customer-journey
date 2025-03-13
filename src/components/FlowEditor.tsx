@@ -545,8 +545,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     // First, map all node IDs to sequential numbers
     nodes.forEach(node => {
       if (!idMap.has(node.id)) {
-        // Format numbers to always have 2 digits (01, 02, etc)
-        const formattedId = currentId.toString().padStart(2, '0');
+        // Format numbers to always have 2 digits (01, 02, etc)\n        const formattedId = currentId.toString().padStart(2, '0');
         idMap.set(node.id, formattedId);
         currentId++;
       }
