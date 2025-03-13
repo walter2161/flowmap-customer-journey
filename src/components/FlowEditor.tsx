@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -508,7 +507,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       id: edge.id,
       start: edge.source,
       end: edge.target,
-      type: (edge.data?.type || 'custom') as 'positive' | 'negative' | 'neutral' | 'custom',
+      type: (edge.data?.type || 'custom') as ConnectionType,
       sourceHandle: edge.sourceHandle,
       sourcePortLabel: edge.data?.portLabel,
     }));
@@ -636,9 +635,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       },
       style: {
         strokeWidth: 3,
-        stroke: connection.type === 'positive' ? '#10B981' : 
-                connection.type === 'negative' ? '#EF4444' : 
-                connection.type === 'custom' ? '#3B82F6' : '#6B7280',
+        // Fix type comparisons by using the correct approach
+        stroke: (() => {
+          if (connection.type === 'positive') return '#10B981';
+          if (connection.type === 'negative') return '#EF4444';
+          if (connection.type === 'custom') return '#3B82F6';
+          return '#6B7280'; // default for neutral or any other type
+        })(),
       },
     }));
     
