@@ -54,9 +54,6 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     targetPosition,
   });
   
-  // Display port label if available
-  const portLabel = data?.portLabel;
-  
   return (
     <>
       <path
@@ -72,22 +69,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
         }}
       />
       
-      {/* Display port label if available */}
-      {portLabel && (
-        <text
-          x={(sourceX + targetX) / 2}
-          y={(sourceY + targetY) / 2 - 10}
-          textAnchor="middle"
-          style={{
-            fontSize: 10,
-            fontFamily: 'Arial',
-            fill: '#666',
-            pointerEvents: 'none',
-          }}
-        >
-          {portLabel}
-        </text>
-      )}
+      {/* Port label removed as requested */}
       
       {/* Delete button in the middle of the path */}
       <foreignObject

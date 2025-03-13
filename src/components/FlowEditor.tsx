@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -30,7 +31,76 @@ import 'reactflow/dist/style.css';
 
 // Template data
 const templates = {
-  imobiliaria: initialFlowData, // Using initial data as the real estate template
+  imobiliaria: {
+    cards: [
+      {
+        id: "imob-1",
+        title: "Boas-vindas Imobiliária",
+        description: "Primeiro contato com cliente",
+        content: "Olá! Bem-vindo à Imobiliária Exemplo. Como posso ajudar você hoje? Está procurando imóveis para compra, venda ou aluguel?",
+        position: { x: 71, y: 32 },
+        type: "initial" as const,
+        outputPorts: [
+          { id: "port-imob1-1", label: "Procurando imóvel para compra" },
+          { id: "port-imob1-2", label: "Procurando imóvel para aluguel" },
+          { id: "port-imob1-3", label: "Quero vender/alugar meu imóvel" }
+        ]
+      },
+      {
+        id: "imob-2",
+        title: "Compra de Imóvel",
+        description: "Cliente quer comprar imóvel",
+        content: "Ótimo! Temos diversas opções para compra. Qual tipo de imóvel você está procurando? Apartamento, casa, terreno?",
+        position: { x: 433, y: 63 },
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-imob2-1", label: "Apartamento" },
+          { id: "port-imob2-2", label: "Casa" },
+          { id: "port-imob2-3", label: "Terreno" }
+        ]
+      },
+      {
+        id: "imob-3",
+        title: "Aluguel de Imóvel",
+        description: "Cliente quer alugar imóvel",
+        content: "Temos ótimas opções para locação. Qual tipo de imóvel você está procurando para alugar?",
+        position: { x: 483, y: 300 },
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-imob3-1", label: "Residencial" },
+          { id: "port-imob3-2", label: "Comercial" }
+        ]
+      },
+      {
+        id: "imob-4",
+        title: "Vender/Alugar Imóvel",
+        description: "Cliente quer anunciar imóvel",
+        content: "Podemos ajudá-lo a vender ou alugar seu imóvel. Por favor, me diga qual seu interesse.",
+        position: { x: 483, y: 491 },
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-imob4-1", label: "Vender meu imóvel" },
+          { id: "port-imob4-2", label: "Colocar para aluguel" }
+        ]
+      },
+      {
+        id: "imob-5",
+        title: "Finalização",
+        description: "Encerramento do atendimento",
+        content: "Obrigado pelo seu interesse. Um de nossos corretores entrará em contato em breve para dar continuidade ao seu atendimento.",
+        position: { x: 789, y: 250 },
+        type: "end" as const
+      }
+    ],
+    connections: [
+      { id: "imob-conn-1", start: "imob-1", end: "imob-2", type: "custom" as const, sourceHandle: "port-imob1-1", sourcePortLabel: "Procurando imóvel para compra" },
+      { id: "imob-conn-2", start: "imob-1", end: "imob-3", type: "custom" as const, sourceHandle: "port-imob1-2", sourcePortLabel: "Procurando imóvel para aluguel" },
+      { id: "imob-conn-3", start: "imob-1", end: "imob-4", type: "custom" as const, sourceHandle: "port-imob1-3", sourcePortLabel: "Quero vender/alugar meu imóvel" },
+      { id: "imob-conn-4", start: "imob-2", end: "imob-5", type: "custom" as const, sourceHandle: "port-imob2-1", sourcePortLabel: "Apartamento" },
+      { id: "imob-conn-5", start: "imob-3", end: "imob-5", type: "custom" as const, sourceHandle: "port-imob3-1", sourcePortLabel: "Residencial" },
+      { id: "imob-conn-6", start: "imob-4", end: "imob-5", type: "custom" as const, sourceHandle: "port-imob4-1", sourcePortLabel: "Vender meu imóvel" }
+    ]
+  },
   coworking: {
     cards: [
       {
@@ -39,7 +109,11 @@ const templates = {
         description: "Primeiro contato com cliente",
         content: "Olá! Bem-vindo ao Espaço Colaborativo. Como posso ajudar você hoje? Está interessado em conhecer nossos planos ou agendar uma visita?",
         position: { x: 71, y: 32 },
-        type: "initial" as const
+        type: "initial" as const,
+        outputPorts: [
+          { id: "port-cowork1-1", label: "Quero conhecer os planos" },
+          { id: "port-cowork1-2", label: "Quero agendar uma visita" }
+        ]
       },
       {
         id: "cowork-2",
@@ -47,7 +121,12 @@ const templates = {
         description: "Cliente interessado nos planos",
         content: "Temos diversos planos para atender suas necessidades. Temos plano diário, semanal e mensal. Qual deles melhor atende sua necessidade?",
         position: { x: 433, y: 63 },
-        type: "regular" as const
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-cowork2-1", label: "Plano diário" },
+          { id: "port-cowork2-2", label: "Plano semanal" },
+          { id: "port-cowork2-3", label: "Plano mensal" }
+        ]
       },
       {
         id: "cowork-3",
@@ -55,7 +134,11 @@ const templates = {
         description: "Cliente quer conhecer o espaço",
         content: "Ficaremos felizes em recebê-lo para conhecer nosso espaço. Temos disponibilidade nos seguintes horários: [lista de horários]. Qual seria melhor para você?",
         position: { x: 483, y: 491 },
-        type: "regular" as const
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-cowork3-1", label: "Manhã" },
+          { id: "port-cowork3-2", label: "Tarde" }
+        ]
       },
       {
         id: "cowork-4",
@@ -67,10 +150,10 @@ const templates = {
       }
     ],
     connections: [
-      { id: "cowork-conn-1", start: "cowork-1", end: "cowork-2", type: "positive" as const },
-      { id: "cowork-conn-2", start: "cowork-1", end: "cowork-3", type: "negative" as const },
-      { id: "cowork-conn-3", start: "cowork-2", end: "cowork-4", type: "positive" as const },
-      { id: "cowork-conn-4", start: "cowork-3", end: "cowork-4", type: "positive" as const }
+      { id: "cowork-conn-1", start: "cowork-1", end: "cowork-2", type: "custom" as const, sourceHandle: "port-cowork1-1", sourcePortLabel: "Quero conhecer os planos" },
+      { id: "cowork-conn-2", start: "cowork-1", end: "cowork-3", type: "custom" as const, sourceHandle: "port-cowork1-2", sourcePortLabel: "Quero agendar uma visita" },
+      { id: "cowork-conn-3", start: "cowork-2", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork2-1", sourcePortLabel: "Plano diário" },
+      { id: "cowork-conn-4", start: "cowork-3", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork3-1", sourcePortLabel: "Manhã" }
     ]
   },
   clinica: {
@@ -81,7 +164,11 @@ const templates = {
         description: "Primeiro contato com paciente",
         content: "Olá! Bem-vindo à Clínica Saúde Total. Como posso ajudar você hoje? Deseja agendar uma consulta ou tirar dúvidas sobre nossos serviços?",
         position: { x: 71, y: 32 },
-        type: "initial" as const
+        type: "initial" as const,
+        outputPorts: [
+          { id: "port-clinic1-1", label: "Agendar consulta" },
+          { id: "port-clinic1-2", label: "Dúvidas sobre serviços" }
+        ]
       },
       {
         id: "clinic-2",
@@ -89,7 +176,12 @@ const templates = {
         description: "Paciente deseja agendar consulta",
         content: "Para agendar sua consulta, preciso de algumas informações: 1) Qual especialidade médica você procura? 2) Tem preferência de data e horário? 3) Já é paciente da clínica?",
         position: { x: 433, y: 63 },
-        type: "regular" as const
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-clinic2-1", label: "Cardiologia" },
+          { id: "port-clinic2-2", label: "Dermatologia" },
+          { id: "port-clinic2-3", label: "Ortopedia" }
+        ]
       },
       {
         id: "clinic-3",
@@ -97,7 +189,12 @@ const templates = {
         description: "Paciente com dúvidas",
         content: "Nossa clínica oferece diversas especialidades médicas, incluindo: cardiologia, dermatologia, ortopedia, e muitas outras. Qual serviço específico você gostaria de saber mais?",
         position: { x: 483, y: 491 },
-        type: "regular" as const
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-clinic3-1", label: "Exames laboratoriais" },
+          { id: "port-clinic3-2", label: "Cirurgias" },
+          { id: "port-clinic3-3", label: "Planos de saúde" }
+        ]
       },
       {
         id: "clinic-4",
@@ -109,10 +206,10 @@ const templates = {
       }
     ],
     connections: [
-      { id: "clinic-conn-1", start: "clinic-1", end: "clinic-2", type: "positive" as const },
-      { id: "clinic-conn-2", start: "clinic-1", end: "clinic-3", type: "negative" as const },
-      { id: "clinic-conn-3", start: "clinic-2", end: "clinic-4", type: "positive" as const },
-      { id: "clinic-conn-4", start: "clinic-3", end: "clinic-4", type: "positive" as const }
+      { id: "clinic-conn-1", start: "clinic-1", end: "clinic-2", type: "custom" as const, sourceHandle: "port-clinic1-1", sourcePortLabel: "Agendar consulta" },
+      { id: "clinic-conn-2", start: "clinic-1", end: "clinic-3", type: "custom" as const, sourceHandle: "port-clinic1-2", sourcePortLabel: "Dúvidas sobre serviços" },
+      { id: "clinic-conn-3", start: "clinic-2", end: "clinic-4", type: "custom" as const, sourceHandle: "port-clinic2-1", sourcePortLabel: "Cardiologia" },
+      { id: "clinic-conn-4", start: "clinic-3", end: "clinic-4", type: "custom" as const, sourceHandle: "port-clinic3-1", sourcePortLabel: "Exames laboratoriais" }
     ]
   },
   marketing: {
@@ -123,7 +220,11 @@ const templates = {
         description: "Primeiro contato com cliente",
         content: "Olá! Bem-vindo à Agência Impacto Digital. Como posso ajudar sua empresa hoje? Está interessado em melhorar sua presença online ou em uma campanha específica?",
         position: { x: 71, y: 32 },
-        type: "initial" as const
+        type: "initial" as const,
+        outputPorts: [
+          { id: "port-mkt1-1", label: "Presença online" },
+          { id: "port-mkt1-2", label: "Campanha específica" }
+        ]
       },
       {
         id: "mkt-2",
@@ -131,7 +232,12 @@ const templates = {
         description: "Cliente interessado em presença digital",
         content: "Para melhorar sua presença online, oferecemos serviços de otimização de SEO, gestão de redes sociais e marketing de conteúdo. Qual aspecto é mais urgente para seu negócio?",
         position: { x: 433, y: 63 },
-        type: "regular" as const
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-mkt2-1", label: "SEO" },
+          { id: "port-mkt2-2", label: "Redes sociais" },
+          { id: "port-mkt2-3", label: "Marketing de conteúdo" }
+        ]
       },
       {
         id: "mkt-3",
@@ -139,7 +245,12 @@ const templates = {
         description: "Cliente interessado em campanhas",
         content: "Desenvolvemos campanhas personalizadas para diversos objetivos: lançamento de produtos, aumento de vendas, reconhecimento de marca. Qual é o principal objetivo da sua campanha?",
         position: { x: 483, y: 491 },
-        type: "regular" as const
+        type: "regular" as const,
+        outputPorts: [
+          { id: "port-mkt3-1", label: "Lançamento de produto" },
+          { id: "port-mkt3-2", label: "Aumento de vendas" },
+          { id: "port-mkt3-3", label: "Reconhecimento de marca" }
+        ]
       },
       {
         id: "mkt-4",
@@ -151,10 +262,10 @@ const templates = {
       }
     ],
     connections: [
-      { id: "mkt-conn-1", start: "mkt-1", end: "mkt-2", type: "positive" as const },
-      { id: "mkt-conn-2", start: "mkt-1", end: "mkt-3", type: "negative" as const },
-      { id: "mkt-conn-3", start: "mkt-2", end: "mkt-4", type: "positive" as const },
-      { id: "mkt-conn-4", start: "mkt-3", end: "mkt-4", type: "positive" as const }
+      { id: "mkt-conn-1", start: "mkt-1", end: "mkt-2", type: "custom" as const, sourceHandle: "port-mkt1-1", sourcePortLabel: "Presença online" },
+      { id: "mkt-conn-2", start: "mkt-1", end: "mkt-3", type: "custom" as const, sourceHandle: "port-mkt1-2", sourcePortLabel: "Campanha específica" },
+      { id: "mkt-conn-3", start: "mkt-2", end: "mkt-4", type: "custom" as const, sourceHandle: "port-mkt2-1", sourcePortLabel: "SEO" },
+      { id: "mkt-conn-4", start: "mkt-3", end: "mkt-4", type: "custom" as const, sourceHandle: "port-mkt3-1", sourcePortLabel: "Lançamento de produto" }
     ]
   }
 };

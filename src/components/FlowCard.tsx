@@ -682,7 +682,10 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   };
 
   return (
-    <div className={`rounded-md shadow-md overflow-hidden ${cardTypeClasses[data.type]} ${selected ? 'ring-2 ring-black ring-opacity-50' : ''}`}>
+    <div 
+      className={`rounded-md shadow-md overflow-hidden ${cardTypeClasses[data.type]} ${selected ? 'ring-2 ring-black ring-opacity-50' : ''}`}
+      style={{ width: '350px' }} // Set standard width for all cards
+    >
       {/* Input source handle */}
       {data.type !== 'initial' && (
         <Handle
