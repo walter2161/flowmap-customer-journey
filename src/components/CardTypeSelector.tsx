@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
 
@@ -744,80 +743,4 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
-              <textarea
-                value={formData.observacoes}
-                onChange={(e) => handleInputChange('observacoes', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={3}
-              />
-            </div>
-          </>
-        );
-        
-      // Add other cases as needed
-      default:
-        return commonFields;
-    }
-  };
-
-  const handleSubmit = () => {
-    onSelect(selectedType!, formData);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Selecione o tipo de cartão</h2>
-        
-        {!selectedType ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {cardTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => handleSelectType(type)}
-                className={`p-3 border rounded-md transition-colors text-center hover:shadow-md ${cardTypeColors[type]}`}
-              >
-                {cardTypeLabels[type]}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div>
-            <div className="mb-4">
-              <span className={`px-2 py-1 rounded text-xs font-semibold ${cardTypeColors[selectedType]}`}>
-                {cardTypeLabels[selectedType]}
-              </span>
-            </div>
-            
-            {renderFormFields()}
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => setSelectedType(null)}
-                className="px-4 py-2 border border-blue-300 rounded-md text-blue-700 hover:bg-blue-50"
-              >
-                Voltar
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700"
-              >
-                Adicionar Cartão
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default CardTypeSelector;
+              <label className

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Panel } from 'reactflow';
 import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
 
 interface FlowControlsProps {
@@ -29,7 +28,7 @@ const FlowControls: React.FC<FlowControlsProps> = ({
   return (
     <>
       {/* File operations */}
-      <Panel position="top-right" className="p-2">
+      <div className="p-2">
         <div className="flex flex-col gap-2">
           <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
             <button
@@ -79,10 +78,10 @@ const FlowControls: React.FC<FlowControlsProps> = ({
             </button>
           </div>
         </div>
-      </Panel>
+      </div>
 
-      {/* Zoom controls - moved to bottom right */}
-      <Panel position="bottom-right" className="p-2 mb-4 mr-4">
+      {/* Zoom controls */}
+      <div className="p-2 absolute bottom-4 right-4">
         <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
           <button
             onClick={onZoomIn}
@@ -106,7 +105,7 @@ const FlowControls: React.FC<FlowControlsProps> = ({
             <RotateCw className="w-5 h-5 text-gray-700" />
           </button>
         </div>
-      </Panel>
+      </div>
     </>
   );
 };
