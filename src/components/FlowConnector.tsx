@@ -6,6 +6,7 @@ import { ConnectionType } from '@/utils/flowTypes';
 interface FlowConnectorProps extends EdgeProps {
   data?: {
     type: ConnectionType;
+    portLabel?: string;
   };
   sourceHandle?: string;
 }
@@ -13,7 +14,8 @@ interface FlowConnectorProps extends EdgeProps {
 const connectionColors = {
   positive: '#10B981', // Green
   negative: '#EF4444', // Red
-  neutral: '#6B7280'  // Gray
+  neutral: '#6B7280',  // Gray
+  custom: '#3B82F6'    // Blue
 };
 
 const FlowConnector: React.FC<FlowConnectorProps> = ({
@@ -28,9 +30,10 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   data,
   sourceHandle,
 }) => {
-  // Determine the connection type from the sourceHandle or data
-  let connectionType: ConnectionType = 'neutral';
+  // Default to custom connection type for new system
+  let connectionType: ConnectionType = 'custom';
   
+  // For backward compatibility
   if (sourceHandle === 'positive') {
     connectionType = 'positive';
   } else if (sourceHandle === 'negative') {
@@ -51,6 +54,9 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     targetPosition,
   });
   
+  // Display port label if available
+  const portLabel = data?.portLabel;
+  
   return (
     <>
       <path
@@ -65,6 +71,23 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           zIndex: 1000,
         }}
       />
+      
+      {/* Display port label if available */}
+      {portLabel && (
+        <text
+          x={(sourceX + targetX) / 2}
+          y={(sourceY + targetY) / 2 - 10}
+          textAnchor="middle"
+          style={{
+            fontSize: 10,
+            fontFamily: 'Arial',
+            fill: '#666',
+            pointerEvents: 'none',
+          }}
+        >
+          {portLabel}
+        </text>
+      )}
       
       {/* Delete button in the middle of the path */}
       <foreignObject

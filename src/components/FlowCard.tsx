@@ -1,7 +1,8 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { FlowCard } from '@/utils/flowTypes';
-import { Edit } from 'lucide-react';
+import { FlowCard, OutputPort } from '@/utils/flowTypes';
+import { Edit, Plus, Trash } from 'lucide-react';
+import { nanoid } from 'nanoid';
 
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
@@ -80,6 +81,8 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   const [description, setDescription] = useState(data.description);
   const [content, setContent] = useState(data.content);
   const [fields, setFields] = useState(data.fields || {});
+  const [outputPorts, setOutputPorts] = useState<OutputPort[]>(data.outputPorts || []);
+  const [newPortLabel, setNewPortLabel] = useState('');
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -91,6 +94,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     data.description = description;
     data.content = content;
     data.fields = fields;
+    data.outputPorts = outputPorts;
     setIsEditing(false);
   };
 
@@ -100,6 +104,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     setDescription(data.description);
     setContent(data.content);
     setFields(data.fields || {});
+    setOutputPorts(data.outputPorts || []);
     setIsEditing(false);
   };
 
@@ -108,6 +113,21 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       ...fields,
       [key]: value
     });
+  };
+
+  const addOutputPort = () => {
+    if (newPortLabel.trim() !== '') {
+      const newPort: OutputPort = {
+        id: `port-${nanoid(6)}`,
+        label: newPortLabel.trim()
+      };
+      setOutputPorts([...outputPorts, newPort]);
+      setNewPortLabel('');
+    }
+  };
+
+  const removeOutputPort = (portId: string) => {
+    setOutputPorts(outputPorts.filter(port => port.id !== portId));
   };
 
   const renderTypeSpecificFields = () => {
@@ -607,16 +627,4 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
               {fields.imovel && <p className="text-xs text-gray-700"><span className="font-semibold">Imóvel:</span> {fields.imovel}</p>}
               {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
               {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
-              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
-            </div>
-          </div>
-        );
-      
-      case 'agendar-reuniao':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Reunião</p>
-            <div className="flex flex-wrap gap-x-4">
-              {fields.assunto && <p className="text-xs text-gray-700"><span className="font-semibold">Assunto:</span> {fields.assunto}</p>}
-              {fields.local && <p className="text-xs text-gray-700"><span className="
+              {fields.nomeCliente && <p className="text-xs text-

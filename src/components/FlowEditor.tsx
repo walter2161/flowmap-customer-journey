@@ -18,7 +18,7 @@ import ReactFlow, {
   Panel
 } from 'reactflow';
 import { useToast } from '@/components/ui/use-toast';
-import { FlowCard, FlowConnection, FlowData, CardType } from '@/utils/flowTypes';
+import { FlowCard, FlowConnection, FlowData, CardType, OutputPort, ConnectionType } from '@/utils/flowTypes';
 import FlowCardComponent from './FlowCard';
 import FlowConnector from './FlowConnector';
 import FlowControls from './FlowControls';
@@ -197,12 +197,16 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     source: connection.start,
     target: connection.end,
     type: 'flowConnector',
-    sourceHandle: connection.type, // Use connection type as sourceHandle
-    data: { type: connection.type },
+    sourceHandle: connection.sourceHandle || connection.type, // Use source handle or connection type
+    data: { 
+      type: connection.type,
+      portLabel: connection.sourcePortLabel // Include the port label
+    },
     style: {
       strokeWidth: 3,
       stroke: connection.type === 'positive' ? '#10B981' : 
-              connection.type === 'negative' ? '#EF4444' : '#6B7280',
+              connection.type === 'negative' ? '#EF4444' : 
+              connection.type === 'custom' ? '#3B82F6' : '#6B7280',
     },
   }));
 
@@ -215,19 +219,39 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const onConnect: OnConnect = useCallback(
     (connection) => {
       const sourceHandleId = connection.sourceHandle;
-      const connectionType = sourceHandleId === 'positive' ? 'positive' : 
-                           sourceHandleId === 'negative' ? 'negative' : 'neutral';
+      let connectionType: ConnectionType = 'custom'; // Default to custom for new system
+      let portLabel: string | undefined;
+      
+      // For backward compatibility
+      if (sourceHandleId === 'positive') {
+        connectionType = 'positive';
+      } else if (sourceHandleId === 'negative') {
+        connectionType = 'negative';
+      } else if (sourceHandleId) {
+        // Find the source node and get the port label
+        const sourceNode = nodes.find(node => node.id === connection.source);
+        if (sourceNode && sourceNode.data.outputPorts) {
+          const port = sourceNode.data.outputPorts.find((p: OutputPort) => p.id === sourceHandleId);
+          if (port) {
+            portLabel = port.label;
+          }
+        }
+      }
       
       const newEdge: Edge = {
         ...connection,
         id: `edge-${nanoid(6)}`,
         type: 'flowConnector',
-        sourceHandle: connectionType, // Set sourceHandle to match the connection type
-        data: { type: connectionType },
+        sourceHandle: sourceHandleId,
+        data: { 
+          type: connectionType,
+          portLabel 
+        },
         style: {
           strokeWidth: 3,
           stroke: connectionType === 'positive' ? '#10B981' : 
-                  connectionType === 'negative' ? '#EF4444' : '#6B7280',
+                  connectionType === 'negative' ? '#EF4444' : 
+                  connectionType === 'custom' ? '#3B82F6' : '#6B7280',
         },
       };
       
@@ -235,11 +259,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       
       toast({
         title: 'Conexão Criada',
-        description: `Conexão ${connectionType} adicionada ao fluxo.`,
+        description: portLabel 
+          ? `Conexão "${portLabel}" adicionada ao fluxo.`
+          : `Conexão adicionada ao fluxo.`,
         duration: 2000,
       });
     },
-    [setEdges, toast]
+    [setEdges, toast, nodes]
   );
 
   // Reset view
@@ -257,6 +283,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       content: node.data.content,
       position: node.position,
       type: node.data.type,
+      outputPorts: node.data.outputPorts, // Include output ports
       fields: { ...node.data.fields }
     }));
 
@@ -265,7 +292,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       id: edge.id,
       start: edge.source,
       end: edge.target,
-      type: (edge.data?.type || 'neutral') as 'positive' | 'negative' | 'neutral',
+      type: (edge.data?.type || 'custom') as ConnectionType,
+      sourceHandle: edge.sourceHandle,
+      sourcePortLabel: edge.data?.portLabel,
     }));
 
     // Create flow data
@@ -306,18 +335,22 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         data: card,
       }));
 
-      // Convert connections to edges with sourceHandle matching connection type
+      // Convert connections to edges with sourceHandle and port labels
       const newEdges: Edge[] = parsedData.connections.map((connection: FlowConnection) => ({
         id: connection.id,
         source: connection.start,
         target: connection.end,
         type: 'flowConnector',
-        sourceHandle: connection.type, // Set sourceHandle to connection type
-        data: { type: connection.type },
+        sourceHandle: connection.sourceHandle || connection.type, // Use source handle or connection type
+        data: { 
+          type: connection.type,
+          portLabel: connection.sourcePortLabel 
+        },
         style: {
           strokeWidth: 3,
           stroke: connection.type === 'positive' ? '#10B981' : 
-                  connection.type === 'negative' ? '#EF4444' : '#6B7280',
+                  connection.type === 'negative' ? '#EF4444' : 
+                  connection.type === 'custom' ? '#3B82F6' : '#6B7280',
         },
       }));
       
@@ -355,6 +388,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       content: node.data.content,
       position: node.position,
       type: node.data.type,
+      outputPorts: node.data.outputPorts,
       fields: { ...node.data.fields }
     }));
 
@@ -363,7 +397,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       id: edge.id,
       start: edge.source,
       end: edge.target,
-      type: (edge.data?.type || 'neutral') as 'positive' | 'negative' | 'neutral',
+      type: (edge.data?.type || 'custom') as 'positive' | 'negative' | 'neutral' | 'custom',
+      sourceHandle: edge.sourceHandle,
+      sourcePortLabel: edge.data?.portLabel,
     }));
 
     // Create flow data
@@ -390,6 +426,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
+  // Generate script with output port labels
   const onGenerateScript = useCallback(() => {
     // Create a map of existing IDs to sequential numbers
     const idMap = new Map<string, string>();
@@ -425,31 +462,14 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       const nodeConnections = edges.filter(edge => edge.source === node.id);
       
       if (nodeConnections.length > 0) {
-        // Sort connections by type (positive first, then negative, then neutral)
-        const sortedConnections = nodeConnections.sort((a, b) => {
-          if (a.data?.type === 'positive' && b.data?.type !== 'positive') return -1;
-          if (a.data?.type !== 'positive' && b.data?.type === 'positive') return 1;
-          if (a.data?.type === 'negative' && b.data?.type !== 'negative') return -1;
-          if (a.data?.type !== 'negative' && b.data?.type === 'negative') return 1;
-          return 0;
-        });
-        
-        sortedConnections.forEach(connection => {
+        // Get all connections with their target and port labels
+        nodeConnections.forEach(connection => {
           const targetNode = nodes.find(n => n.id === connection.target);
           const targetId = idMap.get(connection.target) || '00';
-          const connectionType = connection.data?.type || 'neutral';
-          
-          let conditionText = '';
-          if (connectionType === 'positive') {
-            conditionText = `**Se o usuário mencionar interesse ou responder positivamente**`;
-          } else if (connectionType === 'negative') {
-            conditionText = `**Se o usuário demonstrar desinteresse ou responder negativamente**`;
-          } else {
-            conditionText = `**Se o usuário estiver indeciso ou fizer perguntas adicionais**`;
-          }
+          const portLabel = connection.data?.portLabel || 'Opção não especificada';
           
           if (targetNode) {
-            script += `🔹 ${conditionText} → Seguir para **ID: ${targetId}**\n`;
+            script += `🔹 **Se o usuário ${portLabel}** → Seguir para **ID: ${targetId}**\n`;
           }
         });
         
@@ -498,12 +518,16 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       source: connection.start,
       target: connection.end,
       type: 'flowConnector',
-      sourceHandle: connection.type, // Set sourceHandle to connection type
-      data: { type: connection.type },
+      sourceHandle: connection.sourceHandle || connection.type, // Set sourceHandle to connection type
+      data: { 
+        type: connection.type,
+        portLabel: connection.sourcePortLabel 
+      },
       style: {
         strokeWidth: 3,
         stroke: connection.type === 'positive' ? '#10B981' : 
-                connection.type === 'negative' ? '#EF4444' : '#6B7280',
+                connection.type === 'negative' ? '#EF4444' : 
+                connection.type === 'custom' ? '#3B82F6' : '#6B7280',
       },
     }));
     
