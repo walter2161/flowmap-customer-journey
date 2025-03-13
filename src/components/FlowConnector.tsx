@@ -6,7 +6,6 @@ import { ConnectionType } from '@/utils/flowTypes';
 interface FlowConnectorProps extends EdgeProps {
   data?: {
     type: ConnectionType;
-    portLabel?: string;
   };
   sourceHandle?: string;
 }
@@ -68,8 +67,6 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           zIndex: 1000,
         }}
       />
-      
-      {/* Port label removed as requested */}
       
       {/* Delete button in the middle of the path */}
       <foreignObject

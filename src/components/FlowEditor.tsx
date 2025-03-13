@@ -685,6 +685,10 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         description: formData.description || 'Descrição do cartão',
         content: formData.content || 'Conteúdo do cartão',
         type: type,
+        outputPorts: type !== 'end' ? [
+          { id: `port-${nanoid(6)}`, label: "Opção 1" },
+          { id: `port-${nanoid(6)}`, label: "Opção 2" }
+        ] : [],
         fields: { ...formData }
       }
     };
