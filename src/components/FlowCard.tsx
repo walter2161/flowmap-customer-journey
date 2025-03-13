@@ -1,3 +1,4 @@
+
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard, OutputPort } from '@/utils/flowTypes';
@@ -627,4 +628,222 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
               {fields.imovel && <p className="text-xs text-gray-700"><span className="font-semibold">Imóvel:</span> {fields.imovel}</p>}
               {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
               {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
-              {fields.nomeCliente && <p className="text-xs text-
+              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'agendar-reuniao':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Reunião</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.assunto && <p className="text-xs text-gray-700"><span className="font-semibold">Assunto:</span> {fields.assunto}</p>}
+              {fields.local && <p className="text-xs text-gray-700"><span className="font-semibold">Local:</span> {fields.local}</p>}
+              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
+              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
+              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'servico':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Serviço</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.duracao && <p className="text-xs text-gray-700"><span className="font-semibold">Duração:</span> {fields.duracao}</p>}
+              {fields.categoria && <p className="text-xs text-gray-700"><span className="font-semibold">Categoria:</span> {fields.categoria}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'produto':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Produto</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.estoque && <p className="text-xs text-gray-700"><span className="font-semibold">Estoque:</span> {fields.estoque}</p>}
+              {fields.codigo && <p className="text-xs text-gray-700"><span className="font-semibold">Código:</span> {fields.codigo}</p>}
+            </div>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`rounded-md shadow-md overflow-hidden ${cardTypeClasses[data.type]} ${selected ? 'ring-2 ring-black ring-opacity-50' : ''}`}>
+      {/* Input source handle */}
+      {data.type !== 'initial' && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{ background: '#555', width: 10, height: 10 }}
+          id="in"
+        />
+      )}
+      
+      {/* Header */}
+      <div className={`px-3 py-1 ${cardTypeHeaders[data.type]} flex justify-between items-center`}>
+        <div className="text-xs font-semibold">{cardTypeLabels[data.type]}</div>
+        <div className="flex gap-1">
+          {!isEditing && (
+            <button
+              onClick={handleEdit}
+              className="text-white p-1 rounded hover:bg-white hover:bg-opacity-20"
+            >
+              <Edit size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {/* Card Content */}
+      <div className="bg-white p-3">
+        {isEditing ? (
+          // Edit mode
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Título</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Descrição</label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Conteúdo</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+                rows={3}
+              />
+            </div>
+            
+            {/* Type-specific fields */}
+            {renderTypeSpecificFields()}
+
+            {/* Output port management - only show for non-end cards */}
+            {data.type !== 'end' && (
+              <div className="mt-4 border-t pt-3 border-gray-200">
+                <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Portas de Saída</h4>
+                
+                {outputPorts.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {outputPorts.map(port => (
+                      <div key={port.id} className="flex items-center justify-between">
+                        <span className="text-xs text-gray-700">{port.label}</span>
+                        <button
+                          onClick={() => removeOutputPort(port.id)}
+                          className="text-red-500 p-1 rounded hover:bg-red-50"
+                        >
+                          <Trash size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={newPortLabel}
+                    onChange={(e) => setNewPortLabel(e.target.value)}
+                    placeholder="Adicionar porta..."
+                    className="flex-1 p-1 text-sm border border-gray-300 rounded"
+                  />
+                  <button
+                    onClick={addOutputPort}
+                    className="bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
+                    disabled={newPortLabel.trim() === ''}
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Action buttons */}
+            <div className="flex justify-end space-x-2 mt-4">
+              <button
+                onClick={handleCancel}
+                className="px-2 py-1 text-xs bg-gray-100 rounded border border-gray-300 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        ) : (
+          // View mode
+          <div>
+            <h3 className="font-medium text-sm">{title}</h3>
+            {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+            {content && <p className="text-xs text-gray-700 mt-2">{content}</p>}
+            
+            {/* Display type-specific fields */}
+            {renderTypeSpecificDisplay()}
+            
+            {/* Display output ports */}
+            {data.type !== 'end' && outputPorts.length > 0 && (
+              <div className="mt-3 border-t pt-2 border-gray-200">
+                <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Portas de Saída</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {outputPorts.map(port => (
+                    <span key={port.id} className="text-xs bg-gray-100 px-2 py-1 rounded">{port.label}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      
+      {/* Output handles */}
+      {data.type !== 'end' && outputPorts.map((port, index) => (
+        <Handle
+          key={port.id}
+          type="source"
+          position={Position.Right}
+          id={port.id}
+          className="custom-handle"
+          style={{
+            background: '#555',
+            width: 10,
+            height: 10,
+            top: `${100 * (index + 1) / (outputPorts.length + 1)}%`
+          }}
+          data-label={port.label}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default memo(FlowCardComponent);
