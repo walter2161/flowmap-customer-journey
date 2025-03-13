@@ -710,4 +710,4 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   }, [fitView]);
 
   return (
-    <div className="w-full h-screen" ref={reactFlowWrapper}>
+    <div className="w-full h-screen" ref={react
