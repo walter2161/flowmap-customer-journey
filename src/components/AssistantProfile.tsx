@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -9,21 +9,50 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserCog } from "lucide-react";
 import { AssistantProfile as AssistantProfileType } from '@/utils/flowTypes';
 
-// Default profile
-const defaultProfile: AssistantProfileType = {
-  name: "Assistente Virtual",
-  profession: "Atendente",
-  company: "Minha Empresa",
-  contacts: "assistente@empresa.com",
-  avatar: "",
-  guidelines: "Este assistente deve ser cordial e respeitoso. Deve fornecer informações precisas e úteis. Não deve usar linguagem inapropriada ou compartilhar informações sensíveis."
+// Perfis por template
+const templateProfiles = {
+  default: {
+    name: "Assistente Virtual",
+    profession: "Atendente",
+    company: "Minha Empresa",
+    contacts: "assistente@empresa.com",
+    avatar: "",
+    guidelines: "Este assistente deve ser cordial e respeitoso. Deve fornecer informações precisas e úteis. Não deve usar linguagem inapropriada ou compartilhar informações sensíveis."
+  },
+  suporte: {
+    name: "Suporte Técnico",
+    profession: "Analista de Suporte",
+    company: "Tech Solutions",
+    contacts: "suporte@techsolutions.com",
+    avatar: "",
+    guidelines: "Este assistente deve fornecer suporte técnico eficiente, guiando os usuários na solução de problemas de forma clara e paciente. Deve solicitar informações específicas para diagnóstico preciso e propor soluções práticas."
+  },
+  vendas: {
+    name: "Consultor de Vendas",
+    profession: "Vendedor",
+    company: "Vendas Express",
+    contacts: "vendas@express.com",
+    avatar: "",
+    guidelines: "Este assistente deve ser persuasivo e conhecer bem os produtos. Deve identificar necessidades do cliente, apresentar soluções adequadas e incentivar a compra sem ser invasivo. Deve responder dúvidas sobre preços, promoções e condições de pagamento."
+  },
+  financeiro: {
+    name: "Analista Financeiro",
+    profession: "Consultor Financeiro",
+    company: "Finanças Seguras",
+    contacts: "financeiro@seguras.com",
+    avatar: "",
+    guidelines: "Este assistente deve fornecer orientações financeiras claras e profissionais. Deve manter sigilo das informações sensíveis e verificar a identidade do usuário antes de compartilhar dados. Não deve dar conselhos de investimento específicos sem as devidas ressalvas legais."
+  }
 };
 
 const AssistantProfile = () => {
-  // Load saved profile data from localStorage or use default
+  // Estado para controlar qual template está selecionado
+  const [selectedTemplate, setSelectedTemplate] = useState("default");
+  
+  // Load saved profile data from localStorage or use template default
   const [profile, setProfile] = useState<AssistantProfileType>(() => {
     const savedProfile = localStorage.getItem('assistantProfile');
-    return savedProfile ? JSON.parse(savedProfile) : defaultProfile;
+    return savedProfile ? JSON.parse(savedProfile) : templateProfiles.default;
   });
   
   const [isOpen, setIsOpen] = useState(false);
@@ -85,6 +114,16 @@ const AssistantProfile = () => {
     localStorage.setItem('assistantProfile', JSON.stringify(profile));
   }, [profile]);
   
+  // Função para aplicar perfil do template
+  const applyTemplateProfile = (template: string) => {
+    setSelectedTemplate(template);
+    const templateProfile = templateProfiles[template as keyof typeof templateProfiles] || templateProfiles.default;
+    
+    // Manter o avatar atual ao trocar de template
+    const currentAvatar = profile.avatar;
+    setProfile({...templateProfile, avatar: currentAvatar});
+  };
+  
   // Function to handle form submission
   const handleSave = () => {
     localStorage.setItem('assistantProfile', JSON.stringify(profile));
@@ -128,24 +167,17 @@ ${profile.guidelines}
   };
   
   return (
-    <>
-      <Button 
-        variant="outline" 
-        size="icon" 
-        className="rounded-full bg-primary/10 hover:bg-primary/20 transition-colors" 
-        onClick={() => setIsOpen(true)}
-        title="Perfil do Assistente"
-      >
-        <Avatar className="h-9 w-9 border-2 border-primary/30">
-          {profile.avatar ? (
-            <AvatarImage src={profile.avatar} alt={profile.name} />
-          ) : (
-            <AvatarFallback className="bg-primary/10 text-primary">
-              <UserCog size={18} />
-            </AvatarFallback>
-          )}
-        </Avatar>
-      </Button>
+    <div className="flex items-center justify-end py-2">
+      <SheetTrigger asChild>
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2"
+          onClick={() => setIsOpen(true)}
+        >
+          <UserCog size={18} />
+          <span>Perfil do Assistente</span>
+        </Button>
+      </SheetTrigger>
       
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="sm:max-w-md overflow-auto">
@@ -157,6 +189,41 @@ ${profile.guidelines}
           </SheetHeader>
           
           <div className="mt-6 space-y-6">
+            {/* Template selection */}
+            <div>
+              <Label htmlFor="template">Modelo de Perfil</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Button 
+                  variant={selectedTemplate === "default" ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => applyTemplateProfile("default")}
+                >
+                  Padrão
+                </Button>
+                <Button 
+                  variant={selectedTemplate === "suporte" ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => applyTemplateProfile("suporte")}
+                >
+                  Suporte
+                </Button>
+                <Button 
+                  variant={selectedTemplate === "vendas" ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => applyTemplateProfile("vendas")}
+                >
+                  Vendas
+                </Button>
+                <Button 
+                  variant={selectedTemplate === "financeiro" ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => applyTemplateProfile("financeiro")}
+                >
+                  Financeiro
+                </Button>
+              </div>
+            </div>
+            
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Nome</Label>
@@ -243,7 +310,7 @@ ${profile.guidelines}
           </div>
         </SheetContent>
       </Sheet>
-    </>
+    </div>
   );
 };
 
