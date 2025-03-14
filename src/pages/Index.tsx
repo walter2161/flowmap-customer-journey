@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import AssistantCard from '@/components/AssistantCard';
 import { initialFlowData } from '@/utils/initialData';
-import { FlowCard } from '@/utils/flowTypes';
+import { FlowCard, FlowData } from '@/utils/flowTypes';
 import { nanoid } from 'nanoid';
 
 const Index = () => {
@@ -47,8 +47,21 @@ const Index = () => {
     }
   }, []);
 
-  // Handle updates to the assistant card from the flow editor
-  const handleFlowDataChange = (newFlowData: typeof initialFlowData) => {
+  // Handle updates to the assistant card from the card editor
+  const handleAssistantUpdate = (updatedCard: FlowCard) => {
+    setAssistantCard(updatedCard);
+    
+    // Update the assistant card in flow data
+    setFlowData(prev => ({
+      ...prev,
+      cards: prev.cards.map(card => 
+        card.id === updatedCard.id ? updatedCard : card
+      )
+    }));
+  };
+
+  // Handle updates to the flow editor
+  const handleFlowDataChange = (newFlowData: FlowData) => {
     setFlowData(newFlowData);
     
     // Update assistant card if it was changed
@@ -72,10 +85,16 @@ const Index = () => {
       <main className="w-full h-full pt-20">
         {assistantCard && (
           <div className="px-6 mb-4">
-            <AssistantCard data={assistantCard} />
+            <AssistantCard 
+              data={assistantCard} 
+              onUpdate={handleAssistantUpdate}
+            />
           </div>
         )}
-        <FlowEditor initialData={flowData} onChange={handleFlowDataChange} />
+        <FlowEditor 
+          initialData={flowData} 
+          onFlowChange={handleFlowDataChange} 
+        />
       </main>
     </div>
   );
