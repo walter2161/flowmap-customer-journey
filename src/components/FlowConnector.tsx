@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { EdgeProps, getBezierPath } from 'reactflow';
+import { EdgeProps, getBezierPath, useReactFlow } from 'reactflow';
 import { ConnectionType } from '@/utils/flowTypes';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface FlowConnectorProps extends EdgeProps {
   data?: {
@@ -29,16 +30,19 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   data,
   sourceHandle,
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const { setEdges } = useReactFlow();
+
   // Default to custom connection type for new system
   let connectionType: ConnectionType = 'custom';
   
-  // For backward compatibility - using type-safe comparison
-  if (sourceHandle === 'positive') {
+  // For backward compatibility with older connection types
+  if (data?.type) {
+    connectionType = data.type;
+  } else if (sourceHandle === 'positive') {
     connectionType = 'positive';
   } else if (sourceHandle === 'negative') {
     connectionType = 'negative';
-  } else if (data?.type) {
-    connectionType = data.type;
   }
   
   const strokeColor = connectionColors[connectionType];
@@ -52,6 +56,11 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     targetY,
     targetPosition,
   });
+
+  const handleDelete = () => {
+    setEdges(edges => edges.filter(edge => edge.id !== id));
+    setShowDeleteConfirm(false);
+  };
   
   return (
     <>
@@ -81,14 +90,34 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
             className="w-5 h-5 rounded-full bg-white border border-gray-200 text-gray-400 flex items-center justify-center hover:bg-gray-100 hover:text-gray-600 transition-colors"
             onClick={(event) => {
               event.stopPropagation();
-              const edges = document.querySelectorAll(`.react-flow__edge[data-id="${id}"]`);
-              edges.forEach(edge => edge.remove());
+              setShowDeleteConfirm(true);
             }}
           >
             ×
           </button>
         </div>
       </foreignObject>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Conexão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta conexão? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
