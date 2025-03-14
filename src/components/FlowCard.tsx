@@ -1,3 +1,4 @@
+
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard, OutputPort } from '@/utils/flowTypes';
@@ -690,3 +691,214 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
                 <p className="text-xs text-gray-700 mt-1 whitespace-pre-line">{fields.diretrizes}</p>
               </div>
             )}
+          </div>
+        );
+      
+      case 'imovel':
+      case 'imovel-lancamento':
+      case 'imovel-usado':
+      case 'imovel-comercial':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+            </div>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`flex flex-col ${cardTypeClasses[data.type]} rounded-md shadow-md overflow-hidden min-w-[220px] max-w-[300px]`}>
+      {/* Card Header */}
+      <div className={`flex items-center justify-between ${cardTypeHeaders[data.type]} px-3 py-1.5 text-xs font-medium`}>
+        <span>{cardTypeLabels[data.type]}</span>
+        <div className="flex space-x-1">
+          {!isEditing && (
+            <>
+              <button
+                onClick={handleEdit}
+                className="text-xs p-0.5 rounded hover:bg-white/20"
+                title="Editar"
+              >
+                <Edit size={12} />
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-xs p-0.5 rounded hover:bg-white/20"
+                title="Excluir"
+              >
+                <Trash size={12} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="p-3 flex-grow bg-white/50 backdrop-blur-sm">
+        {isEditing ? (
+          // Edit Mode
+          <div>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-1 text-sm font-medium mb-1 border border-gray-300 rounded"
+            />
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-1 text-xs text-gray-500 mb-2 border border-gray-300 rounded"
+            />
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full p-1 text-sm mb-3 border border-gray-300 rounded"
+              rows={3}
+            />
+            
+            {renderTypeSpecificFields()}
+            
+            {/* Output Ports Section */}
+            <div className="mt-4 border-t pt-3 border-gray-200">
+              <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Saídas</h4>
+              
+              {outputPorts.map((port, index) => (
+                <div key={port.id} className="flex items-center mb-2">
+                  <span className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-full text-xs font-semibold mr-2">
+                    {portLetters[index]}
+                  </span>
+                  <input
+                    type="text"
+                    value={port.label}
+                    onChange={(e) => {
+                      const updatedPorts = [...outputPorts];
+                      updatedPorts[index].label = e.target.value;
+                      setOutputPorts(updatedPorts);
+                    }}
+                    className="flex-grow p-1 text-sm border border-gray-300 rounded"
+                  />
+                  <button
+                    onClick={() => removeOutputPort(port.id)}
+                    className="ml-2 p-1 text-red-500 hover:bg-red-50 rounded"
+                  >
+                    <Trash size={12} />
+                  </button>
+                </div>
+              ))}
+              
+              <div className="flex items-center mt-3">
+                <input
+                  type="text"
+                  value={newPortLabel}
+                  onChange={(e) => setNewPortLabel(e.target.value)}
+                  placeholder="Nova saída..."
+                  className="flex-grow p-1 text-sm border border-gray-300 rounded"
+                />
+                <button
+                  onClick={addOutputPort}
+                  className="ml-2 p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  disabled={!newPortLabel.trim()}
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-200">
+              <button
+                onClick={handleCancel}
+                className="px-3 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        ) : (
+          // View Mode
+          <div>
+            <h3 className="text-sm font-medium mb-1 line-clamp-2">{title}</h3>
+            <p className="text-xs text-gray-500 mb-2 line-clamp-2">{description}</p>
+            <p className="text-sm mb-2 overflow-hidden text-ellipsis line-clamp-3">{content}</p>
+            
+            {renderTypeSpecificDisplay()}
+            
+            {/* Show output ports in view mode */}
+            {outputPorts && outputPorts.length > 0 && (
+              <div className="mt-2 pt-2 border-t border-gray-200">
+                <div className="flex flex-wrap gap-2">
+                  {outputPorts.map((port, index) => (
+                    <div key={port.id} className="flex items-center">
+                      <span className="w-5 h-5 flex items-center justify-center bg-gray-100 rounded-full text-[10px] font-semibold mr-1">
+                        {portLetters[index]}
+                      </span>
+                      <span className="text-xs">{port.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      
+      {/* Handles for connections */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="w-3 h-2 border-2 bg-white border-gray-400 rounded-sm"
+      />
+      
+      {/* Output handles based on outputPorts */}
+      {outputPorts && outputPorts.map((port, index) => (
+        <Handle
+          key={port.id}
+          id={port.id}
+          type="source"
+          position={Position.Bottom}
+          className="w-3 h-2 border-2 bg-white border-gray-400 rounded-sm"
+          style={{
+            left: `${(index + 1) * (100 / (outputPorts.length + 1))}%`,
+            bottom: 0
+          }}
+        />
+      ))}
+      
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default memo(FlowCardComponent);
