@@ -6,7 +6,6 @@ import { ConnectionType } from '@/utils/flowTypes';
 interface FlowConnectorProps extends EdgeProps {
   data?: {
     type: ConnectionType;
-    portLabel?: string;
   };
   sourceHandle?: string;
 }
