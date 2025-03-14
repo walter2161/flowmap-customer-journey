@@ -8,7 +8,6 @@ interface FlowConnectorProps extends EdgeProps {
   data?: {
     type: ConnectionType;
     portLabel?: string;
-    portLetter?: string;
   };
   sourceHandle?: string;
 }
@@ -19,9 +18,6 @@ const connectionColors = {
   neutral: '#6B7280',  // Gray
   custom: '#3B82F6'    // Blue
 };
-
-// Array de letras para identificar as portas
-const portLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
 const FlowConnector: React.FC<FlowConnectorProps> = ({
   id,
@@ -35,10 +31,9 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   data,
   sourceHandle,
   source,
-  sourceHandleId,
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-  const { setEdges, getNodes } = useReactFlow();
+  const { setEdges } = useReactFlow();
 
   // Default to custom connection type for new system
   let connectionType: ConnectionType = 'custom';
@@ -63,22 +58,6 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     targetY,
     targetPosition,
   });
-
-  // Get port letter based on source node and handle
-  const getPortLetter = () => {
-    if (!source || !sourceHandleId) return '';
-    
-    const nodes = getNodes();
-    const sourceNode = nodes.find(node => node.id === source);
-    if (!sourceNode || !sourceNode.data || !sourceNode.data.outputPorts) return '';
-    
-    const portIndex = sourceNode.data.outputPorts.findIndex(port => port.id === sourceHandleId);
-    if (portIndex === -1) return '';
-    
-    return portIndex < portLetters.length ? portLetters[portIndex] : '#';
-  };
-
-  const portLetter = data?.portLetter || getPortLetter();
 
   const handleDelete = () => {
     setEdges(edges => edges.filter(edge => edge.id !== id));

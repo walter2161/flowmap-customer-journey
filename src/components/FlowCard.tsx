@@ -862,17 +862,29 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
             {/* Display type-specific fields */}
             {renderTypeSpecificDisplay()}
             
-            {/* Display output ports */}
+            {/* Display output ports with connection points at the end of each row */}
             {data.type !== 'end' && outputPorts.length > 0 && (
               <div className="mt-3 border-t pt-2 border-gray-200">
                 <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Portas de Saída</p>
                 <div className="flex flex-col gap-2 mt-1">
                   {outputPorts.map((port, index) => (
-                    <div key={port.id} className="flex items-center">
-                      <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs mr-2">
-                        {index < portLetters.length ? portLetters[index] : '#'}
-                      </span>
+                    <div key={port.id} className="flex items-center justify-between relative">
                       <span className="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{port.label}</span>
+                      {/* Connection point at the end of each row */}
+                      <Handle
+                        type="source"
+                        position={Position.Right}
+                        id={port.id}
+                        style={{
+                          position: 'absolute',
+                          right: '-10px',
+                          width: '10px',
+                          height: '10px',
+                          background: '#3B82F6',
+                          borderRadius: '50%',
+                          border: '2px solid white'
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -881,37 +893,6 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
           </div>
         )}
       </div>
-      
-      {/* Output handles with lettered labels */}
-      {data.type !== 'end' && outputPorts.map((port, index) => (
-        <React.Fragment key={port.id}>
-          <Handle
-            type="source"
-            position={Position.Right}
-            id={port.id}
-            className="handle-with-letter"
-            style={{
-              top: `${100 * (index + 1) / (outputPorts.length + 1)}%`,
-              right: '-15px',
-              width: '20px',
-              height: '20px',
-              background: '#3B82F6',
-              borderRadius: '50%',
-              color: 'white',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              fontSize: '10px',
-              fontWeight: 'bold',
-              border: '2px solid white'
-            }}
-            data-label={port.label}
-          >
-            {/* Render the letter directly on the handle */}
-            {index < portLetters.length ? portLetters[index] : '#'}
-          </Handle>
-        </React.Fragment>
-      ))}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
