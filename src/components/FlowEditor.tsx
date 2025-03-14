@@ -18,6 +18,8 @@ import FlowConnector from './FlowConnector';
 import CardTypeSelector from './CardTypeSelector';
 import { nanoid } from 'nanoid';
 import FlowControls from './FlowControls';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 // Define node types
 const nodeTypes = {
@@ -29,11 +31,22 @@ const edgeTypes = {
   flowConnector: FlowConnector
 };
 
+// Define template options
+const templateOptions = [
+  { id: 'imobiliaria', name: 'Imobiliária', description: 'Template para atendimento imobiliário' },
+  { id: 'servicos', name: 'Serviços', description: 'Template para empresas de serviços' },
+  { id: 'ecommerce', name: 'E-commerce', description: 'Template para lojas online' },
+  { id: 'suporte', name: 'Suporte', description: 'Template para atendimento de suporte' },
+];
+
 interface FlowEditorProps {
   initialData: FlowData;
 }
 
 const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
+  // Toast notification
+  const { toast } = useToast();
+  
   // State for nodes and edges
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -43,7 +56,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   const [newCardPosition, setNewCardPosition] = useState({ x: 0, y: 0 });
   
   // State for template modal
-  const [isTemplateModalOpen, setTemplateModalOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  
+  // State for script modal
+  const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
+  const [scriptContent, setScriptContent] = useState("");
   
   // State for assistant profile
   const [currentProfile, setCurrentProfile] = useState<AssistantProfile | undefined>(initialData.profile);
@@ -143,8 +160,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     localStorage.setItem('flowData', JSON.stringify(flowData));
     
     console.log('Flow saved:', flowData);
-    alert('Flow saved successfully!');
-  }, [nodes, edges, currentProfile]);
+    toast({
+      title: "Fluxo salvo",
+      description: "Seu fluxo de atendimento foi salvo com sucesso!",
+    });
+  }, [nodes, edges, currentProfile, toast]);
   
   // Load flow function
   const onLoad = useCallback(() => {
@@ -179,15 +199,26 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
         setCurrentProfile(flowData.profile);
         
         console.log('Flow loaded:', flowData);
-        alert('Flow loaded successfully!');
+        toast({
+          title: "Fluxo carregado",
+          description: "Seu fluxo de atendimento foi carregado com sucesso!",
+        });
       } catch (error) {
         console.error('Error loading flow:', error);
-        alert('Error loading flow!');
+        toast({
+          title: "Erro ao carregar",
+          description: "Não foi possível carregar o fluxo salvo.",
+          variant: "destructive",
+        });
       }
     } else {
-      alert('No saved flow found!');
+      toast({
+        title: "Nenhum fluxo encontrado",
+        description: "Não há fluxos salvos para carregar.",
+        variant: "destructive",
+      });
     }
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, toast]);
   
   // Export flow function
   const onExportFlow = useCallback(() => {
@@ -223,11 +254,23 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
-  }, [nodes, edges, currentProfile]);
+    
+    toast({
+      title: "Fluxo exportado",
+      description: "Seu fluxo de atendimento foi exportado com sucesso!",
+    });
+  }, [nodes, edges, currentProfile, toast]);
   
   // Generate script function
   const onGenerateScript = useCallback(() => {
-    if (nodes.length === 0) return;
+    if (nodes.length === 0) {
+      toast({
+        title: "Sem conteúdo",
+        description: "Adicione cartões ao fluxo antes de gerar o script.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Convert flow to script text
     let script = '';
@@ -235,14 +278,14 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     // Add assistant profile information if available
     if (currentProfile) {
       script += `# Bot Profile\n`;
-      script += `Name: ${currentProfile.name}\n`;
-      script += `Profession: ${currentProfile.profession}\n`;
-      script += `Company: ${currentProfile.company}\n`;
-      script += `Contacts: ${currentProfile.contacts}\n\n`;
-      script += `Guidelines:\n${currentProfile.guidelines}\n\n`;
+      script += `Nome: ${currentProfile.name}\n`;
+      script += `Profissão: ${currentProfile.profession}\n`;
+      script += `Empresa: ${currentProfile.company}\n`;
+      script += `Contatos: ${currentProfile.contacts}\n\n`;
+      script += `Diretrizes:\n${currentProfile.guidelines}\n\n`;
     }
     
-    script += `# Flow Script\n\n`;
+    script += `# Roteiro de Atendimento\n\n`;
     
     // Find initial cards
     const initialCards = nodes.filter(node => node.data.type === 'initial');
@@ -301,16 +344,10 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       });
     }
     
-    // Create a text file and download it
-    const dataStr = 'data:text/plain;charset=utf-8,' + encodeURIComponent(script);
-    
-    const exportFileDefaultName = 'flow-script.txt';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataStr);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  }, [nodes, edges, currentProfile]);
+    // Set script content and open modal
+    setScriptContent(script);
+    setIsScriptModalOpen(true);
+  }, [nodes, edges, currentProfile, toast]);
   
   // Handle new card
   const handleNewCard = useCallback(() => {
@@ -347,6 +384,42 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     setNodes(nodes => [...nodes, newNode]);
     setIsCardSelectorOpen(false);
   }, [newCardPosition, setNodes]);
+  
+  // Handle template selection
+  const handleTemplateSelect = useCallback((templateId: string) => {
+    // In a real implementation, you would fetch a template from an API or load it from a predefined set
+    // For this example, we'll just show a notification
+    toast({
+      title: "Template selecionado",
+      description: `Template "${templateId}" foi selecionado.`,
+    });
+    
+    // Here you would actually load the template and set it as the current flow
+    // For now, we'll just close the modal
+    setIsTemplateModalOpen(false);
+    
+    // Update profile based on template
+    const newProfile: AssistantProfile = {
+      ...currentProfile,
+      name: templateId === 'imobiliaria' ? 'Ana Imóveis' : 
+            templateId === 'servicos' ? 'Carlos Serviços' : 
+            templateId === 'ecommerce' ? 'Loja Virtual' : 'Suporte Técnico',
+      profession: templateId === 'imobiliaria' ? 'Corretora de Imóveis' : 
+                 templateId === 'servicos' ? 'Prestador de Serviços' : 
+                 templateId === 'ecommerce' ? 'Atendente de E-commerce' : 'Atendente de Suporte',
+      company: templateId === 'imobiliaria' ? 'Imobiliária Exemplo' : 
+              templateId === 'servicos' ? 'Serviços Gerais' : 
+              templateId === 'ecommerce' ? 'Loja Online' : 'Suporte Técnico',
+      contacts: templateId === 'imobiliaria' ? 'contato@imobiliaria.com | (11) 99999-9999' : 
+               templateId === 'servicos' ? 'contato@servicos.com | (11) 88888-8888' : 
+               templateId === 'ecommerce' ? 'vendas@loja.com | (11) 77777-7777' : 'suporte@empresa.com | (11) 66666-6666',
+      guidelines: templateId === 'imobiliaria' ? 'Seja cordial e ajude o cliente a encontrar o imóvel ideal para suas necessidades.' : 
+                 templateId === 'servicos' ? 'Explique detalhadamente os serviços e dê orçamentos precisos.' : 
+                 templateId === 'ecommerce' ? 'Ajude o cliente a escolher produtos e facilite o processo de compra.' : 'Resolva os problemas técnicos do cliente de maneira clara e objetiva.'
+    };
+    
+    setCurrentProfile(newProfile);
+  }, [currentProfile, toast]);
 
   return (
     <ReactFlowProvider>
@@ -363,7 +436,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           attributionPosition="bottom-right"
           onInit={(instance) => { reactFlowInstance.current = instance; }}
         >
-          <Controls />
           <MiniMap />
           <Background gap={16} size={1} />
           
@@ -375,7 +447,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             onLoad={onLoad}
             onExport={onExportFlow}
             onScript={onGenerateScript}
-            onTemplate={() => setTemplateModalOpen(true)}
+            onTemplate={() => setIsTemplateModalOpen(true)}
             onNewCard={handleNewCard}
             currentProfile={currentProfile}
           />
@@ -387,6 +459,56 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             onClose={() => setIsCardSelectorOpen(false)}
           />
         )}
+        
+        {/* Template Selection Modal */}
+        <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Selecione um Template</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              {templateOptions.map((template) => (
+                <div 
+                  key={template.id} 
+                  className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleTemplateSelect(template.id)}
+                >
+                  <h3 className="font-medium">{template.name}</h3>
+                  <p className="text-sm text-gray-500">{template.description}</p>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Script Content Modal */}
+        <Dialog open={isScriptModalOpen} onOpenChange={setIsScriptModalOpen}>
+          <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Roteiro de Atendimento</DialogTitle>
+            </DialogHeader>
+            <div className="overflow-y-auto max-h-[60vh]">
+              <pre className="p-4 bg-gray-50 rounded-lg whitespace-pre-wrap">{scriptContent}</pre>
+            </div>
+            <div className="flex justify-end">
+              <button 
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={() => {
+                  // Create a text file and download it
+                  const dataStr = 'data:text/plain;charset=utf-8,' + encodeURIComponent(scriptContent);
+                  const exportFileDefaultName = 'flow-script.txt';
+                  
+                  const linkElement = document.createElement('a');
+                  linkElement.setAttribute('href', dataStr);
+                  linkElement.setAttribute('download', exportFileDefaultName);
+                  linkElement.click();
+                }}
+              >
+                Baixar Roteiro
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </ReactFlowProvider>
   );
