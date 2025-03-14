@@ -81,6 +81,9 @@ const cardTypeLabels = {
   'agendar-reuniao': 'AGENDAR REUNIÃO'
 };
 
+// Array de letras para identifcar as portas
+const portLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
 interface FlowCardProps {
   data: FlowCard;
   selected: boolean;
@@ -784,9 +787,14 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
                 
                 {outputPorts.length > 0 && (
                   <div className="mb-3 space-y-2">
-                    {outputPorts.map(port => (
+                    {outputPorts.map((port, index) => (
                       <div key={port.id} className="flex items-center justify-between">
-                        <span className="text-xs text-gray-700">{port.label}</span>
+                        <span className="text-xs text-gray-700 flex items-center">
+                          <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs mr-2">
+                            {index < portLetters.length ? portLetters[index] : '#'}
+                          </span>
+                          {port.label}
+                        </span>
                         <button
                           onClick={() => removeOutputPort(port.id)}
                           className="text-red-500 p-1 rounded hover:bg-red-50"
@@ -858,9 +866,14 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
             {data.type !== 'end' && outputPorts.length > 0 && (
               <div className="mt-3 border-t pt-2 border-gray-200">
                 <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Portas de Saída</p>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {outputPorts.map(port => (
-                    <span key={port.id} className="text-xs bg-gray-100 px-2 py-1 rounded">{port.label}</span>
+                <div className="flex flex-col gap-2 mt-1">
+                  {outputPorts.map((port, index) => (
+                    <div key={port.id} className="flex items-center">
+                      <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs mr-2">
+                        {index < portLetters.length ? portLetters[index] : '#'}
+                      </span>
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{port.label}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -869,22 +882,34 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         )}
       </div>
       
-      {/* Output handles */}
+      {/* Output handles with labels */}
       {data.type !== 'end' && outputPorts.map((port, index) => (
-        <Handle
-          key={port.id}
-          type="source"
-          position={Position.Right}
-          id={port.id}
-          className="custom-handle"
-          style={{
-            background: '#555',
-            width: 10,
-            height: 10,
-            top: `${100 * (index + 1) / (outputPorts.length + 1)}%`
-          }}
-          data-label={port.label}
-        />
+        <React.Fragment key={port.id}>
+          <Handle
+            type="source"
+            position={Position.Right}
+            id={port.id}
+            className="custom-handle"
+            style={{
+              background: '#555',
+              width: 10,
+              height: 10,
+              top: `${100 * (index + 1) / (outputPorts.length + 1)}%`
+            }}
+            data-label={port.label}
+          />
+          {/* Port letter label next to handle */}
+          <div
+            className="absolute flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs z-10"
+            style={{
+              right: '-8px',
+              top: `${100 * (index + 1) / (outputPorts.length + 1)}%`,
+              transform: 'translateY(-50%)'
+            }}
+          >
+            {index < portLetters.length ? portLetters[index] : '#'}
+          </div>
+        </React.Fragment>
       ))}
 
       {/* Delete Confirmation Dialog */}
