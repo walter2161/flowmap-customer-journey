@@ -17,7 +17,6 @@ import {
 import { useReactFlow } from 'reactflow';
 
 const cardTypeClasses = {
-  assistente: 'bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-500',
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
   regular: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
   end: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500',
@@ -40,7 +39,6 @@ const cardTypeClasses = {
 };
 
 const cardTypeHeaders = {
-  assistente: 'bg-slate-800 text-white',
   initial: 'bg-green-500 text-white',
   regular: 'bg-blue-500 text-white',
   end: 'bg-red-500 text-white',
@@ -63,7 +61,6 @@ const cardTypeHeaders = {
 };
 
 const cardTypeLabels = {
-  assistente: 'ASSISTENTE',
   initial: 'INÍCIO',
   regular: 'PADRÃO',
   end: 'FIM',
@@ -172,87 +169,6 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     if (!isEditing) return null;
 
     switch (data.type) {
-      case 'assistente':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Assistente</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={fields.nome || ''}
-                  onChange={(e) => handleFieldChange('nome', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Profissão</label>
-                <input
-                  type="text"
-                  value={fields.profissao || ''}
-                  onChange={(e) => handleFieldChange('profissao', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Empresa</label>
-                <input
-                  type="text"
-                  value={fields.empresa || ''}
-                  onChange={(e) => handleFieldChange('empresa', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Email</label>
-                <input
-                  type="email"
-                  value={fields.email || ''}
-                  onChange={(e) => handleFieldChange('email', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Telefone</label>
-                <input
-                  type="text"
-                  value={fields.telefone || ''}
-                  onChange={(e) => handleFieldChange('telefone', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Avatar URL</label>
-                <input
-                  type="text"
-                  value={fields.avatar || ''}
-                  onChange={(e) => handleFieldChange('avatar', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-            </div>
-            <div className="mt-2">
-              <label className="text-xs text-gray-600 block mb-1">Diretrizes</label>
-              <textarea
-                value={fields.diretrizes || ''}
-                onChange={(e) => handleFieldChange('diretrizes', e.target.value)}
-                className="w-full p-1 text-sm border border-gray-300 rounded"
-                rows={3}
-              />
-            </div>
-            <div className="mt-2">
-              <label className="text-xs text-gray-600 block mb-1">Restrições</label>
-              <textarea
-                value={fields.restricoes || ''}
-                onChange={(e) => handleFieldChange('restricoes', e.target.value)}
-                className="w-full p-1 text-sm border border-gray-300 rounded"
-                rows={3}
-              />
-            </div>
-          </div>
-        );
-        
       case 'imovel':
         return (
           <div className="mt-4 border-t pt-3 border-gray-200">
@@ -676,36 +592,120 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     if (isEditing) return null;
 
     switch (data.type) {
-      case 'assistente':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Assistente</p>
-            <div className="flex flex-wrap gap-x-4">
-              {fields.email && <p className="text-xs text-gray-700"><span className="font-semibold">Email:</span> {fields.email}</p>}
-              {fields.telefone && <p className="text-xs text-gray-700"><span className="font-semibold">Telefone:</span> {fields.telefone}</p>}
-            </div>
-            {fields.diretrizes && (
-              <div className="mt-2">
-                <p className="text-xs text-gray-700"><span className="font-semibold">Diretrizes:</span></p>
-                <p className="text-xs text-gray-700 mt-1 whitespace-pre-line">{fields.diretrizes}</p>
-              </div>
-            )}
-          </div>
-        );
-      
       case 'imovel':
-      case 'imovel-lancamento':
-      case 'imovel-usado':
-      case 'imovel-comercial':
         if (!fields) return null;
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
             <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
             <div className="flex flex-wrap gap-x-4">
-              {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
               {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
               {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.quartos && <p className="text-xs text-gray-700"><span className="font-semibold">Quartos:</span> {fields.quartos}</p>}
+              {fields.tipo && <p className="text-xs text-gray-700"><span className="font-semibold">Tipo:</span> {fields.tipo}</p>}
+              {fields.finalidade && <p className="text-xs text-gray-700"><span className="font-semibold">Finalidade:</span> {fields.finalidade}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'imovel-lancamento':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Lançamento</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.quartos && <p className="text-xs text-gray-700"><span className="font-semibold">Quartos:</span> {fields.quartos}</p>}
+              {fields.construtora && <p className="text-xs text-gray-700"><span className="font-semibold">Construtora:</span> {fields.construtora}</p>}
+              {fields.previsaoEntrega && <p className="text-xs text-gray-700"><span className="font-semibold">Entrega:</span> {fields.previsaoEntrega}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'imovel-usado':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel Usado</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.idade && <p className="text-xs text-gray-700"><span className="font-semibold">Idade:</span> {fields.idade}</p>}
+              {fields.reformado !== undefined && <p className="text-xs text-gray-700"><span className="font-semibold">Reformado:</span> {fields.reformado ? 'Sim' : 'Não'}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'imovel-comercial':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel Comercial</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.valorAluguel && <p className="text-xs text-gray-700"><span className="font-semibold">Aluguel:</span> {fields.valorAluguel}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.tipoComercial && <p className="text-xs text-gray-700"><span className="font-semibold">Tipo:</span> {fields.tipoComercial}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'agendar-visita':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Visita</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.imovel && <p className="text-xs text-gray-700"><span className="font-semibold">Imóvel:</span> {fields.imovel}</p>}
+              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
+              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
+              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'agendar-reuniao':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Reunião</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.assunto && <p className="text-xs text-gray-700"><span className="font-semibold">Assunto:</span> {fields.assunto}</p>}
+              {fields.local && <p className="text-xs text-gray-700"><span className="font-semibold">Local:</span> {fields.local}</p>}
+              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
+              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
+              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'servico':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Serviço</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.duracao && <p className="text-xs text-gray-700"><span className="font-semibold">Duração:</span> {fields.duracao}</p>}
+              {fields.categoria && <p className="text-xs text-gray-700"><span className="font-semibold">Categoria:</span> {fields.categoria}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'produto':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Produto</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.estoque && <p className="text-xs text-gray-700"><span className="font-semibold">Estoque:</span> {fields.estoque}</p>}
+              {fields.codigo && <p className="text-xs text-gray-700"><span className="font-semibold">Código:</span> {fields.codigo}</p>}
             </div>
           </div>
         );
@@ -716,139 +716,176 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   };
 
   return (
-    <div className={`flex flex-col ${cardTypeClasses[data.type]} rounded-md shadow-md overflow-hidden min-w-[220px] max-w-[300px]`}>
-      {/* Card Header */}
-      <div className={`flex items-center justify-between ${cardTypeHeaders[data.type]} px-3 py-1.5 text-xs font-medium`}>
-        <span>{cardTypeLabels[data.type]}</span>
-        <div className="flex space-x-1">
+    <div 
+      className={`rounded-md shadow-md overflow-hidden ${cardTypeClasses[data.type]} ${selected ? 'ring-2 ring-black ring-opacity-50' : ''}`}
+      style={{ width: '350px' }} // Set standard width for all cards
+    >
+      {/* Input source handle */}
+      {data.type !== 'initial' && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{ background: '#555', width: 10, height: 10 }}
+          id="in"
+        />
+      )}
+      
+      {/* Header */}
+      <div className={`px-3 py-1 ${cardTypeHeaders[data.type]} flex justify-between items-center`}>
+        <div className="text-xs font-semibold">{cardTypeLabels[data.type]}</div>
+        <div className="flex gap-1">
           {!isEditing && (
-            <>
-              <button
-                onClick={handleEdit}
-                className="text-xs p-0.5 rounded hover:bg-white/20"
-                title="Editar"
-              >
-                <Edit size={12} />
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="text-xs p-0.5 rounded hover:bg-white/20"
-                title="Excluir"
-              >
-                <Trash size={12} />
-              </button>
-            </>
+            <button
+              onClick={handleEdit}
+              className="text-white p-1 rounded hover:bg-white hover:bg-opacity-20"
+            >
+              <Edit size={12} />
+            </button>
           )}
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className="p-3 flex-grow bg-white/50 backdrop-blur-sm">
+      {/* Card Content */}
+      <div className="bg-white p-3">
         {isEditing ? (
-          // Edit Mode
-          <div>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-1 text-sm font-medium mb-1 border border-gray-300 rounded"
-            />
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-1 text-xs text-gray-500 mb-2 border border-gray-300 rounded"
-            />
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full p-1 text-sm mb-3 border border-gray-300 rounded"
-              rows={3}
-            />
+          // Edit mode
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Título</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Descrição</label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Conteúdo</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+                rows={3}
+              />
+            </div>
             
+            {/* Type-specific fields */}
             {renderTypeSpecificFields()}
-            
-            {/* Output Ports Section */}
-            <div className="mt-4 border-t pt-3 border-gray-200">
-              <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Saídas</h4>
-              
-              {outputPorts.map((port, index) => (
-                <div key={port.id} className="flex items-center mb-2">
-                  <span className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-full text-xs font-semibold mr-2">
-                    {portLetters[index]}
-                  </span>
+
+            {/* Output port management - only show for non-end cards */}
+            {data.type !== 'end' && (
+              <div className="mt-4 border-t pt-3 border-gray-200">
+                <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Portas de Saída</h4>
+                
+                {outputPorts.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {outputPorts.map((port, index) => (
+                      <div key={port.id} className="flex items-center justify-between">
+                        <span className="text-xs text-gray-700 flex items-center">
+                          <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs mr-2">
+                            {index < portLetters.length ? portLetters[index] : '#'}
+                          </span>
+                          {port.label}
+                        </span>
+                        <button
+                          onClick={() => removeOutputPort(port.id)}
+                          className="text-red-500 p-1 rounded hover:bg-red-50"
+                        >
+                          <Trash size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-2">
                   <input
                     type="text"
-                    value={port.label}
-                    onChange={(e) => {
-                      const updatedPorts = [...outputPorts];
-                      updatedPorts[index].label = e.target.value;
-                      setOutputPorts(updatedPorts);
-                    }}
-                    className="flex-grow p-1 text-sm border border-gray-300 rounded"
+                    value={newPortLabel}
+                    onChange={(e) => setNewPortLabel(e.target.value)}
+                    placeholder="Adicionar porta..."
+                    className="flex-1 p-1 text-sm border border-gray-300 rounded"
                   />
                   <button
-                    onClick={() => removeOutputPort(port.id)}
-                    className="ml-2 p-1 text-red-500 hover:bg-red-50 rounded"
+                    onClick={addOutputPort}
+                    className="bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
+                    disabled={newPortLabel.trim() === ''}
                   >
-                    <Trash size={12} />
+                    <Plus size={12} />
                   </button>
                 </div>
-              ))}
+              </div>
+            )}
+            
+            {/* Action buttons */}
+            <div className="flex justify-between mt-4">
+              {/* Delete button */}
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 flex items-center gap-1"
+              >
+                <Trash size={12} />
+                Excluir
+              </button>
               
-              <div className="flex items-center mt-3">
-                <input
-                  type="text"
-                  value={newPortLabel}
-                  onChange={(e) => setNewPortLabel(e.target.value)}
-                  placeholder="Nova saída..."
-                  className="flex-grow p-1 text-sm border border-gray-300 rounded"
-                />
+              <div className="flex space-x-2">
                 <button
-                  onClick={addOutputPort}
-                  className="ml-2 p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  disabled={!newPortLabel.trim()}
+                  onClick={handleCancel}
+                  className="px-2 py-1 text-xs bg-gray-100 rounded border border-gray-300 hover:bg-gray-200"
                 >
-                  <Plus size={12} />
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Salvar
                 </button>
               </div>
             </div>
-            
-            {/* Action buttons */}
-            <div className="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-200">
-              <button
-                onClick={handleCancel}
-                className="px-3 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Salvar
-              </button>
-            </div>
           </div>
         ) : (
-          // View Mode
+          // View mode
           <div>
-            <h3 className="text-sm font-medium mb-1 line-clamp-2">{title}</h3>
-            <p className="text-xs text-gray-500 mb-2 line-clamp-2">{description}</p>
-            <p className="text-sm mb-2 overflow-hidden text-ellipsis line-clamp-3">{content}</p>
+            <h3 className="font-medium text-sm">{title}</h3>
+            {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+            {content && <p className="text-xs text-gray-700 mt-2">{content}</p>}
             
+            {/* Display type-specific fields */}
             {renderTypeSpecificDisplay()}
             
-            {/* Show output ports in view mode */}
-            {outputPorts && outputPorts.length > 0 && (
-              <div className="mt-2 pt-2 border-t border-gray-200">
-                <div className="flex flex-wrap gap-2">
+            {/* Display output ports with connection points at the end of each row */}
+            {data.type !== 'end' && outputPorts.length > 0 && (
+              <div className="mt-3 border-t pt-2 border-gray-200">
+                <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Portas de Saída</p>
+                <div className="flex flex-col gap-2 mt-1">
                   {outputPorts.map((port, index) => (
-                    <div key={port.id} className="flex items-center">
-                      <span className="w-5 h-5 flex items-center justify-center bg-gray-100 rounded-full text-[10px] font-semibold mr-1">
-                        {portLetters[index]}
-                      </span>
-                      <span className="text-xs">{port.label}</span>
+                    <div key={port.id} className="flex items-center justify-between relative">
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{port.label}</span>
+                      {/* Connection point at the end of each row */}
+                      <Handle
+                        type="source"
+                        position={Position.Right}
+                        id={port.id}
+                        style={{
+                          position: 'absolute',
+                          right: '-10px',
+                          width: '10px',
+                          height: '10px',
+                          background: '#3B82F6',
+                          borderRadius: '50%',
+                          border: '2px solid white'
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -857,41 +894,22 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
           </div>
         )}
       </div>
-      
-      {/* Handles for connections */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="w-3 h-2 border-2 bg-white border-gray-400 rounded-sm"
-      />
-      
-      {/* Output handles based on outputPorts */}
-      {outputPorts && outputPorts.map((port, index) => (
-        <Handle
-          key={port.id}
-          id={port.id}
-          type="source"
-          position={Position.Bottom}
-          className="w-3 h-2 border-2 bg-white border-gray-400 rounded-sm"
-          style={{
-            left: `${(index + 1) * (100 / (outputPorts.length + 1))}%`,
-            bottom: 0
-          }}
-        />
-      ))}
-      
-      {/* Delete confirmation dialog */}
+
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>Excluir Cartão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita e todas as conexões associadas também serão removidas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-red-500 hover:bg-red-600"
+            >
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>

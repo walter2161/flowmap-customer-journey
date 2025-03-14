@@ -1,5 +1,5 @@
 
-export type CardType = 'assistente' | 'initial' | 'regular' | 'end' | 'imovel' | 'servico' | 'produto' | 'multipla-escolha' | 'pergunta-respostas' | 'contatos' | 'agendar' | 'ordem-servico' | 'briefing' | 'acao' | 'html' | 'imovel-lancamento' | 'imovel-usado' | 'imovel-comercial' | 'agendar-visita' | 'agendar-reuniao';
+export type CardType = 'initial' | 'regular' | 'end' | 'imovel' | 'servico' | 'produto' | 'multipla-escolha' | 'pergunta-respostas' | 'contatos' | 'agendar' | 'ordem-servico' | 'briefing' | 'acao' | 'html' | 'imovel-lancamento' | 'imovel-usado' | 'imovel-comercial' | 'agendar-visita' | 'agendar-reuniao';
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 
 export interface Position {

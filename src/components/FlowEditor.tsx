@@ -281,10 +281,9 @@ const edgeTypes: EdgeTypes = {
 
 interface FlowEditorProps {
   initialData?: FlowData;
-  onFlowChange?: (newFlowData: FlowData) => void;
 }
 
-const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData, onFlowChange }) => {
+const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }) => {
   const { toast } = useToast();
   const { fitView, zoomIn, zoomOut, setViewport } = useReactFlow();
   const [jsonModalOpen, setJsonModalOpen] = useState(false);
@@ -414,11 +413,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData, 
       connections,
     };
 
-    // Call the callback if it exists
-    if (onFlowChange) {
-      onFlowChange(flowData);
-    }
-
     // Save to localStorage
     localStorage.setItem('flowData', JSON.stringify(flowData));
     
@@ -427,7 +421,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData, 
       description: 'Seu fluxo foi salvo com sucesso.',
       duration: 2000,
     });
-  }, [nodes, edges, toast, onFlowChange]);
+  }, [nodes, edges, toast]);
 
   // Load flow
   const onLoadFlow = useCallback(() => {
@@ -717,39 +711,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData, 
       fitView({ padding: 0.2, duration: 800 });
     }, 100);
   }, [fitView]);
-
-  // Update flow data whenever nodes or edges change
-  useEffect(() => {
-    // Only update flow data if callback exists and not during initial render
-    if (onFlowChange && nodes.length > 0) {
-      const cards: FlowCard[] = nodes.map((node) => ({
-        id: node.id,
-        title: node.data.title,
-        description: node.data.description,
-        content: node.data.content,
-        position: node.position,
-        type: node.data.type,
-        outputPorts: node.data.outputPorts,
-        fields: { ...node.data.fields }
-      }));
-
-      const connections: FlowConnection[] = edges.map((edge) => ({
-        id: edge.id,
-        start: edge.source,
-        end: edge.target,
-        type: (edge.data?.type || 'custom') as ConnectionType,
-        sourceHandle: edge.sourceHandle,
-        sourcePortLabel: edge.data?.portLabel,
-      }));
-
-      const flowData: FlowData = {
-        cards,
-        connections,
-      };
-
-      onFlowChange(flowData);
-    }
-  }, [nodes, edges, onFlowChange]);
 
   return (
     <div className="w-full h-screen" ref={reactFlowWrapper}>
