@@ -51,3 +51,13 @@ export interface FlowConnectionEdge extends FlowConnection {
     portLabel?: string;
   };
 }
+
+// Interface para o perfil do assistente
+export interface AssistantProfile {
+  name: string;
+  profession: string;
+  company: string;
+  contacts: string;
+  avatar: string; // Base64 encoded image
+  guidelines: string; // O que o assistente pode e não pode fazer
+}
