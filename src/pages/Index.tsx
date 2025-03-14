@@ -1,22 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import FlowEditor from '@/components/FlowEditor';
-import AssistantCard from '@/components/AssistantCard';
 import { initialFlowData } from '@/utils/initialData';
 import { FlowCard, FlowData } from '@/utils/flowTypes';
 import { nanoid } from 'nanoid';
 
 const Index = () => {
-  const [assistantCard, setAssistantCard] = useState<FlowCard | null>(null);
   const [flowData, setFlowData] = useState(initialFlowData);
 
   // Check if assistant card exists in the initial data
   useEffect(() => {
     const existingAssistantCard = flowData.cards.find(card => card.type === 'assistente');
     
-    if (existingAssistantCard) {
-      setAssistantCard(existingAssistantCard);
-    } else {
+    if (!existingAssistantCard) {
       // Create a default assistant card if none exists
       const newAssistantCard: FlowCard = {
         id: `assistant-${nanoid(6)}`,
@@ -37,8 +33,6 @@ const Index = () => {
         }
       };
       
-      setAssistantCard(newAssistantCard);
-      
       // Add the assistant card to the flow data
       setFlowData(prev => ({
         ...prev,
@@ -47,28 +41,9 @@ const Index = () => {
     }
   }, []);
 
-  // Handle updates to the assistant card from the card editor
-  const handleAssistantUpdate = (updatedCard: FlowCard) => {
-    setAssistantCard(updatedCard);
-    
-    // Update the assistant card in flow data
-    setFlowData(prev => ({
-      ...prev,
-      cards: prev.cards.map(card => 
-        card.id === updatedCard.id ? updatedCard : card
-      )
-    }));
-  };
-
   // Handle updates to the flow editor
   const handleFlowDataChange = (newFlowData: FlowData) => {
     setFlowData(newFlowData);
-    
-    // Update assistant card if it was changed
-    const updatedAssistantCard = newFlowData.cards.find(card => card.type === 'assistente');
-    if (updatedAssistantCard) {
-      setAssistantCard(updatedAssistantCard);
-    }
   };
   
   return (
@@ -83,14 +58,6 @@ const Index = () => {
       </header>
       
       <main className="w-full h-full pt-20">
-        {assistantCard && (
-          <div className="px-6 mb-4">
-            <AssistantCard 
-              data={assistantCard} 
-              onUpdate={handleAssistantUpdate}
-            />
-          </div>
-        )}
         <FlowEditor 
           initialData={flowData} 
           onFlowChange={handleFlowDataChange} 

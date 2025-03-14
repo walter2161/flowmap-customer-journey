@@ -40,7 +40,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({ data, onUpdate }) => {
   };
   
   return (
-    <Card className="w-full max-w-2xl mx-auto mb-6 border-slate-300 shadow-md bg-white relative">
+    <Card className={`w-full ${data.id ? 'max-w-full' : 'max-w-2xl mx-auto mb-6'} border-slate-300 shadow-md bg-white relative`}>
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-slate-800"></div>
       <CardHeader className="pb-2 flex flex-row justify-between">
         <div className="flex items-start gap-4">
