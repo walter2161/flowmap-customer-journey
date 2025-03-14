@@ -32,7 +32,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   // Default to custom connection type for new system
   let connectionType: ConnectionType = 'custom';
   
-  // For backward compatibility - using type-safe comparison
+  // For backward compatibility - using string comparison for type safety
   if (sourceHandle === 'positive') {
     connectionType = 'positive';
   } else if (sourceHandle === 'negative') {
