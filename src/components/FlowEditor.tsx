@@ -536,133 +536,73 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Completely rewritten script generation function
+  // Generate script with output port labels
   const onGenerateScript = useCallback(() => {
-    // Create a mapping from node IDs to sequential numbers for better readability
-    const nodeIdMap = new Map<string, string>();
+    // Create a map of existing IDs to sequential numbers
+    const idMap = new Map<string, string>();
+    let currentId = 1;
     
-    // First assign sequential IDs to all nodes, starting with initial nodes
-    const initialNodes = nodes.filter(node => node.data.type === 'initial');
-    let nodeCounter = 1;
-    
-    // Start with initial nodes
-    initialNodes.forEach(node => {
-      nodeIdMap.set(node.id, nodeCounter.toString().padStart(2, '0'));
-      nodeCounter++;
-    });
-    
-    // Then process other nodes in logical order (by following connections)
-    const processedIds = new Set<string>(initialNodes.map(node => node.id));
-    const nodesToProcess = [...initialNodes];
-    
-    while (nodesToProcess.length > 0) {
-      const currentNode = nodesToProcess.shift();
-      if (!currentNode) continue;
-      
-      // Find all connected nodes from this node
-      const connectedNodeIds = edges
-        .filter(edge => edge.source === currentNode.id)
-        .map(edge => edge.target);
-      
-      // Process each connected node if not already processed
-      for (const nodeId of connectedNodeIds) {
-        if (!processedIds.has(nodeId)) {
-          const node = nodes.find(n => n.id === nodeId);
-          if (node) {
-            nodeIdMap.set(nodeId, nodeCounter.toString().padStart(2, '0'));
-            nodeCounter++;
-            nodesToProcess.push(node);
-            processedIds.add(nodeId);
-          }
-        }
-      }
-    }
-    
-    // Process any remaining nodes that weren't connected
+    // First, map all node IDs to sequential numbers
     nodes.forEach(node => {
-      if (!nodeIdMap.has(node.id)) {
-        nodeIdMap.set(node.id, nodeCounter.toString().padStart(2, '0'));
-        nodeCounter++;
+      if (!idMap.has(node.id)) {
+        // Format numbers to always have 2 digits (01, 02, etc)
+        const formattedId = currentId.toString().padStart(2, '0');
+        idMap.set(node.id, formattedId);
+        currentId++;
       }
     });
 
-    // Now generate the script
-    let script = "# FLUXO DE ATENDIMENTO PARA IA\n\n";
-    script += "## Guia de uso para o assistente\n";
-    script += "Este documento estrutura o fluxo de conversa para orientar o assistente de IA. ";
-    script += "Cada bloco representa um ponto da conversa e suas possíveis continuações.\n\n";
+    let script = "### **SCRIPT DE ATENDIMENTO ESTRUTURADO - FLUXO HUMANIZADO**\n\n";
     
-    // Sort nodes by their assigned sequential ID for consistent output
+    // Process nodes in order of their assigned IDs
     const sortedNodes = [...nodes].sort((a, b) => {
-      const idA = parseInt(nodeIdMap.get(a.id) || '99');
-      const idB = parseInt(nodeIdMap.get(b.id) || '99');
+      const idA = parseInt(idMap.get(a.id) || '99');
+      const idB = parseInt(idMap.get(b.id) || '99');
       return idA - idB;
     });
 
-    // Process each node and generate its section in the script
+    // Process each node and its connections
     sortedNodes.forEach(node => {
-      const nodeSequentialId = nodeIdMap.get(node.id) || '??';
-      const nodeTypeLabel = node.data.type === 'initial' ? '🟢 INÍCIO' : 
-                           node.data.type === 'end' ? '🔴 FIM' : 
-                           '🔵 ETAPA';
+      const nodeId = idMap.get(node.id) || '00';
       
-      script += `\n## ${nodeSequentialId}. ${nodeTypeLabel}: ${node.data.title}\n\n`;
-      script += `**Contexto:** ${node.data.description || 'Sem descrição'}\n\n`;
-      script += `**Mensagem do assistente:**\n"${node.data.content}"\n\n`;
+      script += `#### **ID: ${nodeId} - ${node.data.title.toUpperCase()}**\n`;
+      script += `"${node.data.content}"\n\n`;
       
-      // Find outgoing connections from this node
+      // Find outgoing connections
       const nodeConnections = edges.filter(edge => edge.source === node.id);
       
       if (nodeConnections.length > 0) {
-        script += `**Possíveis respostas do usuário:**\n\n`;
-        
-        // Process each connection with accurate port information
+        // Get all connections with their target and port labels
         nodeConnections.forEach(connection => {
           const targetNode = nodes.find(n => n.id === connection.target);
-          const targetId = nodeIdMap.get(connection.target) || '??';
-          
-          // Get port label using the connection's sourceHandle ID to look up the correct port
-          let portLabel = 'Resposta não especificada';
-          
-          // First try to get label from connection data
-          if (connection.data?.portLabel) {
-            portLabel = connection.data.portLabel;
-          } 
-          // If not available, try to find it in the source node's output ports
-          else if (connection.sourceHandle) {
-            const sourcePort = node.data.outputPorts?.find(
-              (port: OutputPort) => port.id === connection.sourceHandle
-            );
-            if (sourcePort) {
-              portLabel = sourcePort.label;
-            }
-          }
+          const targetId = idMap.get(connection.target) || '00';
+          const portLabel = connection.data?.portLabel || 'Opção não especificada';
           
           if (targetNode) {
-            script += `- **Se o usuário responder sobre "${portLabel}"** → Ir para etapa ${targetId}\n`;
+            script += `🔹 **Se o usuário ${portLabel}** → Seguir para **ID: ${targetId}**\n`;
           }
         });
+        
+        script += '\n---\n\n';
       } else if (node.data.type === 'end') {
-        script += `**Este é um nó final. A conversa pode ser encerrada aqui.**\n`;
+        // For end nodes without connections
+        script += "Este é um nó final. A conversa pode ser encerrada aqui.\n\n---\n\n";
       } else {
-        script += `**Este nó não possui saídas definidas.**\n`;
+        script += "Sem fluxos de saída definidos.\n\n---\n\n";
       }
-      
-      script += `\n---\n`;
     });
   
-    // Add guidance for AI assistants
-    script += `\n## Orientações para o assistente de IA\n\n`;
-    script += `- **Não liste todas as opções para o usuário** - conduza a conversa naturalmente.\n`;
-    script += `- **Use linguagem natural e conversacional** - evite parecer um menu ou roteiro rígido.\n`;
-    script += `- **Adapte as respostas ao contexto** - use informações anteriores da conversa.\n`;
-    script += `- **Seja flexível** - mesmo seguindo o fluxo, mantenha a conversa fluida e natural.\n`;
-    script += `- **Priorize a experiência do usuário** - o fluxo é um guia, não uma restrição.\n\n`;
+    // Add guide section at the end
+    script += `\n### **POR QUE ESSA VERSÃO É MAIS HUMANIZADA?**\n`;
+    script += `✅ O assistente **não apresenta opções fechadas**, mas conduz a conversa naturalmente.\n`;
+    script += `✅ As respostas são **flexíveis e abertas**, permitindo que o usuário fale livremente.\n`;
+    script += `✅ Há **perguntas exploratórias**, ajudando o usuário a refletir e tomar decisões.\n`;
+    script += `✅ O fluxo se adapta ao usuário, respeitando seu nível de interesse e necessidade.\n\n`;
     
-    // Add reference section
-    script += `## Referência rápida de IDs\n\n`;
+    // Add node reference
+    script += "### **REFERÊNCIA DE IDs**\n\n";
     sortedNodes.forEach(node => {
-      const nodeId = nodeIdMap.get(node.id) || '??';
+      const nodeId = idMap.get(node.id) || '00';
       script += `${nodeId}: ${node.data.title}\n`;
     });
   
@@ -699,4 +639,266 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       sourceHandle: connection.sourceHandle || connection.type, // Set sourceHandle to connection type
       data: { 
         type: connection.type,
-        portLabel: connection.sourcePortLabel
+        portLabel: connection.sourcePortLabel 
+      },
+      style: {
+        strokeWidth: 3,
+        stroke: getConnectionColor(connection.type),
+      },
+    }));
+    
+    setNodes(newNodes);
+    setEdges(newEdges);
+    setTemplateModalOpen(false);
+    
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 100);
+    
+    toast({
+      title: 'Template Carregado',
+      description: `Template de ${templateName} carregado com sucesso.`,
+      duration: 2000,
+    });
+  }, [setNodes, setEdges, fitView, toast]);
+
+  // Handle creating a new card
+  const handleNewCard = useCallback(() => {
+    setCardTypeSelectorOpen(true);
+  }, []);
+
+  // Handle card type selection
+  const handleCardTypeSelect = useCallback((type: CardType, formData: any) => {
+    const { x, y, zoom } = reactFlowInstance.getViewport();
+    
+    // Calculate position in the center of the current view
+    const position = {
+      x: (window.innerWidth / 2 - x) / zoom,
+      y: (window.innerHeight / 2 - 100 - y) / zoom
+    };
+    
+    const newNode = {
+      id: `node-${nanoid(6)}`,
+      type: 'flowCard',
+      position,
+      data: {
+        id: `card-${nanoid(6)}`,
+        title: formData.title || `Novo Cartão ${cardTypeLabels[type]}`,
+        description: formData.description || 'Descrição do cartão',
+        content: formData.content || 'Conteúdo do cartão',
+        type: type,
+        outputPorts: type !== 'end' ? [
+          { id: `port-${nanoid(6)}`, label: "Opção 1" },
+          { id: `port-${nanoid(6)}`, label: "Opção 2" }
+        ] : [],
+        fields: { ...formData }
+      }
+    };
+
+    setNodes(nodes => [...nodes, newNode]);
+    setCardTypeSelectorOpen(false);
+    
+    toast({
+      title: 'Cartão Criado',
+      description: `Um novo cartão do tipo ${cardTypeLabels[type]} foi adicionado ao fluxo.`,
+      duration: 2000,
+    });
+  }, [setNodes, reactFlowInstance, toast]);
+
+  // Initialize
+  useEffect(() => {
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 100);
+  }, [fitView]);
+
+  return (
+    <div className="w-full h-screen" ref={reactFlowWrapper}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        connectionLineType={ConnectionLineType.Straight}
+        connectionLineStyle={{
+          stroke: '#6B7280',
+          strokeWidth: 3,
+          strokeLinecap: 'round',
+        }}
+        defaultEdgeOptions={{
+          type: 'flowConnector',
+          style: {
+            strokeWidth: 3,
+          },
+        }}
+        fitView
+        minZoom={0.1}
+        maxZoom={2}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Controls className="m-4" showInteractive={false} />
+        <MiniMap 
+          nodeColor={(node) => {
+            const type = node.data?.type || 'regular';
+            return type === 'initial' ? '#10B981' : 
+                   type === 'end' ? '#EF4444' : '#6B7280';
+          }}
+          maskColor="rgba(255, 255, 255, 0.7)"
+          className="m-4 bg-white/90 backdrop-blur-md"
+        />
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          gap={15} 
+          size={1} 
+          color="#CCCCCC" 
+          className="bg-gradient-to-br from-gray-50 to-blue-50"
+        />
+        
+        <FlowControls
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onReset={onResetView}
+          onSave={onSaveFlow}
+          onLoad={onLoadFlow}
+          onExport={onExportFlow}
+          onScript={onGenerateScript}
+          onTemplate={() => setTemplateModalOpen(true)}
+          onNewCard={handleNewCard}
+        />
+        
+        {/* JSON Import Modal */}
+        {jsonModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[600px] p-6 animate-scale-in">
+              <h2 className="text-xl font-bold mb-4">Importar Fluxo (JSON)</h2>
+              <textarea
+                className="w-full h-[300px] p-3 border border-gray-300 rounded-lg font-mono text-sm"
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder='{"cards": [...], "connections": [...]}'
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setJsonModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  onClick={handleJsonImport}
+                >
+                  Importar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+        
+        {/* Script Generator Modal */}
+        {scriptModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in max-h-[90vh] flex flex-col">
+              <h2 className="text-xl font-bold mb-4">Script Detalhado para IA</h2>
+              <div className="flex-1 overflow-auto">
+                <pre className="w-full h-full p-3 border border-gray-300 rounded-lg font-mono text-sm whitespace-pre-wrap">
+                  {generatedScript}
+                </pre>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setScriptModalOpen(false)}
+                >
+                  Fechar
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  onClick={() => {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(generatedScript);
+                    toast({
+                      title: 'Script Copiado',
+                      description: 'O script foi copiado para a área de transferência.',
+                      duration: 2000,
+                    });
+                  }}
+                >
+                  Copiar Script
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+        
+        {/* Template Selection Modal */}
+        {templateModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in">
+              <h2 className="text-xl font-bold mb-4">Escolher Template</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div 
+                  onClick={() => onLoadTemplate('imobiliaria')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Imobiliária</h3>
+                  <p className="text-sm text-gray-600">Template para atendimento de imobiliária com fluxos para compra e aluguel de imóveis.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('coworking')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Coworking</h3>
+                  <p className="text-sm text-gray-600">Template para espaços de coworking com fluxos para informações sobre planos e visitas.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('clinica')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Clínica</h3>
+                  <p className="text-sm text-gray-600">Template para clínicas médicas com fluxos para agendamento de consultas e informações.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('marketing')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
+                  <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setTemplateModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+
+        {/* Card Type Selector Modal */}
+        {cardTypeSelectorOpen && (
+          <CardTypeSelector 
+            onSelect={handleCardTypeSelect}
+            onClose={() => setCardTypeSelectorOpen(false)}
+          />
+        )}
+      </ReactFlow>
+    </div>
+  );
+};
+
+const FlowEditorWithProvider: React.FC<FlowEditorProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <FlowEditor {...props} />
+    </ReactFlowProvider>
+  );
+};
+
+export default FlowEditorWithProvider;
