@@ -494,4 +494,4 @@ const templates = {
         position: { x: 650, y: 350 },
         type: "servico" as const,
         outputPorts: [
-          { id: "port-serv8-1
+          { id: "port-serv8-1", label:
