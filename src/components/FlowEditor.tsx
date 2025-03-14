@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -428,6 +429,14 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setJsonModalOpen(true);
   }, []);
 
+  // Helper function to get connection color to avoid type comparison errors
+  const getConnectionColor = (type: ConnectionType): string => {
+    if (type === 'positive') return '#10B981';
+    if (type === 'negative') return '#EF4444';
+    if (type === 'custom') return '#3B82F6';
+    return '#6B7280';
+  };
+
   // Handle JSON import - ensure connections use proper sourceHandle
   const handleJsonImport = useCallback(() => {
     try {
@@ -458,9 +467,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         },
         style: {
           strokeWidth: 3,
-          stroke: connection.type === 'positive' ? '#10B981' : 
-                  connection.type === 'negative' ? '#EF4444' : 
-                  connection.type === 'custom' ? '#3B82F6' : '#6B7280',
+          stroke: getConnectionColor(connection.type),
         },
       }));
       
@@ -687,8 +694,163 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setScriptModalOpen(true);
   }, [nodes, edges, setGeneratedScript, setScriptModalOpen]);
 
-  // Helper function to get connection color to avoid type comparison errors
-  const getConnectionColor = (type: ConnectionType): string => {
-    if (type === 'positive') return '#10B981';
-    if (type === 'negative') return '#EF4444';
-    if (type === 'custom') return '#3B82F6';
+  // Load template
+  const onLoadTemplate = useCallback((templateKey: string) => {
+    const template = templates[templateKey as keyof typeof templates];
+    
+    if (!template) {
+      toast({
+        title: 'Erro ao Carregar Template',
+        description: 'Template não encontrado.',
+        variant: 'destructive',
+        duration: 3000,
+      });
+      return;
+    }
+    
+    // Convert template cards to nodes
+    const newNodes: Node[] = template.cards.map((card: FlowCard) => ({
+      id: card.id,
+      type: 'flowCard',
+      position: card.position,
+      data: card,
+    }));
+    
+    // Convert template connections to edges
+    const newEdges: Edge[] = template.connections.map((connection: FlowConnection) => ({
+      id: connection.id,
+      source: connection.start,
+      target: connection.end,
+      type: 'flowConnector',
+      sourceHandle: connection.sourceHandle || connection.type,
+      data: {
+        type: connection.type,
+        portLabel: connection.sourcePortLabel
+      },
+      style: {
+        strokeWidth: 3,
+        stroke: getConnectionColor(connection.type),
+      },
+    }));
+    
+    setNodes(newNodes);
+    setEdges(newEdges);
+    setTemplateModalOpen(false);
+    
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 100);
+    
+    toast({
+      title: 'Template Carregado',
+      description: `Template "${templateKey}" carregado com sucesso.`,
+      duration: 2000,
+    });
+  }, [setNodes, setEdges, fitView, toast]);
+
+  // Add card
+  const onAddCard = useCallback(
+    (type: CardType, position = { x: 100, y: 100 }) => {
+      const id = `card-${nanoid(6)}`;
+      
+      // Create default output ports based on card type
+      const outputPorts: OutputPort[] = [];
+      
+      if (type !== 'end') {
+        // Create default ports for non-end cards
+        if (type === 'initial') {
+          outputPorts.push({ id: `port-${nanoid(6)}`, label: 'Opção 1' });
+          outputPorts.push({ id: `port-${nanoid(6)}`, label: 'Opção 2' });
+        } else {
+          outputPorts.push({ id: `port-${nanoid(6)}`, label: 'Opção 1' });
+        }
+      }
+      
+      const newCard: FlowCard = {
+        id,
+        title: `Novo ${cardTypeLabels[type] || type}`,
+        description: 'Descrição do cartão',
+        content: 'Conteúdo do cartão',
+        position,
+        type,
+        outputPorts: outputPorts,
+      };
+      
+      const newNode: Node = {
+        id,
+        type: 'flowCard',
+        position,
+        data: newCard,
+      };
+      
+      setNodes((nds) => [...nds, newNode]);
+      setCardTypeSelectorOpen(false);
+      
+      toast({
+        title: 'Cartão Adicionado',
+        description: `Cartão tipo ${cardTypeLabels[type] || type} adicionado ao fluxo.`,
+        duration: 2000,
+      });
+    },
+    [setNodes, toast]
+  );
+
+  return (
+    <div className="h-full w-full flex flex-col">
+      <ReactFlowProvider>
+        <div ref={reactFlowWrapper} className="flex-1 h-full">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            fitView
+            attributionPosition="bottom-right"
+            connectionLineType={ConnectionLineType.Bezier}
+          >
+            <Background variant={BackgroundVariant.Dots} color="#f0f0f0" gap={16} />
+            <MiniMap
+              nodeStrokeWidth={3}
+              zoomable
+              pannable
+              nodeColor={(node) => {
+                const type = node.data.type as CardType;
+                switch (type) {
+                  case 'initial':
+                    return '#10B981';
+                  case 'end':
+                    return '#EF4444';
+                  default:
+                    return '#3B82F6';
+                }
+              }}
+            />
+            <Controls />
+            <Panel position="top-left">
+              <FlowControls
+                onSave={onSaveFlow}
+                onLoad={onLoadFlow}
+                onExport={onExportFlow}
+                onReset={onResetView}
+                onAddCard={() => setCardTypeSelectorOpen(true)}
+                onGenerateScript={onGenerateScript}
+                onLoadTemplate={() => setTemplateModalOpen(true)}
+              />
+            </Panel>
+          </ReactFlow>
+        </div>
+      </ReactFlowProvider>
+
+      <CardTypeSelector
+        open={cardTypeSelectorOpen}
+        onOpenChange={setCardTypeSelectorOpen}
+        onSelect={onAddCard}
+      />
+    </div>
+  );
+};
+
+export default FlowEditor;
