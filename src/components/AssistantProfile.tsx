@@ -168,18 +168,17 @@ ${profile.guidelines}
   
   return (
     <div className="flex items-center justify-end py-2">
-      <SheetTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={() => setIsOpen(true)}
-        >
-          <UserCog size={18} />
-          <span>Perfil do Assistente</span>
-        </Button>
-      </SheetTrigger>
-      
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <UserCog size={18} />
+            <span>Perfil do Assistente</span>
+          </Button>
+        </SheetTrigger>
+        
         <SheetContent className="sm:max-w-md overflow-auto">
           <SheetHeader>
             <SheetTitle>Perfil do Assistente</SheetTitle>
