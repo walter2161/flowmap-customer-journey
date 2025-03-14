@@ -1,10 +1,7 @@
 
 import React from 'react';
 import { Panel } from 'reactflow';
-import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle, UserCog } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { AssistantProfile } from './AssistantProfile';
+import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
 
 interface FlowControlsProps {
   onZoomIn: () => void;
@@ -35,25 +32,6 @@ const FlowControls: React.FC<FlowControlsProps> = ({
       <Panel position="top-right" className="p-2">
         <div className="flex flex-col gap-2">
           <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
-            {/* Profile button */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
-                  title="Perfil do Assistente"
-                >
-                  <UserCog className="w-5 h-5 text-gray-700" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="sm:max-w-md overflow-auto">
-                <SheetHeader>
-                  <SheetTitle>Perfil do Assistente</SheetTitle>
-                </SheetHeader>
-                <AssistantProfile />
-              </SheetContent>
-            </Sheet>
-            
             <button
               onClick={onSave}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
