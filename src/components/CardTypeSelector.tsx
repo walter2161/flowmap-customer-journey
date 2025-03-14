@@ -756,4 +756,4 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
                 />
               </div>
             </div>
-          </
+          </>
