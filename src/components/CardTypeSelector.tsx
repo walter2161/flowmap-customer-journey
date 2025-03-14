@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { CardType } from '@/utils/flowTypes';
 
@@ -757,3 +758,255 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
               </div>
             </div>
           </>
+        );
+        
+      case 'agendar-visita':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Imóvel</label>
+                <input
+                  type="text"
+                  value={formData.imovel}
+                  onChange={(e) => handleInputChange('imovel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endereço do Imóvel</label>
+                <input
+                  type="text"
+                  value={formData.enderecoImovel}
+                  onChange={(e) => handleInputChange('enderecoImovel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={formData.horario}
+                  onChange={(e) => handleInputChange('horario', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
+                <input
+                  type="text"
+                  value={formData.nomeCliente}
+                  onChange={(e) => handleInputChange('nomeCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone do Cliente</label>
+                <input
+                  type="text"
+                  value={formData.telefoneCliente}
+                  onChange={(e) => handleInputChange('telefoneCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email do Cliente</label>
+                <input
+                  type="email"
+                  value={formData.emailCliente}
+                  onChange={(e) => handleInputChange('emailCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4 col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                <textarea
+                  value={formData.observacoes}
+                  onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </>
+        );
+        
+      case 'agendar-reuniao':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
+                <input
+                  type="text"
+                  value={formData.assunto}
+                  onChange={(e) => handleInputChange('assunto', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Local</label>
+                <input
+                  type="text"
+                  value={formData.local}
+                  onChange={(e) => handleInputChange('local', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={formData.horario}
+                  onChange={(e) => handleInputChange('horario', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
+                <input
+                  type="text"
+                  value={formData.nomeCliente}
+                  onChange={(e) => handleInputChange('nomeCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone do Cliente</label>
+                <input
+                  type="text"
+                  value={formData.telefoneCliente}
+                  onChange={(e) => handleInputChange('telefoneCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email do Cliente</label>
+                <input
+                  type="email"
+                  value={formData.emailCliente}
+                  onChange={(e) => handleInputChange('emailCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4 col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                <textarea
+                  value={formData.observacoes}
+                  onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </>
+        );
+        
+      // Implementação dos outros casos
+      default:
+        return (
+          <>
+            {commonFields}
+            <div className="p-4 bg-gray-100 rounded-md">
+              <p className="text-sm text-gray-600">Este tipo de cartão não possui campos adicionais configurados.</p>
+            </div>
+          </>
+        );
+    }
+  };
+
+  const handleCreate = () => {
+    if (!selectedType) return;
+    
+    onSelect(selectedType, formData);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-screen overflow-y-auto">
+        <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center z-10">
+          <h2 className="text-xl font-semibold">Selecionar tipo de cartão</h2>
+          <button 
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            &times;
+          </button>
+        </div>
+        
+        {!selectedType ? (
+          <div className="p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {cardTypes.map((type) => (
+                <button
+                  key={type}
+                  className={`${cardTypeColors[type]} p-3 rounded-lg border-2 hover:opacity-90 transition-opacity text-left h-24 flex flex-col justify-between`}
+                  onClick={() => handleSelectType(type)}
+                >
+                  <span className="font-medium">{cardTypeLabels[type]}</span>
+                  <small className="text-xs opacity-80">{type}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="p-4">
+            <div className="mb-4 flex items-center">
+              <button
+                onClick={() => setSelectedType(null)}
+                className="mr-2 text-blue-500 hover:text-blue-700"
+              >
+                ← Voltar
+              </button>
+              <h3 className="text-lg font-medium">
+                {cardTypeLabels[selectedType]}
+              </h3>
+            </div>
+            
+            <div className="space-y-4">
+              {renderFormFields()}
+              
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleCreate}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Criar Cartão
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CardTypeSelector;
