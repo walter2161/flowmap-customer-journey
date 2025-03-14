@@ -2,7 +2,7 @@
 import React from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import { initialFlowData } from '@/utils/initialData';
-import AssistantProfile from '@/components/AssistantProfile';
+import { AssistantProfile } from '@/components/AssistantProfile';
 
 const Index = () => {
   return (
