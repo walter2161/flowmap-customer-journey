@@ -157,36 +157,6 @@ ${profile.guidelines}
           </SheetHeader>
           
           <div className="mt-6 space-y-6">
-            <div className="flex flex-col items-center">
-              <div 
-                className="relative cursor-pointer group" 
-                onClick={handleAvatarClick}
-              >
-                <Avatar className="h-24 w-24 border-2 border-primary/30">
-                  {profile.avatar ? (
-                    <AvatarImage src={profile.avatar} alt={profile.name} />
-                  ) : (
-                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                      {getInitials(profile.name)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
-                  Editar
-                </div>
-              </div>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleImageUpload} 
-              />
-              <p className="text-xs mt-2 text-muted-foreground">
-                Clique para alterar (máx. 350px)
-              </p>
-            </div>
-            
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Nome</Label>
@@ -233,6 +203,37 @@ ${profile.guidelines}
                   className="h-48"
                 />
               </div>
+            </div>
+            
+            {/* Avatar moved above save button */}
+            <div className="flex flex-col items-center mt-6 mb-6">
+              <div 
+                className="relative cursor-pointer group" 
+                onClick={handleAvatarClick}
+              >
+                <Avatar className="h-24 w-24 border-2 border-primary/30">
+                  {profile.avatar ? (
+                    <AvatarImage src={profile.avatar} alt={profile.name} />
+                  ) : (
+                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                      {getInitials(profile.name)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                  Editar
+                </div>
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                onChange={handleImageUpload} 
+              />
+              <p className="text-xs mt-2 text-muted-foreground">
+                Clique para alterar (máx. 350px)
+              </p>
             </div>
             
             <div className="flex justify-between">
