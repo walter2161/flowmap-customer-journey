@@ -536,7 +536,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Generate script with output port labels
+  // Generate script with dynamic port labels
   const onGenerateScript = useCallback(() => {
     // Create a map of existing IDs to sequential numbers
     const idMap = new Map<string, string>();
@@ -572,11 +572,21 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       const nodeConnections = edges.filter(edge => edge.source === node.id);
       
       if (nodeConnections.length > 0) {
-        // Get all connections with their target and port labels
+        // Process each connection with accurate port information
         nodeConnections.forEach(connection => {
           const targetNode = nodes.find(n => n.id === connection.target);
           const targetId = idMap.get(connection.target) || '00';
-          const portLabel = connection.data?.portLabel || 'Opção não especificada';
+          
+          // Get the source port label from the connection data or find it from the node
+          let portLabel = connection.data?.portLabel || 'Opção não especificada';
+          
+          // If we don't have a saved port label, try to find it in the node's output ports
+          if (portLabel === 'Opção não especificada' && connection.sourceHandle) {
+            const sourcePort = node.data.outputPorts?.find((p: OutputPort) => p.id === connection.sourceHandle);
+            if (sourcePort) {
+              portLabel = sourcePort.label;
+            }
+          }
           
           if (targetNode) {
             script += `🔹 **Se o usuário ${portLabel}** → Seguir para **ID: ${targetId}**\n`;
@@ -699,206 +709,4 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setCardTypeSelectorOpen(false);
     
     toast({
-      title: 'Cartão Criado',
-      description: `Um novo cartão do tipo ${cardTypeLabels[type]} foi adicionado ao fluxo.`,
-      duration: 2000,
-    });
-  }, [setNodes, reactFlowInstance, toast]);
-
-  // Initialize
-  useEffect(() => {
-    setTimeout(() => {
-      fitView({ padding: 0.2, duration: 800 });
-    }, 100);
-  }, [fitView]);
-
-  return (
-    <div className="w-full h-screen" ref={reactFlowWrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        connectionLineType={ConnectionLineType.Straight}
-        connectionLineStyle={{
-          stroke: '#6B7280',
-          strokeWidth: 3,
-          strokeLinecap: 'round',
-        }}
-        defaultEdgeOptions={{
-          type: 'flowConnector',
-          style: {
-            strokeWidth: 3,
-          },
-        }}
-        fitView
-        minZoom={0.1}
-        maxZoom={2}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Controls className="m-4" showInteractive={false} />
-        <MiniMap 
-          nodeColor={(node) => {
-            const type = node.data?.type || 'regular';
-            return type === 'initial' ? '#10B981' : 
-                   type === 'end' ? '#EF4444' : '#6B7280';
-          }}
-          maskColor="rgba(255, 255, 255, 0.7)"
-          className="m-4 bg-white/90 backdrop-blur-md"
-        />
-        <Background 
-          variant={BackgroundVariant.Dots} 
-          gap={15} 
-          size={1} 
-          color="#CCCCCC" 
-          className="bg-gradient-to-br from-gray-50 to-blue-50"
-        />
-        
-        <FlowControls
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
-          onReset={onResetView}
-          onSave={onSaveFlow}
-          onLoad={onLoadFlow}
-          onExport={onExportFlow}
-          onScript={onGenerateScript}
-          onTemplate={() => setTemplateModalOpen(true)}
-          onNewCard={handleNewCard}
-        />
-        
-        {/* JSON Import Modal */}
-        {jsonModalOpen && (
-          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-[600px] p-6 animate-scale-in">
-              <h2 className="text-xl font-bold mb-4">Importar Fluxo (JSON)</h2>
-              <textarea
-                className="w-full h-[300px] p-3 border border-gray-300 rounded-lg font-mono text-sm"
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-                placeholder='{"cards": [...], "connections": [...]}'
-              />
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setJsonModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                  onClick={handleJsonImport}
-                >
-                  Importar
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-        
-        {/* Script Generator Modal */}
-        {scriptModalOpen && (
-          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in max-h-[90vh] flex flex-col">
-              <h2 className="text-xl font-bold mb-4">Script Detalhado para IA</h2>
-              <div className="flex-1 overflow-auto">
-                <pre className="w-full h-full p-3 border border-gray-300 rounded-lg font-mono text-sm whitespace-pre-wrap">
-                  {generatedScript}
-                </pre>
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setScriptModalOpen(false)}
-                >
-                  Fechar
-                </button>
-                <button
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                  onClick={() => {
-                    // Copy to clipboard
-                    navigator.clipboard.writeText(generatedScript);
-                    toast({
-                      title: 'Script Copiado',
-                      description: 'O script foi copiado para a área de transferência.',
-                      duration: 2000,
-                    });
-                  }}
-                >
-                  Copiar Script
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-        
-        {/* Template Selection Modal */}
-        {templateModalOpen && (
-          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in">
-              <h2 className="text-xl font-bold mb-4">Escolher Template</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div 
-                  onClick={() => onLoadTemplate('imobiliaria')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Imobiliária</h3>
-                  <p className="text-sm text-gray-600">Template para atendimento de imobiliária com fluxos para compra e aluguel de imóveis.</p>
-                </div>
-                <div 
-                  onClick={() => onLoadTemplate('coworking')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Coworking</h3>
-                  <p className="text-sm text-gray-600">Template para espaços de coworking com fluxos para informações sobre planos e visitas.</p>
-                </div>
-                <div 
-                  onClick={() => onLoadTemplate('clinica')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Clínica</h3>
-                  <p className="text-sm text-gray-600">Template para clínicas médicas com fluxos para agendamento de consultas e informações.</p>
-                </div>
-                <div 
-                  onClick={() => onLoadTemplate('marketing')}
-                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
-                  <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-                  onClick={() => setTemplateModalOpen(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </Panel>
-        )}
-
-        {/* Card Type Selector Modal */}
-        {cardTypeSelectorOpen && (
-          <CardTypeSelector 
-            onSelect={handleCardTypeSelect}
-            onClose={() => setCardTypeSelectorOpen(false)}
-          />
-        )}
-      </ReactFlow>
-    </div>
-  );
-};
-
-const FlowEditorWithProvider: React.FC<FlowEditorProps> = (props) => {
-  return (
-    <ReactFlowProvider>
-      <FlowEditor {...props} />
-    </ReactFlowProvider>
-  );
-};
-
-export default FlowEditorWithProvider;
+      title:
