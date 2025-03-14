@@ -1,9 +1,6 @@
+
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Button } from './ui/button';
 
 interface CardTypeSelectorProps {
   onSelect: (type: CardType, formData: any) => void;
@@ -29,8 +26,7 @@ export const cardTypeLabels: Record<CardType, string> = {
   'imovel-usado': 'Imóvel Usado',
   'imovel-comercial': 'Imóvel Comercial',
   'agendar-visita': 'Agendar Visita',
-  'agendar-reuniao': 'Agendar Reunião',
-  'assistant-profile': 'Perfil do Assistente'
+  'agendar-reuniao': 'Agendar Reunião'
 };
 
 const cardTypeColors: Record<CardType, string> = {
@@ -52,14 +48,12 @@ const cardTypeColors: Record<CardType, string> = {
   'imovel-usado': 'bg-violet-100 border-violet-500 text-violet-700',
   'imovel-comercial': 'bg-sky-100 border-sky-500 text-sky-700',
   'agendar-visita': 'bg-fuchsia-100 border-fuchsia-500 text-fuchsia-700',
-  'agendar-reuniao': 'bg-lime-100 border-lime-500 text-lime-700',
-  'assistant-profile': 'bg-black border-gray-800 text-white'
+  'agendar-reuniao': 'bg-lime-100 border-lime-500 text-lime-700'
 };
 
 const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }) => {
   const [selectedType, setSelectedType] = useState<CardType | null>(null);
   const [formData, setFormData] = useState<any>({});
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   
   const cardTypes = Object.keys(cardTypeLabels) as CardType[];
 
@@ -73,19 +67,6 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
     };
     
     switch(type) {
-      case 'assistant-profile':
-        initialData.title = 'Assistente Virtual';
-        initialData.description = 'Perfil do assistente virtual';
-        initialData.content = 'Este é o perfil do assistente virtual que vai atender os clientes.';
-        initialData.name = 'Assistente Virtual';
-        initialData.profession = 'Atendente Virtual';
-        initialData.company = 'Minha Empresa';
-        initialData.email = 'assistente@minhaempresa.com';
-        initialData.phone = '(00) 00000-0000';
-        initialData.guidelines = 'Diretrizes do assistente:\n\n1. Seja sempre educado e profissional.\n2. Mantenha uma linguagem clara e direta.\n3. Evite usar gírias ou linguagem informal.\n4. Responda às perguntas de forma objetiva.\n5. Encaminhe para um atendente humano quando não puder responder.';
-        initialData.prohibitions = 'O assistente NÃO deve:\n\n1. Fornecer informações falsas ou enganosas.\n2. Prometer prazos ou condições que não podem ser cumpridos.\n3. Realizar transações sem autorização expressa.\n4. Compartilhar dados confidenciais.\n5. Usar linguagem ofensiva.';
-        initialData.avatar = '';
-        break;
       case 'imovel':
         initialData.endereco = '';
         initialData.preco = '';
@@ -232,49 +213,6 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
     handleInputChange(key, newArray);
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        // Create a canvas to resize the image
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 350;
-        const MAX_HEIGHT = 350;
-        let width = img.width;
-        let height = img.height;
-
-        // Calculate the new dimensions while maintaining aspect ratio
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // Convert to base64 with reduced quality
-        const base64 = canvas.toDataURL('image/jpeg', 0.8);
-        setAvatarPreview(base64);
-        handleInputChange('avatar', base64);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  };
-
   const renderFormFields = () => {
     if (!selectedType) return null;
 
@@ -312,91 +250,6 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
 
     // Type-specific fields
     switch (selectedType) {
-      case 'assistant-profile':
-        return (
-          <>
-            {commonFields}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Assistente</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Profissão</label>
-                <input
-                  type="text"
-                  value={formData.profession}
-                  onChange={(e) => handleInputChange('profession', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) => handleInputChange('company', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-                <input
-                  type="text"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4 col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Avatar</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-                {avatarPreview && (
-                  <div className="mt-2">
-                    <img src={avatarPreview} alt="Avatar Preview" className="w-24 h-24 object-cover rounded-full" />
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Diretrizes do Assistente</label>
-              <textarea
-                value={formData.guidelines}
-                onChange={(e) => handleInputChange('guidelines', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={5}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Proibições</label>
-              <textarea
-                value={formData.prohibitions}
-                onChange={(e) => handleInputChange('prohibitions', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={5}
-              />
-            </div>
-          </>
-        );
       case 'imovel':
         return (
           <>
@@ -741,3 +594,230 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
           <>
             {commonFields}
             <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Imóvel</label>
+                <input
+                  type="text"
+                  value={formData.imovel}
+                  onChange={(e) => handleInputChange('imovel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Endereço do Imóvel</label>
+                <input
+                  type="text"
+                  value={formData.enderecoImovel}
+                  onChange={(e) => handleInputChange('enderecoImovel', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={formData.horario}
+                  onChange={(e) => handleInputChange('horario', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
+                <input
+                  type="text"
+                  value={formData.nomeCliente}
+                  onChange={(e) => handleInputChange('nomeCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input
+                  type="tel"
+                  value={formData.telefoneCliente}
+                  onChange={(e) => handleInputChange('telefoneCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.emailCliente}
+                  onChange={(e) => handleInputChange('emailCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+              <textarea
+                value={formData.observacoes}
+                onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+              />
+            </div>
+          </>
+        );
+        
+      case 'agendar-reuniao':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
+                <input
+                  type="text"
+                  value={formData.assunto}
+                  onChange={(e) => handleInputChange('assunto', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Local</label>
+                <select
+                  value={formData.local}
+                  onChange={(e) => handleInputChange('local', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="Escritório">Escritório</option>
+                  <option value="Imóvel">No Imóvel</option>
+                  <option value="Virtual">Reunião Virtual</option>
+                  <option value="Outro">Outro Local</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={formData.horario}
+                  onChange={(e) => handleInputChange('horario', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
+                <input
+                  type="text"
+                  value={formData.nomeCliente}
+                  onChange={(e) => handleInputChange('nomeCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input
+                  type="tel"
+                  value={formData.telefoneCliente}
+                  onChange={(e) => handleInputChange('telefoneCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.emailCliente}
+                  onChange={(e) => handleInputChange('emailCliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+              <textarea
+                value={formData.observacoes}
+                onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+              />
+            </div>
+          </>
+        );
+        
+      // Add other cases as needed
+      default:
+        return commonFields;
+    }
+  };
+
+  const handleSubmit = () => {
+    onSelect(selectedType!, formData);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">Selecione o tipo de cartão</h2>
+        
+        {!selectedType ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {cardTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => handleSelectType(type)}
+                className={`p-3 border rounded-md transition-colors text-center hover:shadow-md ${cardTypeColors[type]}`}
+              >
+                {cardTypeLabels[type]}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div>
+            <div className="mb-4">
+              <span className={`px-2 py-1 rounded text-xs font-semibold ${cardTypeColors[selectedType]}`}>
+                {cardTypeLabels[selectedType]}
+              </span>
+            </div>
+            
+            {renderFormFields()}
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => setSelectedType(null)}
+                className="px-4 py-2 border border-blue-300 rounded-md text-blue-700 hover:bg-blue-50"
+              >
+                Voltar
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700"
+              >
+                Adicionar Cartão
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CardTypeSelector;
