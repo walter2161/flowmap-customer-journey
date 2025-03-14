@@ -100,28 +100,6 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
         }}
       />
       
-      {/* Show port label along the path */}
-      {(data?.portLabel || portLetter) && (
-        <foreignObject
-          width={140}
-          height={30}
-          x={(sourceX + targetX) / 2 - 70}
-          y={(sourceY + targetY) / 2 - 40}
-          className="flow-connection-label"
-        >
-          <div className="flow-connection-label-container flex items-center justify-center">
-            <span className="flex items-center px-2 py-1 bg-white/90 text-xs border border-gray-200 rounded-md shadow-sm text-gray-700">
-              {portLetter && (
-                <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs mr-2">
-                  {portLetter}
-                </span>
-              )}
-              {data?.portLabel || ''}
-            </span>
-          </div>
-        </foreignObject>
-      )}
-      
       {/* Delete button in the middle of the path */}
       <foreignObject
         width={20}
