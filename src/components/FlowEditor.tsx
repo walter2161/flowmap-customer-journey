@@ -536,83 +536,133 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Generate script with dynamic port labels
+  // Completely rewritten script generation function
   const onGenerateScript = useCallback(() => {
-    // Create a map of existing IDs to sequential numbers
-    const idMap = new Map<string, string>();
-    let currentId = 1;
+    // Create a mapping from node IDs to sequential numbers for better readability
+    const nodeIdMap = new Map<string, string>();
     
-    // First, map all node IDs to sequential numbers
+    // First assign sequential IDs to all nodes, starting with initial nodes
+    const initialNodes = nodes.filter(node => node.data.type === 'initial');
+    let nodeCounter = 1;
+    
+    // Start with initial nodes
+    initialNodes.forEach(node => {
+      nodeIdMap.set(node.id, nodeCounter.toString().padStart(2, '0'));
+      nodeCounter++;
+    });
+    
+    // Then process other nodes in logical order (by following connections)
+    const processedIds = new Set<string>(initialNodes.map(node => node.id));
+    const nodesToProcess = [...initialNodes];
+    
+    while (nodesToProcess.length > 0) {
+      const currentNode = nodesToProcess.shift();
+      if (!currentNode) continue;
+      
+      // Find all connected nodes from this node
+      const connectedNodeIds = edges
+        .filter(edge => edge.source === currentNode.id)
+        .map(edge => edge.target);
+      
+      // Process each connected node if not already processed
+      for (const nodeId of connectedNodeIds) {
+        if (!processedIds.has(nodeId)) {
+          const node = nodes.find(n => n.id === nodeId);
+          if (node) {
+            nodeIdMap.set(nodeId, nodeCounter.toString().padStart(2, '0'));
+            nodeCounter++;
+            nodesToProcess.push(node);
+            processedIds.add(nodeId);
+          }
+        }
+      }
+    }
+    
+    // Process any remaining nodes that weren't connected
     nodes.forEach(node => {
-      if (!idMap.has(node.id)) {
-        // Format numbers to always have 2 digits (01, 02, etc)
-        const formattedId = currentId.toString().padStart(2, '0');
-        idMap.set(node.id, formattedId);
-        currentId++;
+      if (!nodeIdMap.has(node.id)) {
+        nodeIdMap.set(node.id, nodeCounter.toString().padStart(2, '0'));
+        nodeCounter++;
       }
     });
 
-    let script = "### **SCRIPT DE ATENDIMENTO ESTRUTURADO - FLUXO HUMANIZADO**\n\n";
+    // Now generate the script
+    let script = "# FLUXO DE ATENDIMENTO PARA IA\n\n";
+    script += "## Guia de uso para o assistente\n";
+    script += "Este documento estrutura o fluxo de conversa para orientar o assistente de IA. ";
+    script += "Cada bloco representa um ponto da conversa e suas possíveis continuações.\n\n";
     
-    // Process nodes in order of their assigned IDs
+    // Sort nodes by their assigned sequential ID for consistent output
     const sortedNodes = [...nodes].sort((a, b) => {
-      const idA = parseInt(idMap.get(a.id) || '99');
-      const idB = parseInt(idMap.get(b.id) || '99');
+      const idA = parseInt(nodeIdMap.get(a.id) || '99');
+      const idB = parseInt(nodeIdMap.get(b.id) || '99');
       return idA - idB;
     });
 
-    // Process each node and its connections
+    // Process each node and generate its section in the script
     sortedNodes.forEach(node => {
-      const nodeId = idMap.get(node.id) || '00';
+      const nodeSequentialId = nodeIdMap.get(node.id) || '??';
+      const nodeTypeLabel = node.data.type === 'initial' ? '🟢 INÍCIO' : 
+                           node.data.type === 'end' ? '🔴 FIM' : 
+                           '🔵 ETAPA';
       
-      script += `#### **ID: ${nodeId} - ${node.data.title.toUpperCase()}**\n`;
-      script += `"${node.data.content}"\n\n`;
+      script += `\n## ${nodeSequentialId}. ${nodeTypeLabel}: ${node.data.title}\n\n`;
+      script += `**Contexto:** ${node.data.description || 'Sem descrição'}\n\n`;
+      script += `**Mensagem do assistente:**\n"${node.data.content}"\n\n`;
       
-      // Find outgoing connections
+      // Find outgoing connections from this node
       const nodeConnections = edges.filter(edge => edge.source === node.id);
       
       if (nodeConnections.length > 0) {
+        script += `**Possíveis respostas do usuário:**\n\n`;
+        
         // Process each connection with accurate port information
         nodeConnections.forEach(connection => {
           const targetNode = nodes.find(n => n.id === connection.target);
-          const targetId = idMap.get(connection.target) || '00';
+          const targetId = nodeIdMap.get(connection.target) || '??';
           
-          // Get the source port label from the connection data or find it from the node
-          let portLabel = connection.data?.portLabel || 'Opção não especificada';
+          // Get port label using the connection's sourceHandle ID to look up the correct port
+          let portLabel = 'Resposta não especificada';
           
-          // If we don't have a saved port label, try to find it in the node's output ports
-          if (portLabel === 'Opção não especificada' && connection.sourceHandle) {
-            const sourcePort = node.data.outputPorts?.find((p: OutputPort) => p.id === connection.sourceHandle);
+          // First try to get label from connection data
+          if (connection.data?.portLabel) {
+            portLabel = connection.data.portLabel;
+          } 
+          // If not available, try to find it in the source node's output ports
+          else if (connection.sourceHandle) {
+            const sourcePort = node.data.outputPorts?.find(
+              (port: OutputPort) => port.id === connection.sourceHandle
+            );
             if (sourcePort) {
               portLabel = sourcePort.label;
             }
           }
           
           if (targetNode) {
-            script += `🔹 **Se o usuário ${portLabel}** → Seguir para **ID: ${targetId}**\n`;
+            script += `- **Se o usuário responder sobre "${portLabel}"** → Ir para etapa ${targetId}\n`;
           }
         });
-        
-        script += '\n---\n\n';
       } else if (node.data.type === 'end') {
-        // For end nodes without connections
-        script += "Este é um nó final. A conversa pode ser encerrada aqui.\n\n---\n\n";
+        script += `**Este é um nó final. A conversa pode ser encerrada aqui.**\n`;
       } else {
-        script += "Sem fluxos de saída definidos.\n\n---\n\n";
+        script += `**Este nó não possui saídas definidas.**\n`;
       }
+      
+      script += `\n---\n`;
     });
   
-    // Add guide section at the end
-    script += `\n### **POR QUE ESSA VERSÃO É MAIS HUMANIZADA?**\n`;
-    script += `✅ O assistente **não apresenta opções fechadas**, mas conduz a conversa naturalmente.\n`;
-    script += `✅ As respostas são **flexíveis e abertas**, permitindo que o usuário fale livremente.\n`;
-    script += `✅ Há **perguntas exploratórias**, ajudando o usuário a refletir e tomar decisões.\n`;
-    script += `✅ O fluxo se adapta ao usuário, respeitando seu nível de interesse e necessidade.\n\n`;
+    // Add guidance for AI assistants
+    script += `\n## Orientações para o assistente de IA\n\n`;
+    script += `- **Não liste todas as opções para o usuário** - conduza a conversa naturalmente.\n`;
+    script += `- **Use linguagem natural e conversacional** - evite parecer um menu ou roteiro rígido.\n`;
+    script += `- **Adapte as respostas ao contexto** - use informações anteriores da conversa.\n`;
+    script += `- **Seja flexível** - mesmo seguindo o fluxo, mantenha a conversa fluida e natural.\n`;
+    script += `- **Priorize a experiência do usuário** - o fluxo é um guia, não uma restrição.\n\n`;
     
-    // Add node reference
-    script += "### **REFERÊNCIA DE IDs**\n\n";
+    // Add reference section
+    script += `## Referência rápida de IDs\n\n`;
     sortedNodes.forEach(node => {
-      const nodeId = idMap.get(node.id) || '00';
+      const nodeId = nodeIdMap.get(node.id) || '??';
       script += `${nodeId}: ${node.data.title}\n`;
     });
   
@@ -649,64 +699,4 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       sourceHandle: connection.sourceHandle || connection.type, // Set sourceHandle to connection type
       data: { 
         type: connection.type,
-        portLabel: connection.sourcePortLabel 
-      },
-      style: {
-        strokeWidth: 3,
-        stroke: getConnectionColor(connection.type),
-      },
-    }));
-    
-    setNodes(newNodes);
-    setEdges(newEdges);
-    setTemplateModalOpen(false);
-    
-    setTimeout(() => {
-      fitView({ padding: 0.2, duration: 800 });
-    }, 100);
-    
-    toast({
-      title: 'Template Carregado',
-      description: `Template de ${templateName} carregado com sucesso.`,
-      duration: 2000,
-    });
-  }, [setNodes, setEdges, fitView, toast]);
-
-  // Handle creating a new card
-  const handleNewCard = useCallback(() => {
-    setCardTypeSelectorOpen(true);
-  }, []);
-
-  // Handle card type selection
-  const handleCardTypeSelect = useCallback((type: CardType, formData: any) => {
-    const { x, y, zoom } = reactFlowInstance.getViewport();
-    
-    // Calculate position in the center of the current view
-    const position = {
-      x: (window.innerWidth / 2 - x) / zoom,
-      y: (window.innerHeight / 2 - 100 - y) / zoom
-    };
-    
-    const newNode = {
-      id: `node-${nanoid(6)}`,
-      type: 'flowCard',
-      position,
-      data: {
-        id: `card-${nanoid(6)}`,
-        title: formData.title || `Novo Cartão ${cardTypeLabels[type]}`,
-        description: formData.description || 'Descrição do cartão',
-        content: formData.content || 'Conteúdo do cartão',
-        type: type,
-        outputPorts: type !== 'end' ? [
-          { id: `port-${nanoid(6)}`, label: "Opção 1" },
-          { id: `port-${nanoid(6)}`, label: "Opção 2" }
-        ] : [],
-        fields: { ...formData }
-      }
-    };
-
-    setNodes(nodes => [...nodes, newNode]);
-    setCardTypeSelectorOpen(false);
-    
-    toast({
-      title:
+        portLabel: connection.sourcePortLabel
