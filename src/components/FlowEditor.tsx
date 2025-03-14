@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -610,7 +611,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setScriptModalOpen(true);
   }, [nodes, edges]);
 
-  // Load template - ensure proper sourceHandle
+  // Load template
   const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
     const templateData = templates[templateName];
     
@@ -635,7 +636,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       },
       style: {
         strokeWidth: 3,
-        // Using a function to handle the type comparison safely
+        // Using a type-safe approach for connection type comparison
         stroke: (() => {
           if (connection.type === 'positive') return '#10B981';
           if (connection.type === 'negative') return '#EF4444';
@@ -711,4 +712,158 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   }, [fitView]);
 
   return (
-    <div className="w-full h-screen" ref={react
+    <div className="w-full h-screen" ref={reactFlowWrapper}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        proOptions={{ hideAttribution: true }}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        fitView
+      >
+        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        <Controls position="bottom-right" />
+        <MiniMap position="bottom-left" maskColor="rgba(0, 0, 0, 0.1)" className="bg-white p-2 rounded-md shadow-md" />
+        
+        <FlowControls 
+          onNewCard={handleNewCard}
+          onSave={onSaveFlow}
+          onLoad={onLoadFlow}
+          onExport={onExportFlow}
+          onScript={onGenerateScript}
+          onReset={onResetView}
+          onTemplate={() => setTemplateModalOpen(true)}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+        />
+      </ReactFlow>
+      
+      {/* Card Type Selector Dialog */}
+      {cardTypeSelectorOpen && (
+        <CardTypeSelector
+          onSelect={handleCardTypeSelect}
+          onClose={() => setCardTypeSelectorOpen(false)}
+        />
+      )}
+      
+      {/* JSON Import Modal */}
+      {jsonModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+            <div className="p-4 border-b">
+              <h2 className="text-xl font-semibold">Importar Fluxo</h2>
+            </div>
+            <div className="p-4">
+              <textarea
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder="Cole o JSON do fluxo aqui..."
+                className="w-full p-3 border border-gray-300 rounded-md h-64 font-mono text-sm"
+              />
+            </div>
+            <div className="p-4 border-t flex justify-end space-x-3">
+              <button
+                onClick={() => setJsonModalOpen(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleJsonImport}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Importar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Script Generation Modal */}
+      {scriptModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Script Gerado</h2>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(generatedScript);
+                  toast({ title: "Copiado", description: "Script copiado para a área de transferência" });
+                }}
+                className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
+              >
+                Copiar
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-grow">
+              <pre className="whitespace-pre-wrap font-mono text-sm">{generatedScript}</pre>
+            </div>
+            <div className="p-4 border-t">
+              <button
+                onClick={() => setScriptModalOpen(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 float-right"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Template Selection Modal */}
+      {templateModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+            <div className="p-4 border-b">
+              <h2 className="text-xl font-semibold">Escolher Template</h2>
+            </div>
+            <div className="p-4 grid grid-cols-2 gap-4">
+              <button
+                onClick={() => onLoadTemplate('imobiliaria')}
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+              >
+                <h3 className="font-medium text-lg">Imobiliária</h3>
+                <p className="text-gray-600 text-sm">Fluxo para atendimento de imobiliária com opções de compra, aluguel e venda.</p>
+              </button>
+              <button
+                onClick={() => onLoadTemplate('coworking')}
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+              >
+                <h3 className="font-medium text-lg">Coworking</h3>
+                <p className="text-gray-600 text-sm">Fluxo para atendimento de espaço de coworking com informações sobre planos e agendamentos.</p>
+              </button>
+              <button
+                onClick={() => onLoadTemplate('clinica')}
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+              >
+                <h3 className="font-medium text-lg">Clínica Médica</h3>
+                <p className="text-gray-600 text-sm">Fluxo para atendimento de clínica médica com agendamento de consultas e informações.</p>
+              </button>
+              <button
+                onClick={() => onLoadTemplate('marketing')}
+                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+              >
+                <h3 className="font-medium text-lg">Agência de Marketing</h3>
+                <p className="text-gray-600 text-sm">Fluxo para atendimento de agência de marketing com serviços digitais e campanhas.</p>
+              </button>
+            </div>
+            <div className="p-4 border-t flex justify-end">
+              <button
+                onClick={() => setTemplateModalOpen(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default FlowEditor;

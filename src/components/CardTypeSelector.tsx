@@ -743,4 +743,3 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
               </div>
             </div>
             <div className="mb-4">
-              <label className
