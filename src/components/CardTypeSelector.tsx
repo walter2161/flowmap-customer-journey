@@ -740,4 +740,4 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
             {commonFields}
             <div className="grid grid-cols-2 gap-4">
               <div className="mb-4">
-                <label className="block text-sm font-
+                <label className="block text-sm font
