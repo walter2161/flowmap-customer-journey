@@ -755,17 +755,15 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
           </>
         );
         
-      // Removing the problematic case and replacing with default
+      // Add other cases as needed
       default:
         return commonFields;
     }
   };
 
   const handleSubmit = () => {
-    if (selectedType) {
-      onSelect(selectedType, formData);
-      onClose();
-    }
+    onSelect(selectedType!, formData);
+    onClose();
   };
 
   return (

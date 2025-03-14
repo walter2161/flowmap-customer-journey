@@ -104,184 +104,55 @@ const templates = {
     cards: [
       {
         id: "cowork-1",
-        title: "Boas-vindas Coworking Kennedy",
+        title: "Boas-vindas Coworking",
         description: "Primeiro contato com cliente",
-        content: "Olá! Bem-vindo ao Coworking Kennedy. Uma nova forma de trabalhar com toda a estrutura necessária para receber seus clientes. Como posso ajudar você hoje?",
-        position: { x: 50, y: 50 },
+        content: "Olá! Bem-vindo ao Espaço Colaborativo. Como posso ajudar você hoje? Está interessado em conhecer nossos planos ou agendar uma visita?",
+        position: { x: 71, y: 32 },
         type: "initial" as const,
         outputPorts: [
           { id: "port-cowork1-1", label: "Quero conhecer os planos" },
-          { id: "port-cowork1-2", label: "Quero agendar uma visita" },
-          { id: "port-cowork1-3", label: "Quero saber sobre endereço comercial" },
-          { id: "port-cowork1-4", label: "Preciso de mais informações" }
+          { id: "port-cowork1-2", label: "Quero agendar uma visita" }
         ]
       },
       {
         id: "cowork-2",
-        title: "Planos Disponíveis",
-        description: "Informações sobre planos oferecidos",
-        content: "Oferecemos diversas opções para atender suas necessidades. Temos planos mensais para estações de trabalho a partir de R$750/mês, além de opções avulsas por hora ou diária. Qual modalidade melhor atende sua necessidade?",
-        position: { x: 350, y: 30 },
+        title: "Interesse em Planos",
+        description: "Cliente interessado nos planos",
+        content: "Temos diversos planos para atender suas necessidades. Temos plano diário, semanal e mensal. Qual deles melhor atende sua necessidade?",
+        position: { x: 433, y: 63 },
         type: "regular" as const,
         outputPorts: [
-          { id: "port-cowork2-1", label: "Planos mensais" },
-          { id: "port-cowork2-2", label: "Valores avulsos" },
-          { id: "port-cowork2-3", label: "Endereço comercial" }
+          { id: "port-cowork2-1", label: "Plano diário" },
+          { id: "port-cowork2-2", label: "Plano semanal" },
+          { id: "port-cowork2-3", label: "Plano mensal" }
         ]
       },
       {
         id: "cowork-3",
-        title: "Agendar Visita",
+        title: "Agendamento de Visita",
         description: "Cliente quer conhecer o espaço",
-        content: "Ficaremos felizes em recebê-lo para conhecer nosso espaço. Nosso horário de atendimento é de segunda a sexta, das 9h às 17h. Quando seria melhor para você?",
-        position: { x: 350, y: 200 },
-        type: "agendar" as const,
+        content: "Ficaremos felizes em recebê-lo para conhecer nosso espaço. Temos disponibilidade nos seguintes horários: [lista de horários]. Qual seria melhor para você?",
+        position: { x: 483, y: 491 },
+        type: "regular" as const,
         outputPorts: [
           { id: "port-cowork3-1", label: "Manhã" },
-          { id: "port-cowork3-2", label: "Tarde" },
-          { id: "port-cowork3-3", label: "Outro horário" }
+          { id: "port-cowork3-2", label: "Tarde" }
         ]
       },
       {
         id: "cowork-4",
-        title: "Endereço Comercial",
-        description: "Informações sobre endereço comercial",
-        content: "Nosso endereço comercial está disponível por apenas R$99/mês no plano trimestral, incluindo 10h mensais de uso do espaço compartilhado. Você pode utilizar este endereço em materiais promocionais, correspondências e cartões de visita. Importante: não fornecemos endereço fiscal.",
-        position: { x: 350, y: 370 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-cowork4-1", label: "Quero contratar" },
-          { id: "port-cowork4-2", label: "Tenho dúvidas" }
-        ]
-      },
-      {
-        id: "cowork-5",
-        title: "Mais Informações",
-        description: "Informações institucionais",
-        content: "O Coworking Kennedy oferece infraestrutura de qualidade em um ambiente projetado para inspirar. Idealizado pelo Grupo R. Duarte, estamos localizados no 5º andar do Ed. Comercial Duarte, na Av. Presidente Kennedy, 2191, com acesso pela Rua Honduras, em Praia Grande – SP. Deseja saber sobre algo específico?",
-        position: { x: 350, y: 540 },
-        type: "regular" as const,
-        outputPorts: [
-          { id: "port-cowork5-1", label: "Público-alvo" },
-          { id: "port-cowork5-2", label: "Localização" },
-          { id: "port-cowork5-3", label: "Contato" }
-        ]
-      },
-      {
-        id: "cowork-6",
-        title: "Planos Mensais",
-        description: "Detalhes dos planos mensais",
-        content: "Nosso plano mensal para Estação de Trabalho (mesa individual reservada) custa R$750,00/mês para uma pessoa. Também oferecemos Endereço Comercial por R$99,00/mês. Gostaria de mais detalhes sobre algum desses planos?",
-        position: { x: 650, y: 30 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-cowork6-1", label: "Estação de Trabalho" },
-          { id: "port-cowork6-2", label: "Endereço Comercial" },
-          { id: "port-cowork6-3", label: "Agendar visita" }
-        ]
-      },
-      {
-        id: "cowork-7",
-        title: "Valores Avulsos",
-        description: "Informações sobre valores avulsos",
-        content: "Oferecemos opções avulsas para uso do espaço. Estação de Trabalho: Diária R$99 (8h) ou R$19/hora. Sala Privativa: Diária R$149 (8h) ou R$39/hora. Sala de Reunião: Primeira hora R$99, demais horas R$49. Importante: se o valor das horas exceder o da diária, cobraremos apenas a diária.",
-        position: { x: 650, y: 180 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-cowork7-1", label: "Quero reservar" },
-          { id: "port-cowork7-2", label: "Tenho dúvidas" }
-        ]
-      },
-      {
-        id: "cowork-8",
-        title: "Público-Alvo",
-        description: "Para quem é ideal",
-        content: "O Coworking Kennedy é ideal para: Corretores de Imóveis, Advogados Autônomos, Contadores Autônomos, Representantes Comerciais, Designers Gráficos, Desenvolvedores Autônomos, Psicólogos e Consultores de Negócios. Você se identifica com algum desses perfis?",
-        position: { x: 650, y: 350 },
-        type: "regular" as const,
-        outputPorts: [
-          { id: "port-cowork8-1", label: "Sim, me identifico" },
-          { id: "port-cowork8-2", label: "Não, tenho outro perfil" }
-        ]
-      },
-      {
-        id: "cowork-9",
-        title: "Localização",
-        description: "Endereço e acesso",
-        content: "Estamos localizados na Av. Presidente Kennedy, 2191, com acesso pela Rua Honduras, 855 - Sala 51, bairro Guilhermina, Praia Grande - SP. Nosso horário de atendimento é de segunda a sexta das 9h às 17h, com tolerância de 30 minutos antes e depois. Não funcionamos aos fins de semana e feriados.",
-        position: { x: 650, y: 500 },
-        type: "regular" as const,
-        outputPorts: [
-          { id: "port-cowork9-1", label: "Como chegar" },
-          { id: "port-cowork9-2", label: "Quero agendar visita" }
-        ]
-      },
-      {
-        id: "cowork-10",
-        title: "Contato",
-        description: "Canais de atendimento",
-        content: "Entre em contato conosco: Telefone: (13) 9.9203.7957, E-mail: contato@cwkennedy.com.br. Redes Sociais: Instagram @coworkingkennedy, WhatsApp (13) 9.9203.7957, YouTube youtube.com/coworkingkennedy. Nossa equipe: Mel (Secretária), Walter (Marketing), Mariana (Comercial) e Rubens (Diretor).",
-        position: { x: 650, y: 650 },
-        type: "contatos" as const,
-        outputPorts: [
-          { id: "port-cowork10-1", label: "Ligar agora" },
-          { id: "port-cowork10-2", label: "Enviar mensagem" }
-        ]
-      },
-      {
-        id: "cowork-11",
-        title: "Estação de Trabalho",
-        description: "Detalhes sobre a estação",
-        content: "Nossa Estação de Trabalho (também conhecida como Espaço Compartilhado, Baias ou Escritório Compartilhado) oferece uma mesa individual reservada em ambiente compartilhado. O plano mensal custa R$750/mês e inclui toda infraestrutura necessária para seu trabalho.",
-        position: { x: 950, y: 30 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-cowork11-1", label: "Quero contratar" },
-          { id: "port-cowork11-2", label: "Agendar visita" }
-        ]
-      },
-      {
-        id: "cowork-12",
-        title: "Sala Privativa",
-        description: "Informações sobre sala privativa",
-        content: "Nossa Sala Privativa (também chamada de Sala de Atendimento ou Espaço Privado) é ideal para receber seus clientes com privacidade. Disponível por R$149/dia (8h) ou R$39/hora. Também temos planos mensais disponíveis.",
-        position: { x: 950, y: 180 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-cowork12-1", label: "Quero reservar" },
-          { id: "port-cowork12-2", label: "Ver plano mensal" }
-        ]
-      },
-      {
-        id: "cowork-13",
-        title: "Agradecimento",
-        description: "Finalização do atendimento",
-        content: "Obrigado pelo seu interesse no Coworking Kennedy! Nossa equipe entrará em contato em breve para dar continuidade ao seu atendimento. Estamos ansiosos para recebê-lo em nosso espaço e mostrar como podemos contribuir para o sucesso do seu negócio.",
-        position: { x: 950, y: 350 },
+        title: "Finalização",
+        description: "Encerramento do atendimento",
+        content: "Perfeito! Sua visita está agendada. Nossa equipe entrará em contato para confirmar. Agradecemos seu interesse em nosso espaço de coworking!",
+        position: { x: 789, y: 167 },
         type: "end" as const
       }
     ],
     connections: [
       { id: "cowork-conn-1", start: "cowork-1", end: "cowork-2", type: "custom" as const, sourceHandle: "port-cowork1-1", sourcePortLabel: "Quero conhecer os planos" },
       { id: "cowork-conn-2", start: "cowork-1", end: "cowork-3", type: "custom" as const, sourceHandle: "port-cowork1-2", sourcePortLabel: "Quero agendar uma visita" },
-      { id: "cowork-conn-3", start: "cowork-1", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork1-3", sourcePortLabel: "Quero saber sobre endereço comercial" },
-      { id: "cowork-conn-4", start: "cowork-1", end: "cowork-5", type: "custom" as const, sourceHandle: "port-cowork1-4", sourcePortLabel: "Preciso de mais informações" },
-      { id: "cowork-conn-5", start: "cowork-2", end: "cowork-6", type: "custom" as const, sourceHandle: "port-cowork2-1", sourcePortLabel: "Planos mensais" },
-      { id: "cowork-conn-6", start: "cowork-2", end: "cowork-7", type: "custom" as const, sourceHandle: "port-cowork2-2", sourcePortLabel: "Valores avulsos" },
-      { id: "cowork-conn-7", start: "cowork-2", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork2-3", sourcePortLabel: "Endereço comercial" },
-      { id: "cowork-conn-8", start: "cowork-3", end: "cowork-13", type: "custom" as const, sourceHandle: "port-cowork3-1", sourcePortLabel: "Manhã" },
-      { id: "cowork-conn-9", start: "cowork-5", end: "cowork-8", type: "custom" as const, sourceHandle: "port-cowork5-1", sourcePortLabel: "Público-alvo" },
-      { id: "cowork-conn-10", start: "cowork-5", end: "cowork-9", type: "custom" as const, sourceHandle: "port-cowork5-2", sourcePortLabel: "Localização" },
-      { id: "cowork-conn-11", start: "cowork-5", end: "cowork-10", type: "custom" as const, sourceHandle: "port-cowork5-3", sourcePortLabel: "Contato" },
-      { id: "cowork-conn-12", start: "cowork-6", end: "cowork-11", type: "custom" as const, sourceHandle: "port-cowork6-1", sourcePortLabel: "Estação de Trabalho" },
-      { id: "cowork-conn-13", start: "cowork-6", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork6-2", sourcePortLabel: "Endereço Comercial" },
-      { id: "cowork-conn-14", start: "cowork-6", end: "cowork-3", type: "custom" as const, sourceHandle: "port-cowork6-3", sourcePortLabel: "Agendar visita" },
-      { id: "cowork-conn-15", start: "cowork-7", end: "cowork-12", type: "custom" as const, sourceHandle: "port-cowork7-1", sourcePortLabel: "Quero reservar" },
-      { id: "cowork-conn-16", start: "cowork-4", end: "cowork-13", type: "custom" as const, sourceHandle: "port-cowork4-1", sourcePortLabel: "Quero contratar" },
-      { id: "cowork-conn-17", start: "cowork-8", end: "cowork-13", type: "custom" as const, sourceHandle: "port-cowork8-1", sourcePortLabel: "Sim, me identifico" },
-      { id: "cowork-conn-18", start: "cowork-9", end: "cowork-3", type: "custom" as const, sourceHandle: "port-cowork9-2", sourcePortLabel: "Quero agendar visita" },
-      { id: "cowork-conn-19", start: "cowork-11", end: "cowork-13", type: "custom" as const, sourceHandle: "port-cowork11-1", sourcePortLabel: "Quero contratar" },
-      { id: "cowork-conn-20", start: "cowork-12", end: "cowork-13", type: "custom" as const, sourceHandle: "port-cowork12-1", sourcePortLabel: "Quero reservar" }
+      { id: "cowork-conn-3", start: "cowork-2", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork2-1", sourcePortLabel: "Plano diário" },
+      { id: "cowork-conn-4", start: "cowork-3", end: "cowork-4", type: "custom" as const, sourceHandle: "port-cowork3-1", sourcePortLabel: "Manhã" }
     ]
   },
   clinica: {
@@ -395,103 +266,637 @@ const templates = {
       { id: "mkt-conn-3", start: "mkt-2", end: "mkt-4", type: "custom" as const, sourceHandle: "port-mkt2-1", sourcePortLabel: "SEO" },
       { id: "mkt-conn-4", start: "mkt-3", end: "mkt-4", type: "custom" as const, sourceHandle: "port-mkt3-1", sourcePortLabel: "Lançamento de produto" }
     ]
-  },
-  servicos: {
-    cards: [
-      {
-        id: "serv-1",
-        title: "Boas-vindas",
-        description: "Primeiro contato com cliente",
-        content: "Olá! Bem-vindo à Empresa de Serviços ABC. Como podemos ajudar você hoje?",
-        position: { x: 50, y: 50 },
-        type: "initial" as const,
-        outputPorts: [
-          { id: "port-serv1-1", label: "Conhecer serviços" },
-          { id: "port-serv1-2", label: "Orçamento" },
-          { id: "port-serv1-3", label: "Agendar visita" },
-          { id: "port-serv1-4", label: "Suporte" }
-        ]
+  }
+};
+
+// Node types
+const nodeTypes: NodeTypes = {
+  flowCard: FlowCardComponent
+};
+
+// Edge types
+const edgeTypes: EdgeTypes = {
+  flowConnector: FlowConnector
+};
+
+interface FlowEditorProps {
+  initialData?: FlowData;
+}
+
+const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }) => {
+  const { toast } = useToast();
+  const { fitView, zoomIn, zoomOut, setViewport } = useReactFlow();
+  const [jsonModalOpen, setJsonModalOpen] = useState(false);
+  const [scriptModalOpen, setScriptModalOpen] = useState(false);
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [cardTypeSelectorOpen, setCardTypeSelectorOpen] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [generatedScript, setGeneratedScript] = useState('');
+
+  // Convert cards to nodes
+  const initialNodes: Node[] = initialData.cards.map((card) => ({
+    id: card.id,
+    type: 'flowCard',
+    position: card.position,
+    data: card,
+  }));
+
+  // Convert connections to edges with source handles based on connection type
+  const initialEdges: Edge[] = initialData.connections.map((connection) => ({
+    id: connection.id,
+    source: connection.start,
+    target: connection.end,
+    type: 'flowConnector',
+    sourceHandle: connection.sourceHandle || connection.type, // Use source handle or connection type
+    data: { 
+      type: connection.type,
+      portLabel: connection.sourcePortLabel // Include the port label
+    },
+    style: {
+      strokeWidth: 3,
+      stroke: connection.type === 'positive' ? '#10B981' : 
+              connection.type === 'negative' ? '#EF4444' : 
+              connection.type === 'custom' ? '#3B82F6' : '#6B7280',
+    },
+  }));
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const reactFlowInstance = useReactFlow();
+
+  // Create connections with custom styling and correct handle
+  const onConnect: OnConnect = useCallback(
+    (connection) => {
+      const sourceHandleId = connection.sourceHandle;
+      let connectionType: ConnectionType = 'custom'; // Default to custom for new system
+      let portLabel: string | undefined;
+      
+      // For backward compatibility
+      if (sourceHandleId === 'positive') {
+        connectionType = 'positive';
+      } else if (sourceHandleId === 'negative') {
+        connectionType = 'negative';
+      } else if (sourceHandleId) {
+        // Find the source node and get the port label
+        const sourceNode = nodes.find(node => node.id === connection.source);
+        if (sourceNode && sourceNode.data.outputPorts) {
+          const port = sourceNode.data.outputPorts.find((p: OutputPort) => p.id === sourceHandleId);
+          if (port) {
+            portLabel = port.label;
+          }
+        }
+      }
+      
+      const newEdge: Edge = {
+        ...connection,
+        id: `edge-${nanoid(6)}`,
+        type: 'flowConnector',
+        sourceHandle: sourceHandleId,
+        data: { 
+          type: connectionType,
+          portLabel 
+        },
+        style: {
+          strokeWidth: 3,
+          stroke: connectionType === 'positive' ? '#10B981' : 
+                  connectionType === 'negative' ? '#EF4444' : 
+                  connectionType === 'custom' ? '#3B82F6' : '#6B7280',
+        },
+      };
+      
+      setEdges((eds) => addEdge(newEdge, eds));
+      
+      toast({
+        title: 'Conexão Criada',
+        description: portLabel 
+          ? `Conexão "${portLabel}" adicionada ao fluxo.`
+          : `Conexão adicionada ao fluxo.`,
+        duration: 2000,
+      });
+    },
+    [setEdges, toast, nodes]
+  );
+
+  // Reset view
+  const onResetView = useCallback(() => {
+    fitView({ padding: 0.2, duration: 800 });
+  }, [fitView]);
+
+  // Save flow
+  const onSaveFlow = useCallback(() => {
+    // Convert nodes back to cards
+    const cards: FlowCard[] = nodes.map((node) => ({
+      id: node.id,
+      title: node.data.title,
+      description: node.data.description,
+      content: node.data.content,
+      position: node.position,
+      type: node.data.type,
+      outputPorts: node.data.outputPorts, // Include output ports
+      fields: { ...node.data.fields }
+    }));
+
+    // Convert edges back to connections
+    const connections: FlowConnection[] = edges.map((edge) => ({
+      id: edge.id,
+      start: edge.source,
+      end: edge.target,
+      type: (edge.data?.type || 'custom') as ConnectionType,
+      sourceHandle: edge.sourceHandle,
+      sourcePortLabel: edge.data?.portLabel,
+    }));
+
+    // Create flow data
+    const flowData: FlowData = {
+      cards,
+      connections,
+    };
+
+    // Save to localStorage
+    localStorage.setItem('flowData', JSON.stringify(flowData));
+    
+    toast({
+      title: 'Fluxo Salvo',
+      description: 'Seu fluxo foi salvo com sucesso.',
+      duration: 2000,
+    });
+  }, [nodes, edges, toast]);
+
+  // Load flow
+  const onLoadFlow = useCallback(() => {
+    setJsonModalOpen(true);
+  }, []);
+
+  // Handle JSON import - ensure connections use proper sourceHandle
+  const handleJsonImport = useCallback(() => {
+    try {
+      const parsedData = JSON.parse(jsonInput);
+      
+      if (!parsedData.cards || !parsedData.connections) {
+        throw new Error('JSON inválido: deve conter cards e connections');
+      }
+      
+      // Convert cards to nodes
+      const newNodes: Node[] = parsedData.cards.map((card: FlowCard) => ({
+        id: card.id,
+        type: 'flowCard',
+        position: card.position,
+        data: card,
+      }));
+
+      // Convert connections to edges with sourceHandle and port labels
+      const newEdges: Edge[] = parsedData.connections.map((connection: FlowConnection) => ({
+        id: connection.id,
+        source: connection.start,
+        target: connection.end,
+        type: 'flowConnector',
+        sourceHandle: connection.sourceHandle || connection.type, // Use source handle or connection type
+        data: { 
+          type: connection.type,
+          portLabel: connection.sourcePortLabel 
+        },
+        style: {
+          strokeWidth: 3,
+          stroke: connection.type === 'positive' ? '#10B981' : 
+                  connection.type === 'negative' ? '#EF4444' : 
+                  connection.type === 'custom' ? '#3B82F6' : '#6B7280',
+        },
+      }));
+      
+      setNodes(newNodes);
+      setEdges(newEdges);
+      setJsonModalOpen(false);
+      setJsonInput('');
+      
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 800 });
+      }, 100);
+      
+      toast({
+        title: 'Fluxo Carregado',
+        description: 'Seu fluxo foi carregado com sucesso.',
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao Carregar',
+        description: (error as Error).message || 'Erro ao carregar o JSON.',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+  }, [jsonInput, setNodes, setEdges, fitView, toast]);
+
+  // Export flow
+  const onExportFlow = useCallback(() => {
+    // Convert nodes back to cards
+    const cards: FlowCard[] = nodes.map((node) => ({
+      id: node.id,
+      title: node.data.title,
+      description: node.data.description,
+      content: node.data.content,
+      position: node.position,
+      type: node.data.type,
+      outputPorts: node.data.outputPorts,
+      fields: { ...node.data.fields }
+    }));
+
+    // Convert edges back to connections
+    const connections: FlowConnection[] = edges.map((edge) => ({
+      id: edge.id,
+      start: edge.source,
+      end: edge.target,
+      type: (edge.data?.type || 'custom') as ConnectionType,
+      sourceHandle: edge.sourceHandle,
+      sourcePortLabel: edge.data?.portLabel,
+    }));
+
+    // Create flow data
+    const flowData: FlowData = {
+      cards,
+      connections,
+    };
+
+    // Create file
+    const dataStr = JSON.stringify(flowData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    
+    // Create download link
+    const exportFileDefaultName = 'flow-map.json';
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    toast({
+      title: 'Fluxo Exportado',
+      description: 'Seu fluxo foi exportado como JSON.',
+      duration: 2000,
+    });
+  }, [nodes, edges, toast]);
+
+  // Generate script with output port labels
+  const onGenerateScript = useCallback(() => {
+    // Create a map of existing IDs to sequential numbers
+    const idMap = new Map<string, string>();
+    let currentId = 1;
+    
+    // First, map all node IDs to sequential numbers
+    nodes.forEach(node => {
+      if (!idMap.has(node.id)) {
+        // Format numbers to always have 2 digits (01, 02, etc)
+        const formattedId = currentId.toString().padStart(2, '0');
+        idMap.set(node.id, formattedId);
+        currentId++;
+      }
+    });
+
+    let script = "### **SCRIPT DE ATENDIMENTO ESTRUTURADO - FLUXO HUMANIZADO**\n\n";
+    
+    // Process nodes in order of their assigned IDs
+    const sortedNodes = [...nodes].sort((a, b) => {
+      const idA = parseInt(idMap.get(a.id) || '99');
+      const idB = parseInt(idMap.get(b.id) || '99');
+      return idA - idB;
+    });
+
+    // Process each node and its connections
+    sortedNodes.forEach(node => {
+      const nodeId = idMap.get(node.id) || '00';
+      
+      script += `#### **ID: ${nodeId} - ${node.data.title.toUpperCase()}**\n`;
+      script += `"${node.data.content}"\n\n`;
+      
+      // Find outgoing connections
+      const nodeConnections = edges.filter(edge => edge.source === node.id);
+      
+      if (nodeConnections.length > 0) {
+        // Get all connections with their target and port labels
+        nodeConnections.forEach(connection => {
+          const targetNode = nodes.find(n => n.id === connection.target);
+          const targetId = idMap.get(connection.target) || '00';
+          const portLabel = connection.data?.portLabel || 'Opção não especificada';
+          
+          if (targetNode) {
+            script += `🔹 **Se o usuário ${portLabel}** → Seguir para **ID: ${targetId}**\n`;
+          }
+        });
+        
+        script += '\n---\n\n';
+      } else if (node.data.type === 'end') {
+        // For end nodes without connections
+        script += "Este é um nó final. A conversa pode ser encerrada aqui.\n\n---\n\n";
+      } else {
+        script += "Sem fluxos de saída definidos.\n\n---\n\n";
+      }
+    });
+  
+    // Add guide section at the end
+    script += `\n### **POR QUE ESSA VERSÃO É MAIS HUMANIZADA?**\n`;
+    script += `✅ O assistente **não apresenta opções fechadas**, mas conduz a conversa naturalmente.\n`;
+    script += `✅ As respostas são **flexíveis e abertas**, permitindo que o usuário fale livremente.\n`;
+    script += `✅ Há **perguntas exploratórias**, ajudando o usuário a refletir e tomar decisões.\n`;
+    script += `✅ O fluxo se adapta ao usuário, respeitando seu nível de interesse e necessidade.\n\n`;
+    
+    // Add node reference
+    script += "### **REFERÊNCIA DE IDs**\n\n";
+    sortedNodes.forEach(node => {
+      const nodeId = idMap.get(node.id) || '00';
+      script += `${nodeId}: ${node.data.title}\n`;
+    });
+  
+    setGeneratedScript(script);
+    setScriptModalOpen(true);
+  }, [nodes, edges]);
+
+  // Load template - ensure proper sourceHandle
+  const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
+    const templateData = templates[templateName];
+    
+    // Convert template cards to nodes
+    const newNodes: Node[] = templateData.cards.map((card) => ({
+      id: card.id,
+      type: 'flowCard',
+      position: card.position,
+      data: card,
+    }));
+
+    // Convert template connections to edges with sourceHandle matching connection type
+    const newEdges: Edge[] = templateData.connections.map((connection) => ({
+      id: connection.id,
+      source: connection.start,
+      target: connection.end,
+      type: 'flowConnector',
+      sourceHandle: connection.sourceHandle || connection.type, // Set sourceHandle to connection type
+      data: { 
+        type: connection.type,
+        portLabel: connection.sourcePortLabel 
       },
-      {
-        id: "serv-2",
-        title: "Nossos Serviços",
-        description: "Apresentação dos serviços",
-        content: "Oferecemos uma variedade de serviços para atender suas necessidades. Em qual categoria você tem interesse?",
-        position: { x: 350, y: 50 },
-        type: "regular" as const,
-        outputPorts: [
-          { id: "port-serv2-1", label: "Serviço A" },
-          { id: "port-serv2-2", label: "Serviço B" },
-          { id: "port-serv2-3", label: "Serviço C" }
-        ]
+      style: {
+        strokeWidth: 3,
+        // Fix type comparisons by using the correct approach
+        stroke: (() => {
+          if (connection.type === 'positive') return '#10B981';
+          if (connection.type === 'negative') return '#EF4444';
+          if (connection.type === 'custom') return '#3B82F6';
+          return '#6B7280'; // default for neutral or any other type
+        })(),
       },
-      {
-        id: "serv-3",
-        title: "Orçamento",
-        description: "Solicitação de orçamento",
-        content: "Para elaborarmos um orçamento personalizado, precisamos de algumas informações. Pode nos dizer qual serviço você deseja e seus requisitos específicos?",
-        position: { x: 350, y: 200 },
-        type: "briefing" as const,
-        outputPorts: [
-          { id: "port-serv3-1", label: "Enviar requisitos" },
-          { id: "port-serv3-2", label: "Falar com consultor" }
-        ]
-      },
-      {
-        id: "serv-4",
-        title: "Agendar Visita",
-        description: "Cliente deseja visita técnica",
-        content: "Ficaremos felizes em agendar uma visita. Quando seria um bom momento para você? Nossa equipe está disponível nos dias úteis das 8h às 18h.",
-        position: { x: 350, y: 350 },
-        type: "agendar" as const,
-        outputPorts: [
-          { id: "port-serv4-1", label: "Manhã" },
-          { id: "port-serv4-2", label: "Tarde" }
-        ]
-      },
-      {
-        id: "serv-5",
-        title: "Suporte",
-        description: "Atendimento de suporte",
-        content: "Nosso atendimento de suporte está pronto para ajudar. Qual o tipo de suporte você precisa?",
-        position: { x: 350, y: 500 },
-        type: "regular" as const,
-        outputPorts: [
-          { id: "port-serv5-1", label: "Dúvidas" },
-          { id: "port-serv5-2", label: "Problema técnico" },
-          { id: "port-serv5-3", label: "Reclamação" }
-        ]
-      },
-      {
-        id: "serv-6",
-        title: "Serviço A",
-        description: "Detalhes do Serviço A",
-        content: "O Serviço A inclui análise detalhada, implementação personalizada e suporte contínuo. Os preços começam em R$XXX,00 dependendo da sua necessidade específica.",
-        position: { x: 650, y: 50 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-serv6-1", label: "Solicitar orçamento" },
-          { id: "port-serv6-2", label: "Ver casos de sucesso" }
-        ]
-      },
-      {
-        id: "serv-7",
-        title: "Serviço B",
-        description: "Detalhes do Serviço B",
-        content: "Nosso Serviço B oferece soluções completas com atendimento prioritário e garantia de satisfação. Ideal para empresas que buscam crescimento rápido.",
-        position: { x: 650, y: 200 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-serv7-1", label: "Solicitar orçamento" },
-          { id: "port-serv7-2", label: "Agendar demonstração" }
-        ]
-      },
-      {
-        id: "serv-8",
-        title: "Serviço C",
-        description: "Detalhes do Serviço C",
-        content: "O Serviço C é nossa solução premium, com atendimento exclusivo e personalização completa. Perfeito para quem busca resultados superiores e atendimento VIP.",
-        position: { x: 650, y: 350 },
-        type: "servico" as const,
-        outputPorts: [
-          { id: "port-serv8-1", label:
+    }));
+    
+    setNodes(newNodes);
+    setEdges(newEdges);
+    setTemplateModalOpen(false);
+    
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 100);
+    
+    toast({
+      title: 'Template Carregado',
+      description: `Template de ${templateName} carregado com sucesso.`,
+      duration: 2000,
+    });
+  }, [setNodes, setEdges, fitView, toast]);
+
+  // Handle creating a new card
+  const handleNewCard = useCallback(() => {
+    setCardTypeSelectorOpen(true);
+  }, []);
+
+  // Handle card type selection
+  const handleCardTypeSelect = useCallback((type: CardType, formData: any) => {
+    const { x, y, zoom } = reactFlowInstance.getViewport();
+    
+    // Calculate position in the center of the current view
+    const position = {
+      x: (window.innerWidth / 2 - x) / zoom,
+      y: (window.innerHeight / 2 - 100 - y) / zoom
+    };
+    
+    const newNode = {
+      id: `node-${nanoid(6)}`,
+      type: 'flowCard',
+      position,
+      data: {
+        id: `card-${nanoid(6)}`,
+        title: formData.title || `Novo Cartão ${cardTypeLabels[type]}`,
+        description: formData.description || 'Descrição do cartão',
+        content: formData.content || 'Conteúdo do cartão',
+        type: type,
+        outputPorts: type !== 'end' ? [
+          { id: `port-${nanoid(6)}`, label: "Opção 1" },
+          { id: `port-${nanoid(6)}`, label: "Opção 2" }
+        ] : [],
+        fields: { ...formData }
+      }
+    };
+
+    setNodes(nodes => [...nodes, newNode]);
+    setCardTypeSelectorOpen(false);
+    
+    toast({
+      title: 'Cartão Criado',
+      description: `Um novo cartão do tipo ${cardTypeLabels[type]} foi adicionado ao fluxo.`,
+      duration: 2000,
+    });
+  }, [setNodes, reactFlowInstance, toast]);
+
+  // Initialize
+  useEffect(() => {
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 100);
+  }, [fitView]);
+
+  return (
+    <div className="w-full h-screen" ref={reactFlowWrapper}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        connectionLineType={ConnectionLineType.Straight}
+        connectionLineStyle={{
+          stroke: '#6B7280',
+          strokeWidth: 3,
+          strokeLinecap: 'round',
+        }}
+        defaultEdgeOptions={{
+          type: 'flowConnector',
+          style: {
+            strokeWidth: 3,
+          },
+        }}
+        fitView
+        minZoom={0.1}
+        maxZoom={2}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Controls className="m-4" showInteractive={false} />
+        <MiniMap 
+          nodeColor={(node) => {
+            const type = node.data?.type || 'regular';
+            return type === 'initial' ? '#10B981' : 
+                   type === 'end' ? '#EF4444' : '#6B7280';
+          }}
+          maskColor="rgba(255, 255, 255, 0.7)"
+          className="m-4 bg-white/90 backdrop-blur-md"
+        />
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          gap={15} 
+          size={1} 
+          color="#CCCCCC" 
+          className="bg-gradient-to-br from-gray-50 to-blue-50"
+        />
+        
+        <FlowControls
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onReset={onResetView}
+          onSave={onSaveFlow}
+          onLoad={onLoadFlow}
+          onExport={onExportFlow}
+          onScript={onGenerateScript}
+          onTemplate={() => setTemplateModalOpen(true)}
+          onNewCard={handleNewCard}
+        />
+        
+        {/* JSON Import Modal */}
+        {jsonModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[600px] p-6 animate-scale-in">
+              <h2 className="text-xl font-bold mb-4">Importar Fluxo (JSON)</h2>
+              <textarea
+                className="w-full h-[300px] p-3 border border-gray-300 rounded-lg font-mono text-sm"
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder='{"cards": [...], "connections": [...]}'
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setJsonModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  onClick={handleJsonImport}
+                >
+                  Importar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+        
+        {/* Script Generator Modal */}
+        {scriptModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in max-h-[90vh] flex flex-col">
+              <h2 className="text-xl font-bold mb-4">Script Detalhado para IA</h2>
+              <div className="flex-1 overflow-auto">
+                <pre className="w-full h-full p-3 border border-gray-300 rounded-lg font-mono text-sm whitespace-pre-wrap">
+                  {generatedScript}
+                </pre>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setScriptModalOpen(false)}
+                >
+                  Fechar
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  onClick={() => {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(generatedScript);
+                    toast({
+                      title: 'Script Copiado',
+                      description: 'O script foi copiado para a área de transferência.',
+                      duration: 2000,
+                    });
+                  }}
+                >
+                  Copiar Script
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+        
+        {/* Template Selection Modal */}
+        {templateModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in">
+              <h2 className="text-xl font-bold mb-4">Escolher Template</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div 
+                  onClick={() => onLoadTemplate('imobiliaria')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Imobiliária</h3>
+                  <p className="text-sm text-gray-600">Template para atendimento de imobiliária com fluxos para compra e aluguel de imóveis.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('coworking')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Coworking</h3>
+                  <p className="text-sm text-gray-600">Template para espaços de coworking com fluxos para informações sobre planos e visitas.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('clinica')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Clínica</h3>
+                  <p className="text-sm text-gray-600">Template para clínicas médicas com fluxos para agendamento de consultas e informações.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('marketing')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
+                  <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setTemplateModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+
+        {/* Card Type Selector Modal */}
+        {cardTypeSelectorOpen && (
+          <CardTypeSelector 
+            onSelect={handleCardTypeSelect}
+            onClose={() => setCardTypeSelectorOpen(false)}
+          />
+        )}
+      </ReactFlow>
+    </div>
+  );
+};
+
+const FlowEditorWithProvider: React.FC<FlowEditorProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <FlowEditor {...props} />
+    </ReactFlowProvider>
+  );
+};
+
+export default FlowEditorWithProvider;
