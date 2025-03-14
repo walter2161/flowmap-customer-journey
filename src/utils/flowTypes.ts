@@ -1,6 +1,26 @@
 
 // Define types for flow cards and connections
-export type CardType = 'initial' | 'regular' | 'end';
+export type CardType = 
+  | 'initial' 
+  | 'regular' 
+  | 'end' 
+  | 'imovel' 
+  | 'servico' 
+  | 'produto' 
+  | 'multipla-escolha' 
+  | 'pergunta-respostas' 
+  | 'contatos' 
+  | 'agendar' 
+  | 'ordem-servico' 
+  | 'briefing' 
+  | 'acao' 
+  | 'html' 
+  | 'imovel-lancamento' 
+  | 'imovel-usado' 
+  | 'imovel-comercial' 
+  | 'agendar-visita' 
+  | 'agendar-reuniao';
+
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 
 // Type for output ports
