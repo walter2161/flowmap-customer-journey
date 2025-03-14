@@ -1,5 +1,8 @@
+
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface CardTypeSelectorProps {
   onSelect: (type: CardType, formData: any) => void;
@@ -743,3 +746,519 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
               </div>
             </div>
             <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+              <textarea
+                value={formData.observacoes}
+                onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+              />
+            </div>
+          </>
+        );
+        
+      // Complete the rest of the cases here...
+      case 'servico':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Serviço</label>
+                <input
+                  type="text"
+                  value={formData.nome}
+                  onChange={(e) => handleInputChange('nome', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Preço</label>
+                <input
+                  type="text"
+                  value={formData.preco}
+                  onChange={(e) => handleInputChange('preco', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Duração</label>
+                <input
+                  type="text"
+                  value={formData.duracao}
+                  onChange={(e) => handleInputChange('duracao', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <input
+                  type="text"
+                  value={formData.categoria}
+                  onChange={(e) => handleInputChange('categoria', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </>
+        );
+       
+      case 'produto':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Produto</label>
+                <input
+                  type="text"
+                  value={formData.nome}
+                  onChange={(e) => handleInputChange('nome', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Preço</label>
+                <input
+                  type="text"
+                  value={formData.preco}
+                  onChange={(e) => handleInputChange('preco', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estoque</label>
+                <input
+                  type="number"
+                  value={formData.estoque}
+                  onChange={(e) => handleInputChange('estoque', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                <input
+                  type="text"
+                  value={formData.categoria}
+                  onChange={(e) => handleInputChange('categoria', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Código</label>
+                <input
+                  type="text"
+                  value={formData.codigo}
+                  onChange={(e) => handleInputChange('codigo', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </>
+        );
+        
+      // Add all remaining cases
+      case 'multipla-escolha':
+        return (
+          <>
+            {commonFields}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Opções</label>
+              {formData.opcoes.map((opcao: string, index: number) => (
+                <div key={index} className="flex items-center mb-2">
+                  <input
+                    type="text"
+                    value={opcao}
+                    onChange={(e) => handleArrayChange('opcoes', index, e.target.value)}
+                    className="flex-grow p-2 border border-gray-300 rounded-md mr-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveArrayItem('opcoes', index)}
+                    className="bg-red-100 text-red-700 px-2 py-1 rounded"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => handleAddArrayItem('opcoes')}
+                className="bg-blue-100 text-blue-700 px-3 py-1 rounded mt-2"
+              >
+                Adicionar Opção
+              </button>
+            </div>
+          </>
+        );
+        
+      case 'pergunta-respostas':
+        return (
+          <>
+            {commonFields}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pergunta</label>
+              <input
+                type="text"
+                value={formData.pergunta}
+                onChange={(e) => handleInputChange('pergunta', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Respostas</label>
+              {formData.respostas.map((resposta: string, index: number) => (
+                <div key={index} className="flex items-center mb-2">
+                  <input
+                    type="text"
+                    value={resposta}
+                    onChange={(e) => handleArrayChange('respostas', index, e.target.value)}
+                    className="flex-grow p-2 border border-gray-300 rounded-md mr-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveArrayItem('respostas', index)}
+                    className="bg-red-100 text-red-700 px-2 py-1 rounded"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => handleAddArrayItem('respostas')}
+                className="bg-blue-100 text-blue-700 px-3 py-1 rounded mt-2"
+              >
+                Adicionar Resposta
+              </button>
+            </div>
+          </>
+        );
+        
+      case 'contatos':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <input
+                  type="text"
+                  value={formData.nome}
+                  onChange={(e) => handleInputChange('nome', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input
+                  type="tel"
+                  value={formData.telefone}
+                  onChange={(e) => handleInputChange('telefone', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+              <textarea
+                value={formData.mensagem}
+                onChange={(e) => handleInputChange('mensagem', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+              />
+            </div>
+          </>
+        );
+        
+      case 'agendar':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                <input
+                  type="date"
+                  value={formData.data}
+                  onChange={(e) => handleInputChange('data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                <input
+                  type="time"
+                  value={formData.horario}
+                  onChange={(e) => handleInputChange('horario', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
+                <input
+                  type="text"
+                  value={formData.servico}
+                  onChange={(e) => handleInputChange('servico', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Profissional</label>
+                <input
+                  type="text"
+                  value={formData.profissional}
+                  onChange={(e) => handleInputChange('profissional', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </>
+        );
+        
+      case 'ordem-servico':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                <input
+                  type="text"
+                  value={formData.cliente}
+                  onChange={(e) => handleInputChange('cliente', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Serviço</label>
+                <input
+                  type="text"
+                  value={formData.servico}
+                  onChange={(e) => handleInputChange('servico', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                <input
+                  type="text"
+                  value={formData.valor}
+                  onChange={(e) => handleInputChange('valor', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo</label>
+                <input
+                  type="date"
+                  value={formData.prazo}
+                  onChange={(e) => handleInputChange('prazo', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+              <textarea
+                value={formData.descricao}
+                onChange={(e) => handleInputChange('descricao', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+              />
+            </div>
+          </>
+        );
+        
+      case 'briefing':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Objetivo</label>
+                <input
+                  type="text"
+                  value={formData.objetivo}
+                  onChange={(e) => handleInputChange('objetivo', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Público-alvo</label>
+                <input
+                  type="text"
+                  value={formData.publico}
+                  onChange={(e) => handleInputChange('publico', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prazo</label>
+                <input
+                  type="date"
+                  value={formData.prazo}
+                  onChange={(e) => handleInputChange('prazo', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Orçamento</label>
+                <input
+                  type="text"
+                  value={formData.orcamento}
+                  onChange={(e) => handleInputChange('orcamento', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Referências</label>
+              <textarea
+                value={formData.referencias}
+                onChange={(e) => handleInputChange('referencias', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={3}
+              />
+            </div>
+          </>
+        );
+        
+      case 'acao':
+        return (
+          <>
+            {commonFields}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                <select
+                  value={formData.tipo}
+                  onChange={(e) => handleInputChange('tipo', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="botão">Botão</option>
+                  <option value="link">Link</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Texto</label>
+                <input
+                  type="text"
+                  value={formData.texto}
+                  onChange={(e) => handleInputChange('texto', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                <input
+                  type="text"
+                  value={formData.url}
+                  onChange={(e) => handleInputChange('url', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </>
+        );
+        
+      case 'html':
+        return (
+          <>
+            {commonFields}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Código HTML</label>
+              <textarea
+                value={formData.codigo}
+                onChange={(e) => handleInputChange('codigo', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md font-mono"
+                rows={10}
+              />
+            </div>
+          </>
+        );
+        
+      default:
+        return commonFields;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+      <div className="relative bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <h2 className="text-xl font-bold mb-4">Selecione o tipo de cartão</h2>
+          
+          {selectedType ? (
+            <>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <button
+                  onClick={() => setSelectedType(null)}
+                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md"
+                >
+                  Voltar
+                </button>
+                <div className={`px-3 py-1 border rounded-md ${cardTypeColors[selectedType]}`}>
+                  {cardTypeLabels[selectedType]}
+                </div>
+              </div>
+              
+              <form>
+                {renderFormFields()}
+                
+                <div className="flex justify-end mt-4 space-x-2">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(selectedType, formData)}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                  >
+                    Adicionar Cartão
+                  </button>
+                </div>
+              </form>
+            </>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {cardTypes.map((type) => (
+                <div
+                  key={type}
+                  onClick={() => handleSelectType(type)}
+                  className={`p-3 border rounded-md cursor-pointer transition-all ${cardTypeColors[type]} hover:shadow-md`}
+                >
+                  <div className="text-sm font-medium">{cardTypeLabels[type]}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div className="p-4 bg-gray-50 border-t flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CardTypeSelector;
