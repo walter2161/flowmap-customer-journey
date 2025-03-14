@@ -272,7 +272,7 @@ ${profile.guidelines}
               </div>
             </div>
             
-            {/* Avatar moved above save button */}
+            {/* Avatar section explicitly placed above save button */}
             <div className="flex flex-col items-center mt-6 mb-6">
               <div 
                 className="relative cursor-pointer group" 
