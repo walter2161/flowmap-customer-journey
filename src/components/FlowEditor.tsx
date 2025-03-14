@@ -18,8 +18,11 @@ import FlowConnector from './FlowConnector';
 import CardTypeSelector from './CardTypeSelector';
 import { nanoid } from 'nanoid';
 import FlowControls from './FlowControls';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { templateOptions, getTemplateData } from '@/utils/templateData';
 
 // Define node types
 const nodeTypes = {
@@ -30,14 +33,6 @@ const nodeTypes = {
 const edgeTypes = {
   flowConnector: FlowConnector
 };
-
-// Define template options
-const templateOptions = [
-  { id: 'imobiliaria', name: 'Imobiliária', description: 'Template para atendimento imobiliário' },
-  { id: 'servicos', name: 'Serviços', description: 'Template para empresas de serviços' },
-  { id: 'ecommerce', name: 'E-commerce', description: 'Template para lojas online' },
-  { id: 'suporte', name: 'Suporte', description: 'Template para atendimento de suporte' },
-];
 
 interface FlowEditorProps {
   initialData: FlowData;
@@ -57,6 +52,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   
   // State for template modal
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [templatePreviewData, setTemplatePreviewData] = useState<FlowData | null>(null);
   
   // State for script modal
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
@@ -385,41 +382,52 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     setIsCardSelectorOpen(false);
   }, [newCardPosition, setNodes]);
   
-  // Handle template selection
-  const handleTemplateSelect = useCallback((templateId: string) => {
-    // In a real implementation, you would fetch a template from an API or load it from a predefined set
-    // For this example, we'll just show a notification
-    toast({
-      title: "Template selecionado",
-      description: `Template "${templateId}" foi selecionado.`,
-    });
+  // Load template preview
+  const handleTemplatePreview = useCallback((templateId: string) => {
+    setSelectedTemplateId(templateId);
+    // Get template data based on ID
+    const templateData = getTemplateData(templateId);
+    setTemplatePreviewData(templateData);
+  }, []);
+  
+  // Apply selected template 
+  const applySelectedTemplate = useCallback(() => {
+    if (!templatePreviewData) return;
     
-    // Here you would actually load the template and set it as the current flow
-    // For now, we'll just close the modal
+    // Convert template cards to nodes
+    const flowNodes = templatePreviewData.cards.map(card => ({
+      id: card.id,
+      type: 'flowCard',
+      position: card.position,
+      data: card
+    }));
+    
+    // Convert template connections to edges
+    const flowEdges = templatePreviewData.connections.map(conn => ({
+      id: conn.id,
+      source: conn.start,
+      target: conn.end,
+      type: 'flowConnector',
+      sourceHandle: conn.sourceHandle,
+      data: {
+        type: conn.type,
+        sourcePortLabel: conn.sourcePortLabel
+      }
+    }));
+    
+    // Apply the template data to the flow
+    setNodes(flowNodes);
+    setEdges(flowEdges);
+    setCurrentProfile(templatePreviewData.profile);
+    
+    // Close the template modal
     setIsTemplateModalOpen(false);
     
-    // Update profile based on template
-    const newProfile: AssistantProfile = {
-      ...currentProfile,
-      name: templateId === 'imobiliaria' ? 'Ana Imóveis' : 
-            templateId === 'servicos' ? 'Carlos Serviços' : 
-            templateId === 'ecommerce' ? 'Loja Virtual' : 'Suporte Técnico',
-      profession: templateId === 'imobiliaria' ? 'Corretora de Imóveis' : 
-                 templateId === 'servicos' ? 'Prestador de Serviços' : 
-                 templateId === 'ecommerce' ? 'Atendente de E-commerce' : 'Atendente de Suporte',
-      company: templateId === 'imobiliaria' ? 'Imobiliária Exemplo' : 
-              templateId === 'servicos' ? 'Serviços Gerais' : 
-              templateId === 'ecommerce' ? 'Loja Online' : 'Suporte Técnico',
-      contacts: templateId === 'imobiliaria' ? 'contato@imobiliaria.com | (11) 99999-9999' : 
-               templateId === 'servicos' ? 'contato@servicos.com | (11) 88888-8888' : 
-               templateId === 'ecommerce' ? 'vendas@loja.com | (11) 77777-7777' : 'suporte@empresa.com | (11) 66666-6666',
-      guidelines: templateId === 'imobiliaria' ? 'Seja cordial e ajude o cliente a encontrar o imóvel ideal para suas necessidades.' : 
-                 templateId === 'servicos' ? 'Explique detalhadamente os serviços e dê orçamentos precisos.' : 
-                 templateId === 'ecommerce' ? 'Ajude o cliente a escolher produtos e facilite o processo de compra.' : 'Resolva os problemas técnicos do cliente de maneira clara e objetiva.'
-    };
-    
-    setCurrentProfile(newProfile);
-  }, [currentProfile, toast]);
+    toast({
+      title: "Template aplicado",
+      description: `O template foi aplicado com sucesso ao seu fluxo!`,
+    });
+  }, [templatePreviewData, setNodes, setEdges, toast]);
 
   return (
     <ReactFlowProvider>
@@ -460,24 +468,71 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           />
         )}
         
-        {/* Template Selection Modal */}
+        {/* Template Selection Modal with Preview */}
         <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[700px]">
             <DialogHeader>
               <DialogTitle>Selecione um Template</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {templateOptions.map((template) => (
-                <div 
-                  key={template.id} 
-                  className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleTemplateSelect(template.id)}
-                >
-                  <h3 className="font-medium">{template.name}</h3>
-                  <p className="text-sm text-gray-500">{template.description}</p>
+            
+            <Tabs defaultValue="gallery" className="w-full">
+              <TabsList className="grid grid-cols-2 mb-4">
+                <TabsTrigger value="gallery">Galeria</TabsTrigger>
+                <TabsTrigger value="preview">Pré-visualização</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="gallery" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {templateOptions.map((template) => (
+                    <div 
+                      key={template.id} 
+                      className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 ${selectedTemplateId === template.id ? 'border-blue-500 bg-blue-50' : ''}`}
+                      onClick={() => handleTemplatePreview(template.id)}
+                    >
+                      <h3 className="font-medium">{template.name}</h3>
+                      <p className="text-sm text-gray-500">{template.description}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </TabsContent>
+              
+              <TabsContent value="preview">
+                {templatePreviewData ? (
+                  <div className="border rounded-lg p-4 h-[300px] overflow-y-auto">
+                    <h3 className="font-medium mb-2">Perfil do Assistente</h3>
+                    <p><strong>Nome:</strong> {templatePreviewData.profile?.name}</p>
+                    <p><strong>Profissão:</strong> {templatePreviewData.profile?.profession}</p>
+                    <p><strong>Empresa:</strong> {templatePreviewData.profile?.company}</p>
+                    
+                    <h3 className="font-medium mt-4 mb-2">Cartões ({templatePreviewData.cards.length})</h3>
+                    <ul className="space-y-2">
+                      {templatePreviewData.cards.map(card => (
+                        <li key={card.id} className="border-l-2 border-blue-500 pl-2">
+                          <p><strong>{card.title}</strong></p>
+                          <p className="text-sm text-gray-500">Tipo: {card.type}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="text-center p-8 text-gray-500">
+                    Selecione um template para visualizar detalhes
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsTemplateModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={applySelectedTemplate}
+                disabled={!templatePreviewData}
+              >
+                Aplicar Template
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
         
@@ -490,9 +545,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             <div className="overflow-y-auto max-h-[60vh]">
               <pre className="p-4 bg-gray-50 rounded-lg whitespace-pre-wrap">{scriptContent}</pre>
             </div>
-            <div className="flex justify-end">
-              <button 
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            <DialogFooter>
+              <Button 
                 onClick={() => {
                   // Create a text file and download it
                   const dataStr = 'data:text/plain;charset=utf-8,' + encodeURIComponent(scriptContent);
@@ -505,8 +559,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 }}
               >
                 Baixar Roteiro
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
