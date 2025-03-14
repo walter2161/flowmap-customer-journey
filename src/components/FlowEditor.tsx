@@ -1,6 +1,16 @@
 
-import React, { useState, useCallback, useRef } from 'react';
-import ReactFlow, { MiniMap, Controls, Background, ReactFlowProvider, useNodesState, useEdgesState, addEdge, Connection, Edge } from 'reactflow';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import ReactFlow, {
+  MiniMap,
+  Controls,
+  Background,
+  ReactFlowProvider,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  Edge
+} from 'reactflow';
 import 'reactflow/dist/style.css';
 import { FlowData, FlowCard, AssistantProfile } from '@/utils/flowTypes';
 import FlowCardComponent from './FlowCard';
@@ -42,7 +52,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   const reactFlowInstance = useRef(null);
   
   // Initialize flow data
-  useCallback(() => {
+  useEffect(() => {
     if (initialData) {
       // Convert cards to nodes
       const flowNodes = initialData.cards.map(card => ({
@@ -335,6 +345,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     };
     
     setNodes(nodes => [...nodes, newNode]);
+    setIsCardSelectorOpen(false);
   }, [newCardPosition, setNodes]);
 
   return (
@@ -350,7 +361,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           edgeTypes={edgeTypes}
           fitView
           attributionPosition="bottom-right"
-          onInit={instance => { reactFlowInstance.current = instance; }}
+          onInit={(instance) => { reactFlowInstance.current = instance; }}
         >
           <Controls />
           <MiniMap />
