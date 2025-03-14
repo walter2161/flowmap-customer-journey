@@ -1,9 +1,19 @@
-
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard, OutputPort } from '@/utils/flowTypes';
 import { Edit, Plus, Trash } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useReactFlow } from 'reactflow';
 
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
@@ -84,6 +94,9 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   const [fields, setFields] = useState(data.fields || {});
   const [outputPorts, setOutputPorts] = useState<OutputPort[]>(data.outputPorts || []);
   const [newPortLabel, setNewPortLabel] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
+  const { getNodes, setNodes, getEdges, setEdges } = useReactFlow();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -107,6 +120,23 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     setFields(data.fields || {});
     setOutputPorts(data.outputPorts || []);
     setIsEditing(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    // Close the confirmation dialog
+    setShowDeleteConfirm(false);
+    
+    // Get all edges connected to this node
+    const edges = getEdges();
+    const nodeId = data.id;
+    
+    // Remove the node
+    setNodes(nodes => nodes.filter(node => node.id !== nodeId));
+    
+    // Remove all edges connected to this node
+    setEdges(edges => edges.filter(
+      edge => edge.source !== nodeId && edge.target !== nodeId
+    ));
   };
 
   const handleFieldChange = (key: string, value: any) => {
@@ -788,19 +818,30 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
             )}
             
             {/* Action buttons */}
-            <div className="flex justify-end space-x-2 mt-4">
+            <div className="flex justify-between mt-4">
+              {/* Delete button */}
               <button
-                onClick={handleCancel}
-                className="px-2 py-1 text-xs bg-gray-100 rounded border border-gray-300 hover:bg-gray-200"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 flex items-center gap-1"
               >
-                Cancelar
+                <Trash size={12} />
+                Excluir
               </button>
-              <button
-                onClick={handleSave}
-                className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Salvar
-              </button>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleCancel}
+                  className="px-2 py-1 text-xs bg-gray-100 rounded border border-gray-300 hover:bg-gray-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -845,6 +886,27 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
           data-label={port.label}
         />
       ))}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Cartão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita e todas as conexões associadas também serão removidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
