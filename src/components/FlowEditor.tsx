@@ -691,4 +691,4 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
   const getConnectionColor = (type: ConnectionType): string => {
     if (type === 'positive') return '#10B981';
     if (type === 'negative') return '#EF4444';
-    if (type === 'custom') return '#3B82F6';
+    if (type === 'custom') return '#3B82F
