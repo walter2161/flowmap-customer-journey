@@ -3,6 +3,7 @@ import React from 'react';
 import { Panel } from 'reactflow';
 import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
 import AssistantProfile from '@/components/AssistantProfile';
+import { AssistantProfile as AssistantProfileType } from '@/utils/flowTypes';
 
 interface FlowControlsProps {
   onZoomIn: () => void;
@@ -14,6 +15,7 @@ interface FlowControlsProps {
   onScript: () => void;
   onTemplate: () => void;
   onNewCard: () => void;
+  currentProfile?: AssistantProfileType | null;
 }
 
 const FlowControls: React.FC<FlowControlsProps> = ({
@@ -25,7 +27,8 @@ const FlowControls: React.FC<FlowControlsProps> = ({
   onExport,
   onScript,
   onTemplate,
-  onNewCard
+  onNewCard,
+  currentProfile
 }) => {
   return (
     <>
@@ -35,7 +38,7 @@ const FlowControls: React.FC<FlowControlsProps> = ({
           <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
             {/* Assistant Profile first - above Save button */}
             <div className="flex justify-center mb-1">
-              <AssistantProfile />
+              <AssistantProfile initialProfile={currentProfile} />
             </div>
             
             <button

@@ -1,63 +1,49 @@
 
-export type CardType = 'initial' | 'regular' | 'end' | 'imovel' | 'servico' | 'produto' | 'multipla-escolha' | 'pergunta-respostas' | 'contatos' | 'agendar' | 'ordem-servico' | 'briefing' | 'acao' | 'html' | 'imovel-lancamento' | 'imovel-usado' | 'imovel-comercial' | 'agendar-visita' | 'agendar-reuniao';
+// Define types for flow cards and connections
+export type CardType = 'initial' | 'regular' | 'end';
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
+// Type for output ports
 export interface OutputPort {
   id: string;
   label: string;
 }
 
-export interface FlowCard {
-  id: string;
-  title: string;
-  description: string;
-  content: string;
-  position: Position;
-  type: CardType;
-  outputPorts?: OutputPort[]; // Adding output ports array
-  fields?: any; // Additional fields specific to the card type
-}
-
-export interface FlowConnection {
-  id: string;
-  start: string;
-  end: string;
-  type: ConnectionType;
-  sourceHandle?: string; // Used for the port ID
-  sourcePortLabel?: string; // Used for displaying the port label
-}
-
-export interface FlowData {
-  cards: FlowCard[];
-  connections: FlowConnection[];
-}
-
-export interface FlowCardNode extends FlowCard {
-  data: FlowCard;
-  position: Position;
-}
-
-export interface FlowConnectionEdge extends FlowConnection {
-  source: string;
-  target: string;
-  type: ConnectionType;
-  data?: {
-    type: ConnectionType;
-    portLabel?: string;
-  };
-}
-
-// Interface para o perfil do assistente
+// Type for the assistant profile
 export interface AssistantProfile {
   name: string;
   profession: string;
   company: string;
   contacts: string;
-  avatar: string; // Base64 encoded image
-  guidelines: string; // O que o assistente pode e não pode fazer
+  avatar: string;
+  guidelines: string;
+}
+
+// Type for flow cards
+export interface FlowCard {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  position: { x: number; y: number };
+  type: CardType;
+  outputPorts?: OutputPort[];
+  fields?: Record<string, any>;
+}
+
+// Type for flow connections
+export interface FlowConnection {
+  id: string;
+  start: string;
+  end: string;
+  type: ConnectionType;
+  sourceHandle?: string;
+  sourcePortLabel?: string;
+}
+
+// Type for flow data
+export interface FlowData {
+  cards: FlowCard[];
+  connections: FlowConnection[];
+  profile?: AssistantProfile;
 }

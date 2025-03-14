@@ -19,15 +19,28 @@ const defaultProfile: AssistantProfileType = {
   guidelines: "Este assistente deve ser cordial e respeitoso. Deve fornecer informações precisas e úteis. Não deve usar linguagem inapropriada ou compartilhar informações sensíveis."
 };
 
-const AssistantProfile = () => {
-  // Load saved profile data from localStorage or use default
+interface AssistantProfileProps {
+  initialProfile?: AssistantProfileType | null;
+}
+
+const AssistantProfile: React.FC<AssistantProfileProps> = ({ initialProfile }) => {
+  // Load saved profile data from localStorage or use initialProfile or default
   const [profile, setProfile] = useState<AssistantProfileType>(() => {
+    if (initialProfile) return initialProfile;
+    
     const savedProfile = localStorage.getItem('assistantProfile');
     return savedProfile ? JSON.parse(savedProfile) : defaultProfile;
   });
   
   const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update profile when initialProfile changes
+  useEffect(() => {
+    if (initialProfile) {
+      setProfile(initialProfile);
+    }
+  }, [initialProfile]);
   
   // Function to handle image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +96,10 @@ const AssistantProfile = () => {
   // Save profile to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('assistantProfile', JSON.stringify(profile));
+    
+    // Dispatch custom event to notify other components
+    const event = new Event('profileUpdated');
+    window.dispatchEvent(event);
   }, [profile]);
   
   // Function to handle form submission
@@ -141,7 +158,7 @@ ${profile.guidelines}
             <AvatarImage src={profile.avatar} alt={profile.name} />
           ) : (
             <AvatarFallback className="bg-primary/10 text-primary">
-              <UserCog size={18} />
+              {getInitials(profile.name)}
             </AvatarFallback>
           )}
         </Avatar>
