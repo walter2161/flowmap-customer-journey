@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 interface CardTypeSelectorProps {
   onSelect: (type: CardType, formData: any) => void;
@@ -738,5 +740,4 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
             {commonFields}
             <div className="grid grid-cols-2 gap-4">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Imóvel</label>
-                <input
+                <label className="block text-sm font-
