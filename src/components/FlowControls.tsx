@@ -2,6 +2,7 @@
 import React from 'react';
 import { Panel } from 'reactflow';
 import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
+import AssistantProfile from '@/components/AssistantProfile';
 
 interface FlowControlsProps {
   onZoomIn: () => void;
@@ -32,6 +33,11 @@ const FlowControls: React.FC<FlowControlsProps> = ({
       <Panel position="top-right" className="p-2">
         <div className="flex flex-col gap-2">
           <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
+            {/* Assistant Profile first - above Save button */}
+            <div className="flex justify-center mb-1">
+              <AssistantProfile />
+            </div>
+            
             <button
               onClick={onSave}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"

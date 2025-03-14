@@ -2,7 +2,6 @@
 import React from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import { initialFlowData } from '@/utils/initialData';
-import AssistantProfile from '@/components/AssistantProfile';
 
 const Index = () => {
   return (
@@ -12,9 +11,6 @@ const Index = () => {
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">Criador de Fluxo de Atendimento</h1>
             <p className="text-sm text-gray-500">Crie e edite fluxos de atendimento para sua empresa</p>
-          </div>
-          <div>
-            <AssistantProfile />
           </div>
         </div>
       </header>
