@@ -619,15 +619,33 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
           const targetId = idMap.get(connection.target) || '00';
           
           // Get the port label (if available)
-          let triggerText = "Resposta do usuário";
+          let triggerText = "";
+          
+          // First try to get the port label from the connection data
           if (connection.data?.portLabel) {
-            // Use the connection's port label directly
             triggerText = connection.data.portLabel;
-          } else if (connection.sourceHandle) {
-            // Try to find the port label from the node's output ports
-            const port = node.data.outputPorts?.find(p => p.id === connection.sourceHandle);
-            if (port) {
-              triggerText = port.label;
+          } 
+          // Then try to find it from the source node's output ports using the sourceHandle
+          else if (connection.sourceHandle) {
+            const sourceNode = nodes.find(n => n.id === connection.source);
+            if (sourceNode && sourceNode.data.outputPorts) {
+              const matchingPort = sourceNode.data.outputPorts.find(
+                (port: OutputPort) => port.id === connection.sourceHandle
+              );
+              if (matchingPort) {
+                triggerText = matchingPort.label;
+              }
+            }
+          }
+          
+          // If we still don't have a trigger text, use fallbacks for compatibility
+          if (!triggerText) {
+            if (connection.sourceHandle === 'positive') {
+              triggerText = "Resposta positiva";
+            } else if (connection.sourceHandle === 'negative') {
+              triggerText = "Resposta negativa";
+            } else {
+              triggerText = "Resposta do usuário";
             }
           }
           
@@ -674,21 +692,3 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     if (type === 'positive') return '#10B981';
     if (type === 'negative') return '#EF4444';
     if (type === 'custom') return '#3B82F6';
-    return '#6B7280'; // neutral or default
-  };
-
-  // Load template - ensure proper sourceHandle
-  const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
-    const templateData = templates[templateName];
-    
-    // Convert template cards to nodes
-    const newNodes: Node[] = templateData.cards.map((card) => ({
-      id: card.id,
-      type: 'flowCard',
-      position: card.position,
-      data: card,
-    }));
-
-    // Convert template connections to edges with sourceHandle matching connection type
-    const newEdges: Edge[] = templateData.connections.map((connection) => ({
-      id
