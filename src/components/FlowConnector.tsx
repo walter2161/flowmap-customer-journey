@@ -78,7 +78,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     return portIndex < portLetters.length ? portLetters[portIndex] : '#';
   };
 
-  const portLetter = getPortLetter();
+  const portLetter = data?.portLetter || getPortLetter();
 
   const handleDelete = () => {
     setEdges(edges => edges.filter(edge => edge.id !== id));
@@ -121,21 +121,6 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           </div>
         </foreignObject>
       )}
-      
-      {/* Connection marker at source */}
-      <foreignObject
-        width={20}
-        height={20}
-        x={sourceX - 10}
-        y={sourceY - 10}
-        className="connection-source-marker"
-      >
-        <div className="flex items-center justify-center w-full h-full">
-          <div className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white bg-blue-500">
-            {portLetter || ''}
-          </div>
-        </div>
-      </foreignObject>
       
       {/* Delete button in the middle of the path */}
       <foreignObject

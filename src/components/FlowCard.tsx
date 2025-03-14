@@ -882,33 +882,34 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         )}
       </div>
       
-      {/* Output handles with labels */}
+      {/* Output handles with lettered labels */}
       {data.type !== 'end' && outputPorts.map((port, index) => (
         <React.Fragment key={port.id}>
           <Handle
             type="source"
             position={Position.Right}
             id={port.id}
-            className="custom-handle"
+            className="handle-with-letter"
             style={{
-              background: '#555',
-              width: 10,
-              height: 10,
-              top: `${100 * (index + 1) / (outputPorts.length + 1)}%`
+              top: `${100 * (index + 1) / (outputPorts.length + 1)}%`,
+              right: '-15px',
+              width: '20px',
+              height: '20px',
+              background: '#3B82F6',
+              borderRadius: '50%',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              border: '2px solid white'
             }}
             data-label={port.label}
-          />
-          {/* Port letter label next to handle */}
-          <div
-            className="absolute flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs z-10"
-            style={{
-              right: '-8px',
-              top: `${100 * (index + 1) / (outputPorts.length + 1)}%`,
-              transform: 'translateY(-50%)'
-            }}
           >
+            {/* Render the letter directly on the handle */}
             {index < portLetters.length ? portLetters[index] : '#'}
-          </div>
+          </Handle>
         </React.Fragment>
       ))}
 
