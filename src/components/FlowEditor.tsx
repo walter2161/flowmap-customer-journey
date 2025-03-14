@@ -610,6 +610,14 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setScriptModalOpen(true);
   }, [nodes, edges]);
 
+  // Helper function to get connection color to avoid type comparison errors
+  const getConnectionColor = (type: ConnectionType): string => {
+    if (type === 'positive') return '#10B981';
+    if (type === 'negative') return '#EF4444';
+    if (type === 'custom') return '#3B82F6';
+    return '#6B7280'; // neutral or default
+  };
+
   // Load template - ensure proper sourceHandle
   const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
     const templateData = templates[templateName];
@@ -635,13 +643,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
       },
       style: {
         strokeWidth: 3,
-        // Fix type comparisons by using the correct approach
-        stroke: (() => {
-          if (connection.type === 'positive') return '#10B981';
-          if (connection.type === 'negative') return '#EF4444';
-          if (connection.type === 'custom') return '#3B82F6';
-          return '#6B7280'; // default for neutral or any other type
-        })(),
+        stroke: getConnectionColor(connection.type),
       },
     }));
     

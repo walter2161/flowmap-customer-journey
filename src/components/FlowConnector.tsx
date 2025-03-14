@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 interface FlowConnectorProps extends EdgeProps {
   data?: {
     type: ConnectionType;
+    portLabel?: string;
   };
   sourceHandle?: string;
 }
@@ -76,6 +77,23 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           zIndex: 1000,
         }}
       />
+      
+      {/* Show port label along the path */}
+      {data?.portLabel && (
+        <foreignObject
+          width={140}
+          height={30}
+          x={(sourceX + targetX) / 2 - 70}
+          y={(sourceY + targetY) / 2 - 40}
+          className="flow-connection-label"
+        >
+          <div className="flow-connection-label-container">
+            <span className="px-2 py-1 bg-white/90 text-xs border border-gray-200 rounded-md shadow-sm text-gray-700">
+              {data.portLabel}
+            </span>
+          </div>
+        </foreignObject>
+      )}
       
       {/* Delete button in the middle of the path */}
       <foreignObject
