@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
@@ -429,14 +428,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     setJsonModalOpen(true);
   }, []);
 
-  // Helper function to get connection color to avoid type comparison errors
-  const getConnectionColor = (type: ConnectionType): string => {
-    if (type === 'positive') return '#10B981';
-    if (type === 'negative') return '#EF4444';
-    if (type === 'custom') return '#3B82F6';
-    return '#6B7280';
-  };
-
   // Handle JSON import - ensure connections use proper sourceHandle
   const handleJsonImport = useCallback(() => {
     try {
@@ -467,7 +458,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
         },
         style: {
           strokeWidth: 3,
-          stroke: getConnectionColor(connection.type),
+          stroke: connection.type === 'positive' ? '#10B981' : 
+                  connection.type === 'negative' ? '#EF4444' : 
+                  connection.type === 'custom' ? '#3B82F6' : '#6B7280',
         },
       }));
       
@@ -543,9 +536,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     });
   }, [nodes, edges, toast]);
 
-  // Generate script - completely rewritten for better AI agent usage
+  // Generate script with output port labels
   const onGenerateScript = useCallback(() => {
-    // Create a map of existing IDs to sequential numbers with padded zeros
+    // Create a map of existing IDs to sequential numbers
     const idMap = new Map<string, string>();
     let currentId = 1;
     
@@ -553,30 +546,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     nodes.forEach(node => {
       if (!idMap.has(node.id)) {
         // Format numbers to always have 2 digits (01, 02, etc)
-        const formattedId = String(currentId).padStart(2, '0');
+        const formattedId = currentId.toString().padStart(2, '0');
         idMap.set(node.id, formattedId);
         currentId++;
       }
     });
 
-    // Start building the script
-    let script = "# FLUXO DE CONVERSA PARA AGENTE DE IA\n\n";
-    script += "## VISÃO GERAL\n";
-    
-    // Add overview of the flow
-    const initialNodes = nodes.filter(node => node.data.type === 'initial');
-    const endNodes = nodes.filter(node => node.data.type === 'end');
-    
-    script += `Este fluxo contém ${nodes.length} nós de conversação, começando com ${initialNodes.length} ponto(s) de entrada`;
-    script += ` e terminando com ${endNodes.length} ponto(s) de finalização.\n\n`;
-    
-    script += "## INSTRUÇÕES GERAIS\n";
-    script += "- Siga o fluxo indicado pelos IDs numerados sequencialmente.\n";
-    script += "- Adapte as mensagens para manter um tom natural e conversacional.\n";
-    script += "- Identifique a intenção do usuário para seguir o caminho apropriado.\n";
-    script += "- Os textos entre aspas são sugestões - adapte conforme necessário para manter um tom natural.\n\n";
-    
-    script += "## DETALHAMENTO DO FLUXO\n\n";
+    let script = "### **SCRIPT DE ATENDIMENTO ESTRUTURADO - FLUXO HUMANIZADO**\n\n";
     
     // Process nodes in order of their assigned IDs
     const sortedNodes = [...nodes].sort((a, b) => {
@@ -588,144 +564,82 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     // Process each node and its connections
     sortedNodes.forEach(node => {
       const nodeId = idMap.get(node.id) || '00';
-      const nodeType = node.data.type;
       
-      // Create header with node ID, title, and type
-      script += `### NÓ ${nodeId}: ${node.data.title} (${cardTypeLabels[nodeType] || nodeType})\n\n`;
+      script += `#### **ID: ${nodeId} - ${node.data.title.toUpperCase()}**\n`;
+      script += `"${node.data.content}"\n\n`;
       
-      // Add node description if available
-      if (node.data.description) {
-        script += `**Contexto:** ${node.data.description}\n\n`;
-      }
-      
-      // Add node content
-      script += `**Mensagem sugerida:**\n"${node.data.content}"\n\n`;
-      
-      // Find outgoing connections for this node
+      // Find outgoing connections
       const nodeConnections = edges.filter(edge => edge.source === node.id);
       
       if (nodeConnections.length > 0) {
-        script += `**Caminhos possíveis:**\n`;
-        
-        // Group connections by target node
-        const connectionsByTarget = new Map<string, Edge[]>();
-        nodeConnections.forEach(conn => {
-          const targetId = conn.target;
-          if (!connectionsByTarget.has(targetId)) {
-            connectionsByTarget.set(targetId, []);
-          }
-          connectionsByTarget.get(targetId)?.push(conn);
-        });
-        
-        // List all possible paths from this node
+        // Get all connections with their target and port labels
         nodeConnections.forEach(connection => {
-          // Get the target node and its ID
           const targetNode = nodes.find(n => n.id === connection.target);
-          if (!targetNode) return;
-          
           const targetId = idMap.get(connection.target) || '00';
+          const portLabel = connection.data?.portLabel || 'Opção não especificada';
           
-          // Get the port label (if available)
-          let triggerText = "";
-          
-          // First try to get the port label from the connection data
-          if (connection.data?.portLabel) {
-            triggerText = connection.data.portLabel;
-          } 
-          // Then try to find it from the source node's output ports using the sourceHandle
-          else if (connection.sourceHandle) {
-            const sourceNode = nodes.find(n => n.id === connection.source);
-            if (sourceNode && sourceNode.data.outputPorts) {
-              const matchingPort = sourceNode.data.outputPorts.find(
-                (port: OutputPort) => port.id === connection.sourceHandle
-              );
-              if (matchingPort) {
-                triggerText = matchingPort.label;
-              }
-            }
+          if (targetNode) {
+            script += `🔹 **Se o usuário ${portLabel}** → Seguir para **ID: ${targetId}**\n`;
           }
-          
-          // If we still don't have a trigger text, use fallbacks for compatibility
-          if (!triggerText) {
-            if (connection.sourceHandle === 'positive') {
-              triggerText = "Resposta positiva";
-            } else if (connection.sourceHandle === 'negative') {
-              triggerText = "Resposta negativa";
-            } else {
-              triggerText = "Resposta do usuário";
-            }
-          }
-          
-          // Add path information
-          script += `- **Se o usuário indicar:** "${triggerText}"\n`;
-          script += `  - **Seguir para:** Nó ${targetId} (${targetNode.data.title})\n`;
         });
         
-        script += "\n";
+        script += '\n---\n\n';
       } else if (node.data.type === 'end') {
         // For end nodes without connections
-        script += "**Instruções finais:**\n";
-        script += "Este é um nó final. Encerre a conversa de forma amigável após entregar esta mensagem.\n\n";
+        script += "Este é um nó final. A conversa pode ser encerrada aqui.\n\n---\n\n";
       } else {
-        // For nodes without outgoing connections that aren't end nodes
-        script += "**Atenção:**\n";
-        script += "Este nó não possui caminhos de saída definidos. Considere isso um erro no fluxo.\n\n";
+        script += "Sem fluxos de saída definidos.\n\n---\n\n";
       }
-      
-      script += "---\n\n";
     });
   
     // Add guide section at the end
-    script += `## DICAS PARA COMUNICAÇÃO NATURAL\n\n`;
-    script += `✅ **Crie uma conversa fluida e natural:**\n`;
-    script += `- Evite repetir exatamente os textos sugeridos - adapte-os para manter a naturalidade.\n`;
-    script += `- Identifique a intenção do usuário, mesmo se não usar as palavras exatas dos caminhos.\n`;
-    script += `- Faça perguntas de acompanhamento quando necessário para esclarecer a intenção do usuário.\n`;
-    script += `- Mantenha um tom conversacional e empático durante toda a interação.\n\n`;
+    script += `\n### **POR QUE ESSA VERSÃO É MAIS HUMANIZADA?**\n`;
+    script += `✅ O assistente **não apresenta opções fechadas**, mas conduz a conversa naturalmente.\n`;
+    script += `✅ As respostas são **flexíveis e abertas**, permitindo que o usuário fale livremente.\n`;
+    script += `✅ Há **perguntas exploratórias**, ajudando o usuário a refletir e tomar decisões.\n`;
+    script += `✅ O fluxo se adapta ao usuário, respeitando seu nível de interesse e necessidade.\n\n`;
     
     // Add node reference
-    script += "## REFERÊNCIA RÁPIDA DE NÓS\n\n";
+    script += "### **REFERÊNCIA DE IDs**\n\n";
     sortedNodes.forEach(node => {
       const nodeId = idMap.get(node.id) || '00';
-      script += `- Nó ${nodeId}: ${node.data.title} (${cardTypeLabels[node.data.type] || node.data.type})\n`;
+      script += `${nodeId}: ${node.data.title}\n`;
     });
   
     setGeneratedScript(script);
     setScriptModalOpen(true);
-  }, [nodes, edges, setGeneratedScript, setScriptModalOpen]);
+  }, [nodes, edges]);
 
-  // Load template
-  const onLoadTemplate = useCallback((templateKey: string) => {
-    const template = templates[templateKey as keyof typeof templates];
-    
-    if (!template) {
-      toast({
-        title: 'Erro ao Carregar Template',
-        description: 'Template não encontrado.',
-        variant: 'destructive',
-        duration: 3000,
-      });
-      return;
-    }
+  // Helper function to get connection color to avoid type comparison errors
+  const getConnectionColor = (type: ConnectionType): string => {
+    if (type === 'positive') return '#10B981';
+    if (type === 'negative') return '#EF4444';
+    if (type === 'custom') return '#3B82F6';
+    return '#6B7280'; // neutral or default
+  };
+
+  // Load template - ensure proper sourceHandle
+  const onLoadTemplate = useCallback((templateName: keyof typeof templates) => {
+    const templateData = templates[templateName];
     
     // Convert template cards to nodes
-    const newNodes: Node[] = template.cards.map((card: FlowCard) => ({
+    const newNodes: Node[] = templateData.cards.map((card) => ({
       id: card.id,
       type: 'flowCard',
       position: card.position,
       data: card,
     }));
-    
-    // Convert template connections to edges
-    const newEdges: Edge[] = template.connections.map((connection: FlowConnection) => ({
+
+    // Convert template connections to edges with sourceHandle matching connection type
+    const newEdges: Edge[] = templateData.connections.map((connection) => ({
       id: connection.id,
       source: connection.start,
       target: connection.end,
       type: 'flowConnector',
-      sourceHandle: connection.sourceHandle || connection.type,
-      data: {
+      sourceHandle: connection.sourceHandle || connection.type, // Set sourceHandle to connection type
+      data: { 
         type: connection.type,
-        portLabel: connection.sourcePortLabel
+        portLabel: connection.sourcePortLabel 
       },
       style: {
         strokeWidth: 3,
@@ -743,114 +657,248 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData = initialFlowData }
     
     toast({
       title: 'Template Carregado',
-      description: `Template "${templateKey}" carregado com sucesso.`,
+      description: `Template de ${templateName} carregado com sucesso.`,
       duration: 2000,
     });
   }, [setNodes, setEdges, fitView, toast]);
 
-  // Add card
-  const onAddCard = useCallback(
-    (type: CardType, position = { x: 100, y: 100 }) => {
-      const id = `card-${nanoid(6)}`;
-      
-      // Create default output ports based on card type
-      const outputPorts: OutputPort[] = [];
-      
-      if (type !== 'end') {
-        // Create default ports for non-end cards
-        if (type === 'initial') {
-          outputPorts.push({ id: `port-${nanoid(6)}`, label: 'Opção 1' });
-          outputPorts.push({ id: `port-${nanoid(6)}`, label: 'Opção 2' });
-        } else {
-          outputPorts.push({ id: `port-${nanoid(6)}`, label: 'Opção 1' });
-        }
+  // Handle creating a new card
+  const handleNewCard = useCallback(() => {
+    setCardTypeSelectorOpen(true);
+  }, []);
+
+  // Handle card type selection
+  const handleCardTypeSelect = useCallback((type: CardType, formData: any) => {
+    const { x, y, zoom } = reactFlowInstance.getViewport();
+    
+    // Calculate position in the center of the current view
+    const position = {
+      x: (window.innerWidth / 2 - x) / zoom,
+      y: (window.innerHeight / 2 - 100 - y) / zoom
+    };
+    
+    const newNode = {
+      id: `node-${nanoid(6)}`,
+      type: 'flowCard',
+      position,
+      data: {
+        id: `card-${nanoid(6)}`,
+        title: formData.title || `Novo Cartão ${cardTypeLabels[type]}`,
+        description: formData.description || 'Descrição do cartão',
+        content: formData.content || 'Conteúdo do cartão',
+        type: type,
+        outputPorts: type !== 'end' ? [
+          { id: `port-${nanoid(6)}`, label: "Opção 1" },
+          { id: `port-${nanoid(6)}`, label: "Opção 2" }
+        ] : [],
+        fields: { ...formData }
       }
-      
-      const newCard: FlowCard = {
-        id,
-        title: `Novo ${cardTypeLabels[type] || type}`,
-        description: 'Descrição do cartão',
-        content: 'Conteúdo do cartão',
-        position,
-        type,
-        outputPorts: outputPorts,
-      };
-      
-      const newNode: Node = {
-        id,
-        type: 'flowCard',
-        position,
-        data: newCard,
-      };
-      
-      setNodes((nds) => [...nds, newNode]);
-      setCardTypeSelectorOpen(false);
-      
-      toast({
-        title: 'Cartão Adicionado',
-        description: `Cartão tipo ${cardTypeLabels[type] || type} adicionado ao fluxo.`,
-        duration: 2000,
-      });
-    },
-    [setNodes, toast]
-  );
+    };
+
+    setNodes(nodes => [...nodes, newNode]);
+    setCardTypeSelectorOpen(false);
+    
+    toast({
+      title: 'Cartão Criado',
+      description: `Um novo cartão do tipo ${cardTypeLabels[type]} foi adicionado ao fluxo.`,
+      duration: 2000,
+    });
+  }, [setNodes, reactFlowInstance, toast]);
+
+  // Initialize
+  useEffect(() => {
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 100);
+  }, [fitView]);
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <ReactFlowProvider>
-        <div ref={reactFlowWrapper} className="flex-1 h-full">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            fitView
-            attributionPosition="bottom-right"
-            connectionLineType={ConnectionLineType.Bezier}
-          >
-            <Background variant={BackgroundVariant.Dots} color="#f0f0f0" gap={16} />
-            <MiniMap
-              nodeStrokeWidth={3}
-              zoomable
-              pannable
-              nodeColor={(node) => {
-                const type = node.data.type as CardType;
-                switch (type) {
-                  case 'initial':
-                    return '#10B981';
-                  case 'end':
-                    return '#EF4444';
-                  default:
-                    return '#3B82F6';
-                }
-              }}
-            />
-            <Controls />
-            <Panel position="top-left">
-              <FlowControls
-                onSave={onSaveFlow}
-                onLoad={onLoadFlow}
-                onExport={onExportFlow}
-                onReset={onResetView}
-                onAddCard={() => setCardTypeSelectorOpen(true)}
-                onGenerateScript={onGenerateScript}
-                onLoadTemplate={() => setTemplateModalOpen(true)}
+    <div className="w-full h-screen" ref={reactFlowWrapper}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        connectionLineType={ConnectionLineType.Straight}
+        connectionLineStyle={{
+          stroke: '#6B7280',
+          strokeWidth: 3,
+          strokeLinecap: 'round',
+        }}
+        defaultEdgeOptions={{
+          type: 'flowConnector',
+          style: {
+            strokeWidth: 3,
+          },
+        }}
+        fitView
+        minZoom={0.1}
+        maxZoom={2}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Controls className="m-4" showInteractive={false} />
+        <MiniMap 
+          nodeColor={(node) => {
+            const type = node.data?.type || 'regular';
+            return type === 'initial' ? '#10B981' : 
+                   type === 'end' ? '#EF4444' : '#6B7280';
+          }}
+          maskColor="rgba(255, 255, 255, 0.7)"
+          className="m-4 bg-white/90 backdrop-blur-md"
+        />
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          gap={15} 
+          size={1} 
+          color="#CCCCCC" 
+          className="bg-gradient-to-br from-gray-50 to-blue-50"
+        />
+        
+        <FlowControls
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onReset={onResetView}
+          onSave={onSaveFlow}
+          onLoad={onLoadFlow}
+          onExport={onExportFlow}
+          onScript={onGenerateScript}
+          onTemplate={() => setTemplateModalOpen(true)}
+          onNewCard={handleNewCard}
+        />
+        
+        {/* JSON Import Modal */}
+        {jsonModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[600px] p-6 animate-scale-in">
+              <h2 className="text-xl font-bold mb-4">Importar Fluxo (JSON)</h2>
+              <textarea
+                className="w-full h-[300px] p-3 border border-gray-300 rounded-lg font-mono text-sm"
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder='{"cards": [...], "connections": [...]}'
               />
-            </Panel>
-          </ReactFlow>
-        </div>
-      </ReactFlowProvider>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setJsonModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  onClick={handleJsonImport}
+                >
+                  Importar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+        
+        {/* Script Generator Modal */}
+        {scriptModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in max-h-[90vh] flex flex-col">
+              <h2 className="text-xl font-bold mb-4">Script Detalhado para IA</h2>
+              <div className="flex-1 overflow-auto">
+                <pre className="w-full h-full p-3 border border-gray-300 rounded-lg font-mono text-sm whitespace-pre-wrap">
+                  {generatedScript}
+                </pre>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setScriptModalOpen(false)}
+                >
+                  Fechar
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                  onClick={() => {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(generatedScript);
+                    toast({
+                      title: 'Script Copiado',
+                      description: 'O script foi copiado para a área de transferência.',
+                      duration: 2000,
+                    });
+                  }}
+                >
+                  Copiar Script
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
+        
+        {/* Template Selection Modal */}
+        {templateModalOpen && (
+          <Panel position="top-left" className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-[800px] p-6 animate-scale-in">
+              <h2 className="text-xl font-bold mb-4">Escolher Template</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div 
+                  onClick={() => onLoadTemplate('imobiliaria')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Imobiliária</h3>
+                  <p className="text-sm text-gray-600">Template para atendimento de imobiliária com fluxos para compra e aluguel de imóveis.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('coworking')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Coworking</h3>
+                  <p className="text-sm text-gray-600">Template para espaços de coworking com fluxos para informações sobre planos e visitas.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('clinica')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Clínica</h3>
+                  <p className="text-sm text-gray-600">Template para clínicas médicas com fluxos para agendamento de consultas e informações.</p>
+                </div>
+                <div 
+                  onClick={() => onLoadTemplate('marketing')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <h3 className="text-lg font-semibold mb-2">Agência de Marketing</h3>
+                  <p className="text-sm text-gray-600">Template para agências de marketing digital com fluxos para diversos serviços.</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
+                  onClick={() => setTemplateModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </Panel>
+        )}
 
-      <CardTypeSelector
-        open={cardTypeSelectorOpen}
-        onOpenChange={setCardTypeSelectorOpen}
-        onSelect={onAddCard}
-      />
+        {/* Card Type Selector Modal */}
+        {cardTypeSelectorOpen && (
+          <CardTypeSelector 
+            onSelect={handleCardTypeSelect}
+            onClose={() => setCardTypeSelectorOpen(false)}
+          />
+        )}
+      </ReactFlow>
     </div>
   );
 };
 
-export default FlowEditor;
+const FlowEditorWithProvider: React.FC<FlowEditorProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <FlowEditor {...props} />
+    </ReactFlowProvider>
+  );
+};
+
+export default FlowEditorWithProvider;
