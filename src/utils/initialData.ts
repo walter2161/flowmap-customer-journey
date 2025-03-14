@@ -16,7 +16,7 @@ export const initialFlowData: FlowData = {
       title: 'Início da Conversa',
       description: 'Primeiro contato com o cliente',
       content: 'Olá! Como posso te ajudar hoje?',
-      position: { x: 250, y: 50 },
+      position: { x: 50, y: 50 },
       type: 'initial',
       outputPorts: [
         { id: port1, label: "Informações sobre serviços" },
@@ -29,7 +29,7 @@ export const initialFlowData: FlowData = {
       title: 'Informações sobre Serviços',
       description: 'Fornece detalhes sobre os serviços disponíveis',
       content: 'Oferecemos diversos serviços. Qual deles você tem interesse?',
-      position: { x: 100, y: 250 },
+      position: { x: 400, y: 50 },
       type: 'servico',
       outputPorts: [
         { id: port3, label: "Serviço A" },
@@ -54,7 +54,7 @@ export const initialFlowData: FlowData = {
       title: 'Finalização',
       description: 'Encerramento da conversa',
       content: 'Obrigado pelo seu contato! Estamos à disposição para ajudar.',
-      position: { x: 250, y: 450 },
+      position: { x: 750, y: 150 },
       type: 'end'
     },
     {
@@ -62,7 +62,7 @@ export const initialFlowData: FlowData = {
       title: 'Orçamento',
       description: 'Solicitação de orçamento',
       content: 'Para elaborarmos um orçamento, precisamos de algumas informações. Qual serviço você deseja?',
-      position: { x: 600, y: 250 },
+      position: { x: 400, y: 450 },
       type: 'ordem-servico',
       outputPorts: [
         { id: `port-${nanoid(6)}`, label: "Prosseguir" }
@@ -73,7 +73,7 @@ export const initialFlowData: FlowData = {
       title: 'Contatos',
       description: 'Coleta de informações de contato',
       content: 'Para dar continuidade, poderia me informar seu nome e telefone para contato?',
-      position: { x: 400, y: 450 },
+      position: { x: 750, y: 350 },
       type: 'contatos',
       outputPorts: [
         { id: `port-${nanoid(6)}`, label: "Finalizar" }
