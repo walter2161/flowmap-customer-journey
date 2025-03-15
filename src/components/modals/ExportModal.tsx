@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogDescription } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HelpCircle } from 'lucide-react';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -34,6 +36,22 @@ const ExportModal: React.FC<ExportModalProps> = ({
 }) => {
   const exportFileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = React.useState<string>("download");
+  
+  // Validate file name
+  const handleFileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Ensure the file has .json extension
+    if (!value.endsWith('.json')) {
+      if (value.includes('.')) {
+        // Replace any existing extension with .json
+        value = value.substring(0, value.lastIndexOf('.')) + '.json';
+      } else {
+        // Add .json if no extension exists
+        value = value + '.json';
+      }
+    }
+    setExportFileName(value);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -53,17 +71,37 @@ const ExportModal: React.FC<ExportModalProps> = ({
           
           <TabsContent value="download" className="space-y-4">
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="fileName">Nome do arquivo</Label>
-                <Input
-                  id="fileName"
-                  value={exportFileName}
-                  onChange={(e) => setExportFileName(e.target.value)}
-                />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Label htmlFor="fileName" className="flex items-center gap-2">
+                    Nome do arquivo
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-5 w-5">
+                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <p className="text-sm">
+                          O arquivo será salvo com a extensão .json automaticamente.
+                        </p>
+                      </PopoverContent>
+                    </Popover>
+                  </Label>
+                  <Input
+                    id="fileName"
+                    value={exportFileName}
+                    onChange={handleFileNameChange}
+                    className="mt-1"
+                  />
+                </div>
               </div>
               
               <div className="border rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Conteúdo do arquivo (prévia):</p>
+                <p className="text-sm text-gray-600 mb-2 flex items-center justify-between">
+                  <span>Conteúdo do arquivo (prévia):</span>
+                  <span className="text-xs text-muted-foreground">{exportJsonData.length} caracteres</span>
+                </p>
                 <div className="text-xs bg-gray-50 p-2 rounded max-h-[200px] overflow-y-auto">
                   <pre className="whitespace-pre-wrap overflow-x-auto">
                     {exportJsonData}
@@ -104,7 +142,10 @@ const ExportModal: React.FC<ExportModalProps> = ({
             
             {isExportFileSelected && (
               <div className="border rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Conteúdo que será salvo:</p>
+                <p className="text-sm text-gray-600 mb-2 flex items-center justify-between">
+                  <span>Conteúdo que será salvo:</span>
+                  <span className="text-xs text-muted-foreground">{exportJsonData.length} caracteres</span>
+                </p>
                 <div className="text-xs bg-gray-50 p-2 rounded max-h-[200px] overflow-y-auto">
                   <pre className="whitespace-pre-wrap overflow-x-auto">
                     {exportJsonData}
@@ -121,13 +162,17 @@ const ExportModal: React.FC<ExportModalProps> = ({
           </Button>
           
           {activeTab === "download" ? (
-            <Button onClick={handleDirectDownload}>
+            <Button 
+              onClick={handleDirectDownload}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               Baixar Arquivo
             </Button>
           ) : (
             <Button
               onClick={handleUpdateExistingFile}
               disabled={!isExportFileSelected}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
             >
               Atualizar Arquivo
             </Button>

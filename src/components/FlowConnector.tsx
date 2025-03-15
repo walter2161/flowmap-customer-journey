@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EdgeProps, getSmoothStepPath, useReactFlow } from 'reactflow';
 import { CardType, ConnectionType } from '@/utils/flowTypes';
@@ -14,6 +13,7 @@ interface FlowConnectorProps extends EdgeProps {
 
 // Map of card types to their colors
 const cardTypeColors: Record<CardType, string> = {
+  inicial: '#32CD32',
   initial: '#32CD32',
   regular: '#424242',
   end: '#FF4136',
@@ -44,7 +44,8 @@ const cardTypeColors: Record<CardType, string> = {
   problema: '#FF4136',
   solucoes: '#20c997',
   chamado: '#fd7e14',
-  faq: '#424242'
+  faq: '#424242',
+  arquivo: '#795548'
 };
 
 const FlowConnector: React.FC<FlowConnectorProps> = ({
