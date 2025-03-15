@@ -154,7 +154,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Agendamento card
       const agendamentoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'agendamento',
+        type: 'agendar',
         title: 'Agendar Horário',
         description: 'Formulário para agendamento',
         content: 'Preencha os dados abaixo para agendar seu horário.',
@@ -174,7 +174,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Promoções card
       const promocoesCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'promocoes',
+        type: 'multipla-escolha',
         title: 'Promoções',
         description: 'Promoções especiais',
         content: 'Confira nossas promoções exclusivas:',
@@ -210,7 +210,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Produtos card
       const produtosCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'produtos',
+        type: 'produto',
         title: 'Produtos Profissionais',
         description: 'Produtos à venda',
         content: 'Temos produtos profissionais para cuidados domiciliares:',
@@ -399,7 +399,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Agendamento card
       const agendamentoImovelCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'agendamento',
+        type: 'agendar',
         title: 'Agendar Visita',
         description: 'Formulário para agendamento de visita',
         content: 'Preencha os dados abaixo para agendar uma visita.',
@@ -419,7 +419,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Financiamento card
       const financiamentoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'financiamento',
+        type: 'multipla-escolha',
         title: 'Financiamento Imobiliário',
         description: 'Informações sobre financiamento',
         content: 'Trabalhamos com diversas opções de financiamento:',
@@ -455,7 +455,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Simulação card
       const simulacaoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'simulacao',
+        type: 'pergunta-respostas',
         title: 'Simulação de Financiamento',
         description: 'Calculadora de financiamento',
         content: 'Preencha os dados para simular seu financiamento:',
@@ -579,7 +579,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Especialidades cards
       const especialidadeCard1: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'especialidade',
+        type: 'servico',
         title: 'Clínica Geral',
         description: 'Consultas de rotina',
         content: 'Atendimento para diagnóstico e tratamento de problemas gerais de saúde.',
@@ -597,7 +597,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       
       const especialidadeCard2: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'especialidade',
+        type: 'servico',
         title: 'Cardiologia',
         description: 'Saúde do coração',
         content: 'Diagnóstico e tratamento de problemas cardiovasculares.',
@@ -615,7 +615,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       
       const especialidadeCard3: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'especialidade',
+        type: 'servico',
         title: 'Dermatologia',
         description: 'Cuidados com a pele',
         content: 'Tratamentos estéticos e clínicos para problemas de pele.',
@@ -634,7 +634,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Agendamento card
       const agendamentoClinicaCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'agendamento',
+        type: 'agendar',
         title: 'Agendar Consulta',
         description: 'Formulário para agendamento',
         content: 'Preencha os dados abaixo para agendar sua consulta.',
@@ -655,7 +655,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Convênios card
       const conveniosCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'convenios',
+        type: 'multipla-escolha',
         title: 'Convênios Aceitos',
         description: 'Planos de saúde aceitos',
         content: 'Trabalhamos com os seguintes convênios:',
@@ -691,7 +691,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Exames card
       const examesCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'exames',
+        type: 'servico',
         title: 'Exames Disponíveis',
         description: 'Exames realizados na clínica',
         content: 'Realizamos os seguintes exames in loco:',
@@ -947,7 +947,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Promoções card
       const promocoesEcommerceCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'promocoes',
+        type: 'multipla-escolha',
         title: 'Ofertas Especiais',
         description: 'Promoções da semana',
         content: 'Confira nossas promoções exclusivas:',
@@ -1174,7 +1174,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Cases card
       const casesCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'cases',
+        type: 'multipla-escolha',
         title: 'Cases de Sucesso',
         description: 'Projetos realizados',
         content: 'Conheça alguns de nossos cases de sucesso:',
@@ -1209,7 +1209,7 @@ export const getTemplateData = (templateId: string): FlowData => {
       // Pacotes card
       const pacotesCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'pacotes',
+        type: 'produto',
         title: 'Pacotes de Serviços',
         description: 'Opções combinadas',
         content: 'Confira nossos pacotes especiais combinando diferentes serviços:',
