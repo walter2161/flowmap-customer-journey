@@ -32,6 +32,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
   handleUpdateExistingFile
 }) => {
   const exportFileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = React.useState<string>("download");
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -40,7 +41,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
           <DialogTitle>Exportar Fluxo</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="download" className="w-full">
+        <Tabs defaultValue="download" className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-2 mb-4">
             <TabsTrigger value="download">Download</TabsTrigger>
             <TabsTrigger value="update">Atualizar Arquivo</TabsTrigger>
@@ -103,23 +104,18 @@ const ExportModal: React.FC<ExportModalProps> = ({
             Cancelar
           </Button>
           
-          <div className="flex space-x-2">
-            {/* Use separate buttons instead of the Tabs.Consumer approach which was causing errors */}
-            <TabsContent value="download" className="m-0">
-              <Button onClick={handleDirectDownload}>
-                Baixar Arquivo
-              </Button>
-            </TabsContent>
-            
-            <TabsContent value="update" className="m-0">
-              <Button
-                onClick={handleUpdateExistingFile}
-                disabled={!isExportFileSelected}
-              >
-                Atualizar Arquivo
-              </Button>
-            </TabsContent>
-          </div>
+          {activeTab === "download" ? (
+            <Button onClick={handleDirectDownload}>
+              Baixar Arquivo
+            </Button>
+          ) : (
+            <Button
+              onClick={handleUpdateExistingFile}
+              disabled={!isExportFileSelected}
+            >
+              Atualizar Arquivo
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
