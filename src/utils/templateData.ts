@@ -2,6 +2,20 @@
 import { FlowData, FlowCard, AssistantProfile } from './flowTypes';
 import { nanoid } from 'nanoid';
 
+// Standardized grid positioning constants
+const GRID_X_START = 100;
+const GRID_Y_START = 100;
+const GRID_COLUMN_WIDTH = 300;
+const GRID_ROW_HEIGHT = 200;
+
+// Helper function to calculate grid positions
+const gridPosition = (col: number, row: number) => {
+  return {
+    x: GRID_X_START + (col * GRID_COLUMN_WIDTH),
+    y: GRID_Y_START + (row * GRID_ROW_HEIGHT)
+  };
+};
+
 // Define template options for the UI
 export const templateOptions = [
   { id: 'imobiliaria', name: 'Imobiliária', description: 'Template para atendimento imobiliário' },
@@ -20,7 +34,7 @@ const createProfile = (templateId: string): AssistantProfile => {
         company: 'Imobiliária Exemplo',
         contacts: 'contato@imobiliaria.com | (11) 99999-9999',
         guidelines: 'Seja cordial e ajude o cliente a encontrar o imóvel ideal para suas necessidades.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
     case 'servicos':
       return {
@@ -29,7 +43,7 @@ const createProfile = (templateId: string): AssistantProfile => {
         company: 'Serviços Gerais',
         contacts: 'contato@servicos.com | (11) 88888-8888',
         guidelines: 'Explique detalhadamente os serviços e dê orçamentos precisos.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
     case 'ecommerce':
       return {
@@ -38,7 +52,7 @@ const createProfile = (templateId: string): AssistantProfile => {
         company: 'Loja Online',
         contacts: 'vendas@loja.com | (11) 77777-7777',
         guidelines: 'Ajude o cliente a escolher produtos e facilite o processo de compra.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
     case 'suporte':
       return {
@@ -47,7 +61,7 @@ const createProfile = (templateId: string): AssistantProfile => {
         company: 'TechSuporte',
         contacts: 'suporte@empresa.com | (11) 66666-6666',
         guidelines: 'Resolva os problemas técnicos do cliente de maneira clara e objetiva.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
     default:
       return {
@@ -56,7 +70,7 @@ const createProfile = (templateId: string): AssistantProfile => {
         company: 'Empresa',
         contacts: 'contato@empresa.com',
         guidelines: 'Seja cordial e ajude o cliente da melhor forma possível.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
   }
 };
@@ -77,7 +91,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
         content: 'Olá! Bem-vindo à Imobiliária Exemplo. Como posso ajudar você hoje?',
-        position: { x: 250, y: 50 },
+        position: gridPosition(1, 0),
         fields: {},
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Buscar Imóveis' },
@@ -93,7 +107,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Apartamento Vila Mariana',
         description: 'Apartamento disponível para venda',
         content: 'Ótimo apartamento com localização privilegiada.',
-        position: { x: 100, y: 250 },
+        position: gridPosition(0, 1),
         fields: {
           endereco: 'Rua das Flores, 123 - Vila Mariana',
           preco: 'R$ 450.000,00',
@@ -112,7 +126,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Casa Jardins',
         description: 'Casa de alto padrão',
         content: 'Casa espaçosa em condomínio fechado com segurança 24h.',
-        position: { x: 100, y: 450 },
+        position: gridPosition(0, 2),
         fields: {
           endereco: 'Rua dos Ipês, 500 - Jardins',
           preco: 'R$ 1.200.000,00',
@@ -131,7 +145,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Studio Pinheiros',
         description: 'Studio moderno e bem localizado',
         content: 'Studio com acabamento premium e próximo ao metrô.',
-        position: { x: 250, y: 350 },
+        position: gridPosition(1, 1.5),
         fields: {
           endereco: 'Rua Augusta, 1200 - Pinheiros',
           preco: 'R$ 320.000,00',
@@ -151,7 +165,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Agendar Visita',
         description: 'Formulário para agendamento de visita',
         content: 'Preencha os dados abaixo para agendar uma visita.',
-        position: { x: 400, y: 250 },
+        position: gridPosition(2, 1),
         fields: {
           data: '',
           horario: '',
@@ -170,7 +184,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Visita Agendada',
         description: 'Confirmação de agendamento',
         content: 'Sua visita foi agendada com sucesso! Enviaremos um lembrete no dia anterior.',
-        position: { x: 600, y: 250 },
+        position: gridPosition(3, 1),
         fields: {
           corretor: 'Ana Silva',
           telefone: '(11) 99999-9999'
@@ -187,7 +201,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Documentação',
         description: 'Informações sobre documentação',
         content: 'Para avançar com a compra do imóvel, precisaremos dos seguintes documentos:',
-        position: { x: 400, y: 400 },
+        position: gridPosition(2, 2),
         fields: {
           documentos: 'RG, CPF, Comprovante de Residência, Comprovante de Renda'
         },
@@ -204,7 +218,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Dúvidas Frequentes',
         description: 'Respostas para dúvidas comuns',
         content: 'Aqui estão respostas para as perguntas mais comuns:',
-        position: { x: 600, y: 400 },
+        position: gridPosition(3, 2),
         fields: {
           financiamento: 'Trabalhamos com todos os bancos.',
           prazo: 'O processo de compra leva em média 60 dias.'
@@ -221,7 +235,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Nossos Contatos',
         description: 'Informações de contato da imobiliária',
         content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 700, y: 250 },
+        position: gridPosition(2, 0),
         fields: {
           telefone: '(11) 99999-9999',
           email: 'contato@imobiliaria.com',
@@ -311,7 +325,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
         content: 'Olá! Bem-vindo à Serviços Gerais. Como posso ajudar você hoje?',
-        position: { x: 250, y: 50 },
+        position: gridPosition(1, 0),
         fields: {},
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Solicitar Serviço' },
@@ -327,7 +341,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Pintura Residencial',
         description: 'Serviço de pintura completa',
         content: 'Serviço de pintura interna e externa com materiais de qualidade.',
-        position: { x: 100, y: 250 },
+        position: gridPosition(0, 1),
         fields: {
           nome: 'Pintura Residencial',
           preco: 'R$ 35,00/m²',
@@ -345,7 +359,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Reforma de Banheiro',
         description: 'Reforma completa de banheiro',
         content: 'Serviço de reforma completa incluindo troca de piso, azulejos e louças.',
-        position: { x: 100, y: 400 },
+        position: gridPosition(0, 2),
         fields: {
           nome: 'Reforma de Banheiro',
           preco: 'A partir de R$ 8.000,00',
@@ -363,7 +377,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Limpeza de Caixa D\'água',
         description: 'Limpeza e higienização',
         content: 'Serviço de limpeza e higienização de caixa d\'água com produtos de qualidade.',
-        position: { x: 250, y: 325 },
+        position: gridPosition(1, 1.5),
         fields: {
           nome: 'Limpeza de Caixa D\'água',
           preco: 'A partir de R$ 350,00',
@@ -382,7 +396,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Detalhes do Serviço',
         description: 'Mais informações sobre o serviço',
         content: 'Nossos serviços incluem:',
-        position: { x: 400, y: 400 },
+        position: gridPosition(2, 2),
         fields: {
           materiais: 'Materiais de primeira linha',
           garantia: '6 meses para todos os serviços',
@@ -401,7 +415,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Ordem de Serviço',
         description: 'Criar ordem de serviço',
         content: 'Preencha os dados para criarmos sua ordem de serviço.',
-        position: { x: 400, y: 250 },
+        position: gridPosition(2, 1),
         fields: {
           cliente: '',
           endereco: '',
@@ -421,7 +435,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Serviço Agendado',
         description: 'Confirmação de agendamento',
         content: 'Seu serviço foi agendado com sucesso! Entraremos em contato para confirmar a data.',
-        position: { x: 600, y: 250 },
+        position: gridPosition(3, 1),
         fields: {
           protocolo: 'SRV-2023-0001',
           previsao: 'Em até 3 dias úteis'
@@ -438,7 +452,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Solicitar Orçamento',
         description: 'Formulário para solicitar orçamento',
         content: 'Preencha os dados abaixo para receber um orçamento personalizado.',
-        position: { x: 400, y: 100 },
+        position: gridPosition(2, 0),
         fields: {
           nome: '',
           endereco: '',
@@ -458,7 +472,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Nossos Contatos',
         description: 'Informações de contato da empresa',
         content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 600, y: 400 },
+        position: gridPosition(3, 2),
         fields: {
           telefone: '(11) 88888-8888',
           email: 'contato@servicos.com',
@@ -540,7 +554,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
         content: 'Olá! Bem-vindo à nossa loja virtual. Como posso ajudar você hoje?',
-        position: { x: 250, y: 50 },
+        position: gridPosition(1, 0),
         fields: {},
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Ver Produtos' },
@@ -556,7 +570,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Smartphone XYZ',
         description: 'Smartphone de última geração',
         content: 'Smartphone com câmera de alta resolução e processador potente.',
-        position: { x: 100, y: 200 },
+        position: gridPosition(0, 1),
         fields: {
           nome: 'Smartphone XYZ',
           preco: 'R$ 1.999,00',
@@ -575,7 +589,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Notebook ABC',
         description: 'Notebook para trabalho e jogos',
         content: 'Notebook com processador rápido, memória ampla e placa de vídeo dedicada.',
-        position: { x: 100, y: 350 },
+        position: gridPosition(0, 2),
         fields: {
           nome: 'Notebook ABC',
           preco: 'R$ 3.499,00',
@@ -594,7 +608,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Smart TV 4K',
         description: 'TV de alta definição',
         content: 'Smart TV com resolução 4K, 55 polegadas e sistema operacional Android.',
-        position: { x: 100, y: 500 },
+        position: gridPosition(1, 1.5),
         fields: {
           nome: 'Smart TV 4K',
           preco: 'R$ 2.799,00',
@@ -614,7 +628,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Carrinho de Compras',
         description: 'Itens no carrinho',
         content: 'Você adicionou os seguintes itens ao seu carrinho:',
-        position: { x: 350, y: 200 },
+        position: gridPosition(2, 1),
         fields: {
           qtdItens: '1',
           total: 'R$ 1.999,00',
@@ -633,7 +647,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Finalizar Compra',
         description: 'Dados de pagamento e entrega',
         content: 'Por favor, preencha os dados para finalizar sua compra:',
-        position: { x: 550, y: 200 },
+        position: gridPosition(3, 1),
         fields: {
           endereco: '',
           pagamento: '',
@@ -652,7 +666,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Status do Pedido',
         description: 'Informações sobre seu pedido',
         content: 'Digite o número do seu pedido para verificar o status:',
-        position: { x: 350, y: 350 },
+        position: gridPosition(2, 2),
         fields: {
           numeroPedido: '',
           status: '',
@@ -671,7 +685,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Pedido Confirmado',
         description: 'Confirmação de compra',
         content: 'Seu pedido foi realizado com sucesso! Você receberá um e-mail com todos os detalhes.',
-        position: { x: 750, y: 200 },
+        position: gridPosition(4, 1),
         fields: {
           numeroPedido: 'PED-2023-0001',
           previsaoEntrega: '5 dias úteis'
@@ -688,7 +702,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Nossos Contatos',
         description: 'Informações de contato da loja',
         content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 550, y: 350 },
+        position: gridPosition(2, 0),
         fields: {
           telefone: '(11) 77777-7777',
           email: 'vendas@loja.com',
@@ -770,7 +784,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento de suporte',
         content: 'Olá! Seja bem-vindo ao Suporte Técnico. Como posso ajudar você hoje?',
-        position: { x: 250, y: 50 },
+        position: gridPosition(1, 0),
         fields: {},
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Problema Técnico' },
@@ -786,7 +800,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Problema com Software',
         description: 'Resolução de problemas com software',
         content: 'Por favor, descreva o problema que está enfrentando com o software:',
-        position: { x: 100, y: 200 },
+        position: gridPosition(0, 1),
         fields: {
           sistema: 'Windows/Mac/Linux',
           software: '',
@@ -804,7 +818,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Problema com Hardware',
         description: 'Resolução de problemas com hardware',
         content: 'Por favor, descreva o problema que está enfrentando com o hardware:',
-        position: { x: 100, y: 350 },
+        position: gridPosition(0, 2),
         fields: {
           equipamento: '',
           modelo: '',
@@ -823,7 +837,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Soluções Comuns',
         description: 'Soluções para problemas frequentes',
         content: 'Aqui estão algumas soluções para problemas comuns:',
-        position: { x: 350, y: 200 },
+        position: gridPosition(1, 1.5),
         fields: {
           solucao1: 'Reinicie o computador',
           solucao2: 'Verifique as conexões',
@@ -842,7 +856,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Abrir Chamado',
         description: 'Criar um chamado de suporte',
         content: 'Preencha os dados abaixo para abrir um chamado:',
-        position: { x: 350, y: 350 },
+        position: gridPosition(2, 1),
         fields: {
           nome: '',
           email: '',
@@ -861,7 +875,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Chamado Aberto',
         description: 'Confirmação de abertura de chamado',
         content: 'Seu chamado foi aberto com sucesso! Nossa equipe entrará em contato em breve.',
-        position: { x: 550, y: 350 },
+        position: gridPosition(3, 1),
         fields: {
           numeroChamado: 'SUP-2023-0001',
           prazoResposta: '24 horas'
@@ -878,7 +892,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Perguntas Frequentes',
         description: 'Respostas para dúvidas comuns',
         content: 'Aqui estão respostas para as perguntas mais comuns:',
-        position: { x: 350, y: 500 },
+        position: gridPosition(2, 2),
         fields: {
           pergunta1: 'Como redefinir minha senha?',
           resposta1: 'Acesse a página de login e clique em "Esqueci minha senha".',
@@ -898,7 +912,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Nossos Contatos',
         description: 'Informações de contato do suporte',
         content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 550, y: 500 },
+        position: gridPosition(2, 0),
         fields: {
           telefone: '(11) 66666-6666',
           email: 'suporte@empresa.com',
@@ -1004,7 +1018,7 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
         content: 'Olá! Como posso ajudar você hoje?',
-        position: { x: 250, y: 50 },
+        position: gridPosition(1, 1),
         fields: {},
         outputPorts: []
       };
