@@ -4,50 +4,60 @@ import { nanoid } from 'nanoid';
 
 // Define template options for the UI
 export const templateOptions = [
+  { id: 'salao', name: 'Salão de Beleza', description: 'Template para salão de beleza' },
   { id: 'imobiliaria', name: 'Imobiliária', description: 'Template para atendimento imobiliário' },
-  { id: 'servicos', name: 'Serviços', description: 'Template para empresas de serviços' },
+  { id: 'clinica', name: 'Clínica', description: 'Template para clínicas médicas' },
   { id: 'ecommerce', name: 'E-commerce', description: 'Template para lojas online' },
-  { id: 'suporte', name: 'Suporte', description: 'Template para atendimento de suporte' },
+  { id: 'marketing', name: 'Marketing', description: 'Template para agência de marketing' },
 ];
 
 // Function to create a template-specific profile
 const createProfile = (templateId: string): AssistantProfile => {
   switch (templateId) {
+    case 'salao':
+      return {
+        name: 'Beleza Total',
+        profession: 'Assistente Virtual',
+        company: 'Salão Beleza Total',
+        contacts: 'contato@belezatotal.com | (11) 99999-8888',
+        guidelines: 'Seja cordial e ajude o cliente a agendar serviços ou tirar dúvidas sobre nossos tratamentos.',
+        avatar: '/placeholder.svg'
+      };
     case 'imobiliaria':
       return {
         name: 'Ana Imóveis',
         profession: 'Corretora de Imóveis',
-        company: 'Imobiliária Exemplo',
-        contacts: 'contato@imobiliaria.com | (11) 99999-9999',
+        company: 'Imobiliária Premium',
+        contacts: 'contato@imobiliariapremium.com | (11) 99999-9999',
         guidelines: 'Seja cordial e ajude o cliente a encontrar o imóvel ideal para suas necessidades.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
-    case 'servicos':
+    case 'clinica':
       return {
-        name: 'Carlos Serviços',
-        profession: 'Prestador de Serviços',
-        company: 'Serviços Gerais',
-        contacts: 'contato@servicos.com | (11) 88888-8888',
-        guidelines: 'Explique detalhadamente os serviços e dê orçamentos precisos.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        name: 'Dr. Saúde',
+        profession: 'Assistente Virtual',
+        company: 'Clínica Saúde Integral',
+        contacts: 'contato@clinicasaude.com | (11) 55555-7777',
+        guidelines: 'Seja acolhedor e ajude o paciente a agendar consultas e tirar dúvidas sobre nossos serviços.',
+        avatar: '/placeholder.svg'
       };
     case 'ecommerce':
       return {
         name: 'Loja Virtual',
         profession: 'Atendente de E-commerce',
-        company: 'Loja Online',
-        contacts: 'vendas@loja.com | (11) 77777-7777',
+        company: 'MegaShop Online',
+        contacts: 'vendas@megashop.com | (11) 77777-7777',
         guidelines: 'Ajude o cliente a escolher produtos e facilite o processo de compra.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
-    case 'suporte':
+    case 'marketing':
       return {
-        name: 'Suporte Técnico',
-        profession: 'Atendente de Suporte',
-        company: 'TechSuporte',
-        contacts: 'suporte@empresa.com | (11) 66666-6666',
-        guidelines: 'Resolva os problemas técnicos do cliente de maneira clara e objetiva.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        name: 'Marketing Digital',
+        profession: 'Consultor de Marketing',
+        company: 'Agência Impacto',
+        contacts: 'contato@agenciaimpacto.com | (11) 88888-6666',
+        guidelines: 'Seja proativo e ajude o cliente a entender os serviços de marketing que oferecemos.',
+        avatar: '/placeholder.svg'
       };
     default:
       return {
@@ -56,7 +66,7 @@ const createProfile = (templateId: string): AssistantProfile => {
         company: 'Empresa',
         contacts: 'contato@empresa.com',
         guidelines: 'Seja cordial e ajude o cliente da melhor forma possível.',
-        avatar: '/placeholder.svg' // Add required avatar property
+        avatar: '/placeholder.svg'
       };
   }
 };
@@ -69,166 +79,150 @@ export const getTemplateData = (templateId: string): FlowData => {
 
   // Create template-specific cards and connections
   switch (templateId) {
-    case 'imobiliaria':
+    case 'salao':
       // Initial greeting card
-      const initialCard: FlowCard = {
+      const initialSalaoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'initial',
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
-        content: 'Olá! Bem-vindo à Imobiliária Exemplo. Como posso ajudar você hoje?',
+        content: 'Olá! Bem-vindo ao Salão Beleza Total. Como posso ajudar você hoje?',
         position: { x: 250, y: 50 },
         fields: {},
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Buscar Imóveis' },
-          { id: `port-${nanoid(6)}`, label: 'Agendar Visita' },
-          { id: `port-${nanoid(6)}`, label: 'Outros Assuntos' }
+          { id: `port-${nanoid(6)}`, label: 'Serviços' },
+          { id: `port-${nanoid(6)}`, label: 'Agendar Horário' },
+          { id: `port-${nanoid(6)}`, label: 'Promoções' }
         ]
       };
       
-      // Imóvel cards - adding multiple property cards
-      const imovelCard1: FlowCard = {
+      // Serviços cards
+      const servicoCard1: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'imovel',
-        title: 'Apartamento Vila Mariana',
-        description: 'Apartamento disponível para venda',
-        content: 'Ótimo apartamento com localização privilegiada.',
-        position: { x: 100, y: 250 },
+        type: 'servico',
+        title: 'Corte de Cabelo',
+        description: 'Cortes femininos e masculinos',
+        content: 'Cortes modernos e personalizados para realçar sua beleza.',
+        position: { x: 100, y: 200 },
         fields: {
-          endereco: 'Rua das Flores, 123 - Vila Mariana',
-          preco: 'R$ 450.000,00',
-          area: '75',
-          quartos: '2'
+          nome: 'Corte de Cabelo',
+          preco: 'A partir de R$ 60,00',
+          duracao: '45 minutos'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Interessado' },
-          { id: `port-${nanoid(6)}`, label: 'Não Interessado' }
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais serviços' }
         ]
       };
       
-      const imovelCard2: FlowCard = {
+      const servicoCard2: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'imovel',
-        title: 'Casa Jardins',
-        description: 'Casa de alto padrão',
-        content: 'Casa espaçosa em condomínio fechado com segurança 24h.',
-        position: { x: 100, y: 450 },
+        type: 'servico',
+        title: 'Coloração',
+        description: 'Coloração e mechas',
+        content: 'Transforme seu visual com nossas colorações de alta qualidade.',
+        position: { x: 100, y: 350 },
         fields: {
-          endereco: 'Rua dos Ipês, 500 - Jardins',
-          preco: 'R$ 1.200.000,00',
-          area: '220',
-          quartos: '4'
+          nome: 'Coloração',
+          preco: 'A partir de R$ 150,00',
+          duracao: '2 horas'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Interessado' },
-          { id: `port-${nanoid(6)}`, label: 'Não Interessado' }
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais serviços' }
         ]
       };
       
-      const imovelCard3: FlowCard = {
+      const servicoCard3: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'imovel',
-        title: 'Studio Pinheiros',
-        description: 'Studio moderno e bem localizado',
-        content: 'Studio com acabamento premium e próximo ao metrô.',
-        position: { x: 250, y: 350 },
+        type: 'servico',
+        title: 'Manicure e Pedicure',
+        description: 'Tratamento para unhas',
+        content: 'Unhas impecáveis com esmaltação comum ou em gel.',
+        position: { x: 100, y: 500 },
         fields: {
-          endereco: 'Rua Augusta, 1200 - Pinheiros',
-          preco: 'R$ 320.000,00',
-          area: '45',
-          quartos: '1'
+          nome: 'Manicure e Pedicure',
+          preco: 'R$ 80,00',
+          duracao: '1 hora'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Interessado' },
-          { id: `port-${nanoid(6)}`, label: 'Não Interessado' }
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais serviços' }
         ]
       };
       
       // Agendamento card
       const agendamentoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'agendar-visita',
-        title: 'Agendar Visita',
-        description: 'Formulário para agendamento de visita',
-        content: 'Preencha os dados abaixo para agendar uma visita.',
+        type: 'agendamento',
+        title: 'Agendar Horário',
+        description: 'Formulário para agendamento',
+        content: 'Preencha os dados abaixo para agendar seu horário.',
         position: { x: 400, y: 250 },
         fields: {
+          cliente: '',
+          servico: '',
           data: '',
-          horario: '',
-          endereco: 'Rua das Flores, 123 - Vila Mariana'
+          horario: ''
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Agendado' },
+          { id: `port-${nanoid(6)}`, label: 'Confirmar' },
           { id: `port-${nanoid(6)}`, label: 'Cancelar' }
         ]
       };
       
-      // Confirmação de agendamento
+      // Promoções card
+      const promocoesCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'promocoes',
+        title: 'Promoções',
+        description: 'Promoções especiais',
+        content: 'Confira nossas promoções exclusivas:',
+        position: { x: 400, y: 450 },
+        fields: {
+          promocao1: 'Terça e quinta: 20% off em colorações',
+          promocao2: 'Combo manicure + pedicure: R$ 70,00',
+          promocao3: 'Traga uma amiga e ganhe 15% de desconto'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
+        ]
+      };
+      
+      // Confirmação card
       const confirmacaoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'confirmacao',
-        title: 'Visita Agendada',
-        description: 'Confirmação de agendamento',
-        content: 'Sua visita foi agendada com sucesso! Enviaremos um lembrete no dia anterior.',
+        title: 'Agendamento Confirmado',
+        description: 'Confirmação de horário',
+        content: 'Seu horário foi agendado com sucesso! Lembramos que o cancelamento deve ser feito com pelo menos 2 horas de antecedência.',
         position: { x: 600, y: 250 },
         fields: {
-          corretor: 'Ana Silva',
-          telefone: '(11) 99999-9999'
+          profissional: 'A definir conforme disponibilidade',
+          endereco: 'Rua da Beleza, 123 - Centro'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Finalizar' }
         ]
       };
       
-      // Documentação card
-      const documentacaoCard: FlowCard = {
+      // Produtos card
+      const produtosCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'documentacao',
-        title: 'Documentação',
-        description: 'Informações sobre documentação',
-        content: 'Para avançar com a compra do imóvel, precisaremos dos seguintes documentos:',
-        position: { x: 400, y: 400 },
+        type: 'produtos',
+        title: 'Produtos Profissionais',
+        description: 'Produtos à venda',
+        content: 'Temos produtos profissionais para cuidados domiciliares:',
+        position: { x: 600, y: 450 },
         fields: {
-          documentos: 'RG, CPF, Comprovante de Residência, Comprovante de Renda'
+          produto1: 'Shampoo e condicionador: R$ 120,00 o kit',
+          produto2: 'Máscara de hidratação capilar: R$ 80,00',
+          produto3: 'Óleo reparador: R$ 65,00'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Enviar Documentos' },
-          { id: `port-${nanoid(6)}`, label: 'Dúvidas' }
-        ]
-      };
-      
-      // Dúvidas frequentes card
-      const duvidasCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'duvidas',
-        title: 'Dúvidas Frequentes',
-        description: 'Respostas para dúvidas comuns',
-        content: 'Aqui estão respostas para as perguntas mais comuns:',
-        position: { x: 600, y: 400 },
-        fields: {
-          financiamento: 'Trabalhamos com todos os bancos.',
-          prazo: 'O processo de compra leva em média 60 dias.'
-        },
-        outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Voltar ao Início' }
-        ]
-      };
-      
-      // Contato card
-      const contatoCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'contatos',
-        title: 'Nossos Contatos',
-        description: 'Informações de contato da imobiliária',
-        content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 700, y: 250 },
-        fields: {
-          telefone: '(11) 99999-9999',
-          email: 'contato@imobiliaria.com',
-          whatsapp: '(11) 99999-9999'
-        },
-        outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Voltar ao Início' }
+          { id: `port-${nanoid(6)}`, label: 'Ver mais' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
         ]
       };
       
@@ -236,43 +230,67 @@ export const getTemplateData = (templateId: string): FlowData => {
       connections = [
         {
           id: `conn-${nanoid(6)}`,
-          start: initialCard.id,
-          end: imovelCard1.id,
+          start: initialSalaoCard.id,
+          end: servicoCard1.id,
           type: 'positive',
-          sourceHandle: initialCard.outputPorts[0].id,
-          sourcePortLabel: initialCard.outputPorts[0].label
+          sourceHandle: initialSalaoCard.outputPorts[0].id,
+          sourcePortLabel: initialSalaoCard.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: initialCard.id,
+          start: initialSalaoCard.id,
           end: agendamentoCard.id,
           type: 'positive',
-          sourceHandle: initialCard.outputPorts[1].id,
-          sourcePortLabel: initialCard.outputPorts[1].label
+          sourceHandle: initialSalaoCard.outputPorts[1].id,
+          sourcePortLabel: initialSalaoCard.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: initialCard.id,
-          end: contatoCard.id,
+          start: initialSalaoCard.id,
+          end: promocoesCard.id,
           type: 'positive',
-          sourceHandle: initialCard.outputPorts[2].id,
-          sourcePortLabel: initialCard.outputPorts[2].label
+          sourceHandle: initialSalaoCard.outputPorts[2].id,
+          sourcePortLabel: initialSalaoCard.outputPorts[2].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: imovelCard1.id,
+          start: servicoCard1.id,
+          end: servicoCard2.id,
+          type: 'positive',
+          sourceHandle: servicoCard1.outputPorts[1].id,
+          sourcePortLabel: servicoCard1.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: servicoCard2.id,
+          end: servicoCard3.id,
+          type: 'positive',
+          sourceHandle: servicoCard2.outputPorts[1].id,
+          sourcePortLabel: servicoCard2.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: servicoCard1.id,
           end: agendamentoCard.id,
           type: 'positive',
-          sourceHandle: imovelCard1.outputPorts[0].id,
-          sourcePortLabel: imovelCard1.outputPorts[0].label
+          sourceHandle: servicoCard1.outputPorts[0].id,
+          sourcePortLabel: servicoCard1.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: imovelCard2.id,
+          start: servicoCard2.id,
           end: agendamentoCard.id,
           type: 'positive',
-          sourceHandle: imovelCard2.outputPorts[0].id,
-          sourcePortLabel: imovelCard2.outputPorts[0].label
+          sourceHandle: servicoCard2.outputPorts[0].id,
+          sourcePortLabel: servicoCard2.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: servicoCard3.id,
+          end: agendamentoCard.id,
+          type: 'positive',
+          sourceHandle: servicoCard3.outputPorts[0].id,
+          sourcePortLabel: servicoCard3.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
@@ -284,188 +302,173 @@ export const getTemplateData = (templateId: string): FlowData => {
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: imovelCard1.id,
-          end: documentacaoCard.id,
+          start: promocoesCard.id,
+          end: agendamentoCard.id,
           type: 'positive',
-          sourceHandle: imovelCard1.outputPorts[0].id,
-          sourcePortLabel: imovelCard1.outputPorts[0].label
+          sourceHandle: promocoesCard.outputPorts[0].id,
+          sourcePortLabel: promocoesCard.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: documentacaoCard.id,
-          end: duvidasCard.id,
+          start: promocoesCard.id,
+          end: produtosCard.id,
           type: 'positive',
-          sourceHandle: documentacaoCard.outputPorts[1].id,
-          sourcePortLabel: documentacaoCard.outputPorts[1].label
+          sourceHandle: promocoesCard.outputPorts[1].id,
+          sourcePortLabel: promocoesCard.outputPorts[1].label
         }
       ];
       
-      cards = [initialCard, imovelCard1, imovelCard2, imovelCard3, agendamentoCard, confirmacaoCard, documentacaoCard, duvidasCard, contatoCard];
+      cards = [initialSalaoCard, servicoCard1, servicoCard2, servicoCard3, agendamentoCard, promocoesCard, confirmacaoCard, produtosCard];
       break;
       
-    case 'servicos':
+    case 'imobiliaria':
       // Initial greeting card
-      const initialServiceCard: FlowCard = {
+      const initialImobCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'initial',
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
-        content: 'Olá! Bem-vindo à Serviços Gerais. Como posso ajudar você hoje?',
+        content: 'Olá! Bem-vindo à Imobiliária Premium. Como posso ajudar você hoje?',
         position: { x: 250, y: 50 },
         fields: {},
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Solicitar Serviço' },
-          { id: `port-${nanoid(6)}`, label: 'Orçamento' },
-          { id: `port-${nanoid(6)}`, label: 'Contatos' }
+          { id: `port-${nanoid(6)}`, label: 'Buscar Imóveis' },
+          { id: `port-${nanoid(6)}`, label: 'Agendar Visita' },
+          { id: `port-${nanoid(6)}`, label: 'Financiamento' }
         ]
       };
       
-      // Serviço cards
-      const servicoCard1: FlowCard = {
+      // Imóveis cards
+      const imovelCard1: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'servico',
-        title: 'Pintura Residencial',
-        description: 'Serviço de pintura completa',
-        content: 'Serviço de pintura interna e externa com materiais de qualidade.',
-        position: { x: 100, y: 250 },
+        type: 'imovel',
+        title: 'Apartamento Vila Nova',
+        description: 'Apartamento disponível para venda',
+        content: 'Amplo apartamento com localização privilegiada.',
+        position: { x: 100, y: 200 },
         fields: {
-          nome: 'Pintura Residencial',
-          preco: 'R$ 35,00/m²',
-          duracao: '5 dias (em média)'
+          endereco: 'Av. São João, 500 - Vila Nova',
+          preco: 'R$ 550.000,00',
+          area: '90m²',
+          quartos: '3'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Solicitar' },
-          { id: `port-${nanoid(6)}`, label: 'Detalhes' }
+          { id: `port-${nanoid(6)}`, label: 'Agendar visita' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais imóveis' }
         ]
       };
       
-      const servicoCard2: FlowCard = {
+      const imovelCard2: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'servico',
-        title: 'Reforma de Banheiro',
-        description: 'Reforma completa de banheiro',
-        content: 'Serviço de reforma completa incluindo troca de piso, azulejos e louças.',
-        position: { x: 100, y: 400 },
+        type: 'imovel',
+        title: 'Casa em Condomínio',
+        description: 'Casa de alto padrão',
+        content: 'Casa espaçosa em condomínio fechado com segurança 24h.',
+        position: { x: 100, y: 350 },
         fields: {
-          nome: 'Reforma de Banheiro',
-          preco: 'A partir de R$ 8.000,00',
-          duracao: '15 dias (em média)'
+          endereco: 'Rua das Palmeiras, 200 - Condomínio Verde',
+          preco: 'R$ 1.500.000,00',
+          area: '250m²',
+          quartos: '4'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Solicitar' },
-          { id: `port-${nanoid(6)}`, label: 'Detalhes' }
+          { id: `port-${nanoid(6)}`, label: 'Agendar visita' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais imóveis' }
         ]
       };
       
-      const servicoCard3: FlowCard = {
+      const imovelCard3: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'servico',
-        title: 'Limpeza de Caixa D\'água',
-        description: 'Limpeza e higienização',
-        content: 'Serviço de limpeza e higienização de caixa d\'água com produtos de qualidade.',
-        position: { x: 250, y: 325 },
+        type: 'imovel',
+        title: 'Comercial Centro',
+        description: 'Sala comercial para locação',
+        content: 'Sala comercial em prédio moderno e bem localizado.',
+        position: { x: 100, y: 500 },
         fields: {
-          nome: 'Limpeza de Caixa D\'água',
-          preco: 'A partir de R$ 350,00',
-          duracao: '1 dia'
+          endereco: 'Av. Paulista, 1000 - Centro',
+          preco: 'R$ 3.500,00/mês',
+          area: '70m²',
+          tipo: 'Comercial'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Solicitar' },
-          { id: `port-${nanoid(6)}`, label: 'Detalhes' }
+          { id: `port-${nanoid(6)}`, label: 'Agendar visita' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais imóveis' }
         ]
       };
       
-      // Detalhes card
-      const detalhesCard: FlowCard = {
+      // Agendamento card
+      const agendamentoImovelCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'detalhes',
-        title: 'Detalhes do Serviço',
-        description: 'Mais informações sobre o serviço',
-        content: 'Nossos serviços incluem:',
-        position: { x: 400, y: 400 },
-        fields: {
-          materiais: 'Materiais de primeira linha',
-          garantia: '6 meses para todos os serviços',
-          pagamento: 'Parcelamento em até 12x no cartão'
-        },
-        outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Solicitar Serviço' },
-          { id: `port-${nanoid(6)}`, label: 'Voltar' }
-        ]
-      };
-      
-      // Ordem de serviço card
-      const ordemServicoCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'ordem-servico',
-        title: 'Ordem de Serviço',
-        description: 'Criar ordem de serviço',
-        content: 'Preencha os dados para criarmos sua ordem de serviço.',
+        type: 'agendamento',
+        title: 'Agendar Visita',
+        description: 'Formulário para agendamento de visita',
+        content: 'Preencha os dados abaixo para agendar uma visita.',
         position: { x: 400, y: 250 },
         fields: {
           cliente: '',
-          endereco: '',
-          telefone: '',
-          servico: 'Pintura Residencial'
+          imovel: '',
+          data: '',
+          horario: ''
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Enviar' },
+          { id: `port-${nanoid(6)}`, label: 'Confirmar' },
           { id: `port-${nanoid(6)}`, label: 'Cancelar' }
         ]
       };
       
+      // Financiamento card
+      const financiamentoCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'financiamento',
+        title: 'Financiamento Imobiliário',
+        description: 'Informações sobre financiamento',
+        content: 'Trabalhamos com diversas opções de financiamento:',
+        position: { x: 400, y: 450 },
+        fields: {
+          banco1: 'Caixa: até 80% do valor do imóvel, até 35 anos',
+          banco2: 'Banco do Brasil: até 80% do valor, até 30 anos',
+          banco3: 'Santander: até 90% do valor, até 35 anos'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Simular' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
+        ]
+      };
+      
       // Confirmação card
-      const confirmacaoServicoCard: FlowCard = {
+      const confirmacaoImovelCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'confirmacao',
-        title: 'Serviço Agendado',
+        title: 'Visita Agendada',
         description: 'Confirmação de agendamento',
-        content: 'Seu serviço foi agendado com sucesso! Entraremos em contato para confirmar a data.',
+        content: 'Sua visita foi agendada com sucesso! Enviaremos um lembrete no dia anterior.',
         position: { x: 600, y: 250 },
         fields: {
-          protocolo: 'SRV-2023-0001',
-          previsao: 'Em até 3 dias úteis'
+          corretor: 'Ana Silva',
+          contato: '(11) 99999-9999'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Finalizar' }
         ]
       };
       
-      // Orçamento card
-      const orcamentoCard: FlowCard = {
+      // Simulação card
+      const simulacaoCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'orcamento',
-        title: 'Solicitar Orçamento',
-        description: 'Formulário para solicitar orçamento',
-        content: 'Preencha os dados abaixo para receber um orçamento personalizado.',
-        position: { x: 400, y: 100 },
+        type: 'simulacao',
+        title: 'Simulação de Financiamento',
+        description: 'Calculadora de financiamento',
+        content: 'Preencha os dados para simular seu financiamento:',
+        position: { x: 600, y: 450 },
         fields: {
-          nome: '',
-          endereco: '',
-          telefone: '',
-          descricao: ''
+          valor: '',
+          entrada: '',
+          prazo: '',
+          banco: ''
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Enviar' },
-          { id: `port-${nanoid(6)}`, label: 'Cancelar' }
-        ]
-      };
-      
-      // Contato card
-      const contatoServicoCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'contatos',
-        title: 'Nossos Contatos',
-        description: 'Informações de contato da empresa',
-        content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 600, y: 400 },
-        fields: {
-          telefone: '(11) 88888-8888',
-          email: 'contato@servicos.com',
-          whatsapp: '(11) 88888-8888'
-        },
-        outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Voltar ao Início' }
+          { id: `port-${nanoid(6)}`, label: 'Calcular' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
         ]
       };
       
@@ -473,79 +476,355 @@ export const getTemplateData = (templateId: string): FlowData => {
       connections = [
         {
           id: `conn-${nanoid(6)}`,
-          start: initialServiceCard.id,
-          end: servicoCard1.id,
+          start: initialImobCard.id,
+          end: imovelCard1.id,
           type: 'positive',
-          sourceHandle: initialServiceCard.outputPorts[0].id,
-          sourcePortLabel: initialServiceCard.outputPorts[0].label
+          sourceHandle: initialImobCard.outputPorts[0].id,
+          sourcePortLabel: initialImobCard.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: initialServiceCard.id,
-          end: orcamentoCard.id,
+          start: initialImobCard.id,
+          end: agendamentoImovelCard.id,
           type: 'positive',
-          sourceHandle: initialServiceCard.outputPorts[1].id,
-          sourcePortLabel: initialServiceCard.outputPorts[1].label
+          sourceHandle: initialImobCard.outputPorts[1].id,
+          sourcePortLabel: initialImobCard.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: initialServiceCard.id,
-          end: contatoServicoCard.id,
+          start: initialImobCard.id,
+          end: financiamentoCard.id,
           type: 'positive',
-          sourceHandle: initialServiceCard.outputPorts[2].id,
-          sourcePortLabel: initialServiceCard.outputPorts[2].label
+          sourceHandle: initialImobCard.outputPorts[2].id,
+          sourcePortLabel: initialImobCard.outputPorts[2].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: servicoCard1.id,
-          end: ordemServicoCard.id,
+          start: imovelCard1.id,
+          end: imovelCard2.id,
           type: 'positive',
-          sourceHandle: servicoCard1.outputPorts[0].id,
-          sourcePortLabel: servicoCard1.outputPorts[0].label
+          sourceHandle: imovelCard1.outputPorts[1].id,
+          sourcePortLabel: imovelCard1.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: servicoCard1.id,
-          end: detalhesCard.id,
+          start: imovelCard2.id,
+          end: imovelCard3.id,
           type: 'positive',
-          sourceHandle: servicoCard1.outputPorts[1].id,
-          sourcePortLabel: servicoCard1.outputPorts[1].label
+          sourceHandle: imovelCard2.outputPorts[1].id,
+          sourcePortLabel: imovelCard2.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: ordemServicoCard.id,
-          end: confirmacaoServicoCard.id,
+          start: imovelCard1.id,
+          end: agendamentoImovelCard.id,
           type: 'positive',
-          sourceHandle: ordemServicoCard.outputPorts[0].id,
-          sourcePortLabel: ordemServicoCard.outputPorts[0].label
+          sourceHandle: imovelCard1.outputPorts[0].id,
+          sourcePortLabel: imovelCard1.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: orcamentoCard.id,
-          end: confirmacaoServicoCard.id,
+          start: imovelCard2.id,
+          end: agendamentoImovelCard.id,
           type: 'positive',
-          sourceHandle: orcamentoCard.outputPorts[0].id,
-          sourcePortLabel: orcamentoCard.outputPorts[0].label
+          sourceHandle: imovelCard2.outputPorts[0].id,
+          sourcePortLabel: imovelCard2.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: imovelCard3.id,
+          end: agendamentoImovelCard.id,
+          type: 'positive',
+          sourceHandle: imovelCard3.outputPorts[0].id,
+          sourcePortLabel: imovelCard3.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: agendamentoImovelCard.id,
+          end: confirmacaoImovelCard.id,
+          type: 'positive',
+          sourceHandle: agendamentoImovelCard.outputPorts[0].id,
+          sourcePortLabel: agendamentoImovelCard.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: financiamentoCard.id,
+          end: simulacaoCard.id,
+          type: 'positive',
+          sourceHandle: financiamentoCard.outputPorts[0].id,
+          sourcePortLabel: financiamentoCard.outputPorts[0].label
         }
       ];
       
-      cards = [initialServiceCard, servicoCard1, servicoCard2, servicoCard3, detalhesCard, ordemServicoCard, confirmacaoServicoCard, orcamentoCard, contatoServicoCard];
+      cards = [initialImobCard, imovelCard1, imovelCard2, imovelCard3, agendamentoImovelCard, financiamentoCard, confirmacaoImovelCard, simulacaoCard];
+      break;
+      
+    case 'clinica':
+      // Initial greeting card
+      const initialClinicaCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'initial',
+        title: 'Boas-vindas',
+        description: 'Mensagem inicial de atendimento',
+        content: 'Olá! Bem-vindo à Clínica Saúde Integral. Como posso ajudar você hoje?',
+        position: { x: 250, y: 50 },
+        fields: {},
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Especialidades' },
+          { id: `port-${nanoid(6)}`, label: 'Agendar Consulta' },
+          { id: `port-${nanoid(6)}`, label: 'Convênios' }
+        ]
+      };
+      
+      // Especialidades cards
+      const especialidadeCard1: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'especialidade',
+        title: 'Clínica Geral',
+        description: 'Consultas de rotina',
+        content: 'Atendimento para diagnóstico e tratamento de problemas gerais de saúde.',
+        position: { x: 100, y: 200 },
+        fields: {
+          nome: 'Clínica Geral',
+          medicos: 'Dr. Carlos Silva, Dra. Ana Oliveira',
+          preco: 'R$ 250,00'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais especialidades' }
+        ]
+      };
+      
+      const especialidadeCard2: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'especialidade',
+        title: 'Cardiologia',
+        description: 'Saúde do coração',
+        content: 'Diagnóstico e tratamento de problemas cardiovasculares.',
+        position: { x: 100, y: 350 },
+        fields: {
+          nome: 'Cardiologia',
+          medicos: 'Dr. Paulo Santos, Dra. Maria Costa',
+          preco: 'R$ 350,00'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais especialidades' }
+        ]
+      };
+      
+      const especialidadeCard3: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'especialidade',
+        title: 'Dermatologia',
+        description: 'Cuidados com a pele',
+        content: 'Tratamentos estéticos e clínicos para problemas de pele.',
+        position: { x: 100, y: 500 },
+        fields: {
+          nome: 'Dermatologia',
+          medicos: 'Dra. Camila Rocha, Dr. Roberto Almeida',
+          preco: 'R$ 300,00'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Agendar' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais especialidades' }
+        ]
+      };
+      
+      // Agendamento card
+      const agendamentoClinicaCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'agendamento',
+        title: 'Agendar Consulta',
+        description: 'Formulário para agendamento',
+        content: 'Preencha os dados abaixo para agendar sua consulta.',
+        position: { x: 400, y: 250 },
+        fields: {
+          paciente: '',
+          especialidade: '',
+          medico: '',
+          data: '',
+          horario: ''
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Confirmar' },
+          { id: `port-${nanoid(6)}`, label: 'Cancelar' }
+        ]
+      };
+      
+      // Convênios card
+      const conveniosCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'convenios',
+        title: 'Convênios Aceitos',
+        description: 'Planos de saúde aceitos',
+        content: 'Trabalhamos com os seguintes convênios:',
+        position: { x: 400, y: 450 },
+        fields: {
+          convenio1: 'Amil - todos os planos',
+          convenio2: 'Bradesco Saúde - a partir do plano essencial',
+          convenio3: 'Unimed - todos os planos',
+          convenio4: 'SulAmérica - a partir do plano especial'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Agendar com convênio' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
+        ]
+      };
+      
+      // Confirmação card
+      const confirmacaoClinicaCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'confirmacao',
+        title: 'Consulta Agendada',
+        description: 'Confirmação de agendamento',
+        content: 'Sua consulta foi agendada com sucesso! Enviaremos um lembrete 24h antes do horário.',
+        position: { x: 600, y: 250 },
+        fields: {
+          observacoes: 'Chegar 15 minutos antes, trazer documentos e exames anteriores'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Finalizar' }
+        ]
+      };
+      
+      // Exames card
+      const examesCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'exames',
+        title: 'Exames Disponíveis',
+        description: 'Exames realizados na clínica',
+        content: 'Realizamos os seguintes exames in loco:',
+        position: { x: 600, y: 450 },
+        fields: {
+          exame1: 'Hemograma completo',
+          exame2: 'Eletrocardiograma',
+          exame3: 'Ultrassonografia',
+          exame4: 'Raio-X'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Agendar exame' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
+        ]
+      };
+      
+      // Add connections
+      connections = [
+        {
+          id: `conn-${nanoid(6)}`,
+          start: initialClinicaCard.id,
+          end: especialidadeCard1.id,
+          type: 'positive',
+          sourceHandle: initialClinicaCard.outputPorts[0].id,
+          sourcePortLabel: initialClinicaCard.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: initialClinicaCard.id,
+          end: agendamentoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: initialClinicaCard.outputPorts[1].id,
+          sourcePortLabel: initialClinicaCard.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: initialClinicaCard.id,
+          end: conveniosCard.id,
+          type: 'positive',
+          sourceHandle: initialClinicaCard.outputPorts[2].id,
+          sourcePortLabel: initialClinicaCard.outputPorts[2].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: especialidadeCard1.id,
+          end: especialidadeCard2.id,
+          type: 'positive',
+          sourceHandle: especialidadeCard1.outputPorts[1].id,
+          sourcePortLabel: especialidadeCard1.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: especialidadeCard2.id,
+          end: especialidadeCard3.id,
+          type: 'positive',
+          sourceHandle: especialidadeCard2.outputPorts[1].id,
+          sourcePortLabel: especialidadeCard2.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: especialidadeCard1.id,
+          end: agendamentoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: especialidadeCard1.outputPorts[0].id,
+          sourcePortLabel: especialidadeCard1.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: especialidadeCard2.id,
+          end: agendamentoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: especialidadeCard2.outputPorts[0].id,
+          sourcePortLabel: especialidadeCard2.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: especialidadeCard3.id,
+          end: agendamentoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: especialidadeCard3.outputPorts[0].id,
+          sourcePortLabel: especialidadeCard3.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: agendamentoClinicaCard.id,
+          end: confirmacaoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: agendamentoClinicaCard.outputPorts[0].id,
+          sourcePortLabel: agendamentoClinicaCard.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: conveniosCard.id,
+          end: agendamentoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: conveniosCard.outputPorts[0].id,
+          sourcePortLabel: conveniosCard.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: especialidadeCard3.id,
+          end: examesCard.id,
+          type: 'positive',
+          sourceHandle: especialidadeCard3.outputPorts[1].id,
+          sourcePortLabel: especialidadeCard3.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: examesCard.id,
+          end: agendamentoClinicaCard.id,
+          type: 'positive',
+          sourceHandle: examesCard.outputPorts[0].id,
+          sourcePortLabel: examesCard.outputPorts[0].label
+        }
+      ];
+      
+      cards = [initialClinicaCard, especialidadeCard1, especialidadeCard2, especialidadeCard3, agendamentoClinicaCard, conveniosCard, confirmacaoClinicaCard, examesCard];
       break;
       
     case 'ecommerce':
-      // Create ecommerce template cards and connections
+      // Initial greeting card
       const initialEcommerceCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'initial',
         title: 'Boas-vindas',
         description: 'Mensagem inicial de atendimento',
-        content: 'Olá! Bem-vindo à nossa loja virtual. Como posso ajudar você hoje?',
+        content: 'Olá! Bem-vindo à MegaShop Online. Como posso ajudar você hoje?',
         position: { x: 250, y: 50 },
         fields: {},
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Ver Produtos' },
-          { id: `port-${nanoid(6)}`, label: 'Ajuda com Pedido' },
-          { id: `port-${nanoid(6)}`, label: 'Contatos' }
+          { id: `port-${nanoid(6)}`, label: 'Meu Pedido' },
+          { id: `port-${nanoid(6)}`, label: 'Promoções' }
         ]
       };
       
@@ -553,15 +832,15 @@ export const getTemplateData = (templateId: string): FlowData => {
       const produtoCard1: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'produto',
-        title: 'Smartphone XYZ',
-        description: 'Smartphone de última geração',
-        content: 'Smartphone com câmera de alta resolução e processador potente.',
+        title: 'Smartphone Ultra X',
+        description: 'Smartphone topo de linha',
+        content: 'Smartphone com câmera de 108MP, tela AMOLED de 6.7" e processador de última geração.',
         position: { x: 100, y: 200 },
         fields: {
-          nome: 'Smartphone XYZ',
-          preco: 'R$ 1.999,00',
-          estoque: '15',
-          categoria: 'Eletrônicos'
+          nome: 'Smartphone Ultra X',
+          preco: 'R$ 3.999,00',
+          estoque: '15 unidades',
+          parcelas: 'até 12x sem juros'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Comprar' },
@@ -572,15 +851,15 @@ export const getTemplateData = (templateId: string): FlowData => {
       const produtoCard2: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'produto',
-        title: 'Notebook ABC',
-        description: 'Notebook para trabalho e jogos',
-        content: 'Notebook com processador rápido, memória ampla e placa de vídeo dedicada.',
+        title: 'Notebook Pro Book',
+        description: 'Notebook para trabalho',
+        content: 'Notebook com processador i7, 16GB RAM, SSD de 512GB e placa de vídeo dedicada.',
         position: { x: 100, y: 350 },
         fields: {
-          nome: 'Notebook ABC',
-          preco: 'R$ 3.499,00',
-          estoque: '8',
-          categoria: 'Eletrônicos'
+          nome: 'Notebook Pro Book',
+          preco: 'R$ 4.799,00',
+          estoque: '8 unidades',
+          parcelas: 'até 10x sem juros'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Comprar' },
@@ -591,15 +870,15 @@ export const getTemplateData = (templateId: string): FlowData => {
       const produtoCard3: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'produto',
-        title: 'Smart TV 4K',
+        title: 'Smart TV 55"',
         description: 'TV de alta definição',
-        content: 'Smart TV com resolução 4K, 55 polegadas e sistema operacional Android.',
+        content: 'Smart TV LED 4K, 55 polegadas, com HDR, Wifi e Bluetooth integrados.',
         position: { x: 100, y: 500 },
         fields: {
-          nome: 'Smart TV 4K',
-          preco: 'R$ 2.799,00',
-          estoque: '12',
-          categoria: 'Eletrônicos'
+          nome: 'Smart TV 55"',
+          preco: 'R$ 2.899,00',
+          estoque: '12 unidades',
+          parcelas: 'até 8x sem juros'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Comprar' },
@@ -614,15 +893,34 @@ export const getTemplateData = (templateId: string): FlowData => {
         title: 'Carrinho de Compras',
         description: 'Itens no carrinho',
         content: 'Você adicionou os seguintes itens ao seu carrinho:',
-        position: { x: 350, y: 200 },
+        position: { x: 400, y: 250 },
         fields: {
-          qtdItens: '1',
-          total: 'R$ 1.999,00',
-          frete: 'Grátis'
+          quantidade: '1',
+          produto: 'Smartphone Ultra X',
+          preco: 'R$ 3.999,00',
+          frete: 'Frete grátis'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Finalizar Compra' },
           { id: `port-${nanoid(6)}`, label: 'Continuar Comprando' }
+        ]
+      };
+      
+      // Pedido card
+      const pedidoCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'pedido',
+        title: 'Meu Pedido',
+        description: 'Acompanhamento de pedido',
+        content: 'Digite o número do seu pedido para verificar o status:',
+        position: { x: 400, y: 450 },
+        fields: {
+          numeroPedido: '',
+          email: ''
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Verificar' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
         ]
       };
       
@@ -631,71 +929,54 @@ export const getTemplateData = (templateId: string): FlowData => {
         id: `card-${nanoid(6)}`,
         type: 'checkout',
         title: 'Finalizar Compra',
-        description: 'Dados de pagamento e entrega',
-        content: 'Por favor, preencha os dados para finalizar sua compra:',
-        position: { x: 550, y: 200 },
+        description: 'Dados para finalização',
+        content: 'Preencha os dados para concluir sua compra:',
+        position: { x: 600, y: 250 },
         fields: {
+          cliente: '',
           endereco: '',
-          pagamento: '',
-          parcelas: ''
+          pagamento: 'Cartão de crédito',
+          parcelas: '1x'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Confirmar Pedido' },
-          { id: `port-${nanoid(6)}`, label: 'Cancelar' }
+          { id: `port-${nanoid(6)}`, label: 'Confirmar Compra' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar ao Carrinho' }
         ]
       };
       
-      // Pedido card
-      const pedidoCard: FlowCard = {
+      // Promoções card
+      const promocoesEcommerceCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'pedido',
-        title: 'Status do Pedido',
-        description: 'Informações sobre seu pedido',
-        content: 'Digite o número do seu pedido para verificar o status:',
-        position: { x: 350, y: 350 },
+        type: 'promocoes',
+        title: 'Ofertas Especiais',
+        description: 'Promoções da semana',
+        content: 'Confira nossas promoções exclusivas:',
+        position: { x: 600, y: 450 },
         fields: {
-          numeroPedido: '',
-          status: '',
-          prazoEntrega: ''
+          promo1: 'Smartphones com até 20% OFF',
+          promo2: 'Frete grátis para todo o Brasil',
+          promo3: 'Compre 2 acessórios e ganhe 50% OFF no 3º'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Verificar' },
-          { id: `port-${nanoid(6)}`, label: 'Voltar ao Início' }
+          { id: `port-${nanoid(6)}`, label: 'Ver Produtos' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
         ]
       };
       
-      // Confirmação de compra
+      // Confirmação card
       const confirmacaoCompraCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'confirmacao',
-        title: 'Pedido Confirmado',
-        description: 'Confirmação de compra',
-        content: 'Seu pedido foi realizado com sucesso! Você receberá um e-mail com todos os detalhes.',
-        position: { x: 750, y: 200 },
+        title: 'Compra Confirmada',
+        description: 'Confirmação de pedido',
+        content: 'Seu pedido foi realizado com sucesso! Você receberá um e-mail com os detalhes da compra.',
+        position: { x: 800, y: 250 },
         fields: {
           numeroPedido: 'PED-2023-0001',
-          previsaoEntrega: '5 dias úteis'
+          previsaoEntrega: '7 dias úteis'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Finalizar' }
-        ]
-      };
-      
-      // Contato card
-      const contatoEcommerceCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'contatos',
-        title: 'Nossos Contatos',
-        description: 'Informações de contato da loja',
-        content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 550, y: 350 },
-        fields: {
-          telefone: '(11) 77777-7777',
-          email: 'vendas@loja.com',
-          whatsapp: '(11) 77777-7777'
-        },
-        outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Voltar ao Início' }
         ]
       };
       
@@ -720,10 +1001,26 @@ export const getTemplateData = (templateId: string): FlowData => {
         {
           id: `conn-${nanoid(6)}`,
           start: initialEcommerceCard.id,
-          end: contatoEcommerceCard.id,
+          end: promocoesEcommerceCard.id,
           type: 'positive',
           sourceHandle: initialEcommerceCard.outputPorts[2].id,
           sourcePortLabel: initialEcommerceCard.outputPorts[2].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: produtoCard1.id,
+          end: produtoCard2.id,
+          type: 'positive',
+          sourceHandle: produtoCard1.outputPorts[1].id,
+          sourcePortLabel: produtoCard1.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: produtoCard2.id,
+          end: produtoCard3.id,
+          type: 'positive',
+          sourceHandle: produtoCard2.outputPorts[1].id,
+          sourcePortLabel: produtoCard2.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
@@ -735,11 +1032,19 @@ export const getTemplateData = (templateId: string): FlowData => {
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: produtoCard1.id,
-          end: produtoCard2.id,
+          start: produtoCard2.id,
+          end: carrinhoCard.id,
           type: 'positive',
-          sourceHandle: produtoCard1.outputPorts[1].id,
-          sourcePortLabel: produtoCard1.outputPorts[1].label
+          sourceHandle: produtoCard2.outputPorts[0].id,
+          sourcePortLabel: produtoCard2.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: produtoCard3.id,
+          end: carrinhoCard.id,
+          type: 'positive',
+          sourceHandle: produtoCard3.outputPorts[0].id,
+          sourcePortLabel: produtoCard3.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
@@ -756,156 +1061,167 @@ export const getTemplateData = (templateId: string): FlowData => {
           type: 'positive',
           sourceHandle: checkoutCard.outputPorts[0].id,
           sourcePortLabel: checkoutCard.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: promocoesEcommerceCard.id,
+          end: produtoCard1.id,
+          type: 'positive',
+          sourceHandle: promocoesEcommerceCard.outputPorts[0].id,
+          sourcePortLabel: promocoesEcommerceCard.outputPorts[0].label
         }
       ];
       
-      cards = [initialEcommerceCard, produtoCard1, produtoCard2, produtoCard3, carrinhoCard, checkoutCard, pedidoCard, confirmacaoCompraCard, contatoEcommerceCard];
+      cards = [initialEcommerceCard, produtoCard1, produtoCard2, produtoCard3, carrinhoCard, pedidoCard, checkoutCard, promocoesEcommerceCard, confirmacaoCompraCard];
       break;
       
-    case 'suporte':
-      // Create support template cards and connections
-      const initialSupportCard: FlowCard = {
+    case 'marketing':
+      // Initial greeting card
+      const initialMarketingCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'initial',
         title: 'Boas-vindas',
-        description: 'Mensagem inicial de atendimento de suporte',
-        content: 'Olá! Seja bem-vindo ao Suporte Técnico. Como posso ajudar você hoje?',
+        description: 'Mensagem inicial de atendimento',
+        content: 'Olá! Bem-vindo à Agência Impacto. Como posso ajudar você hoje?',
         position: { x: 250, y: 50 },
         fields: {},
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Problema Técnico' },
-          { id: `port-${nanoid(6)}`, label: 'Dúvida' },
-          { id: `port-${nanoid(6)}`, label: 'Contato' }
+          { id: `port-${nanoid(6)}`, label: 'Serviços' },
+          { id: `port-${nanoid(6)}`, label: 'Solicitar Orçamento' },
+          { id: `port-${nanoid(6)}`, label: 'Cases de Sucesso' }
         ]
       };
       
-      // Problema cards
-      const problemaCard1: FlowCard = {
+      // Serviços cards
+      const servicoMktCard1: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'problema',
-        title: 'Problema com Software',
-        description: 'Resolução de problemas com software',
-        content: 'Por favor, descreva o problema que está enfrentando com o software:',
+        type: 'servico',
+        title: 'Marketing Digital',
+        description: 'Estratégias online',
+        content: 'Desenvolva sua presença online com estratégias personalizadas de marketing digital.',
         position: { x: 100, y: 200 },
         fields: {
-          sistema: 'Windows/Mac/Linux',
-          software: '',
-          versao: ''
+          nome: 'Marketing Digital',
+          prazo: 'Contrato mínimo de 3 meses',
+          resultados: 'Primeiros resultados em 30 dias'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Verificar Soluções' },
-          { id: `port-${nanoid(6)}`, label: 'Contatar Suporte' }
+          { id: `port-${nanoid(6)}`, label: 'Solicitar Orçamento' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais serviços' }
         ]
       };
       
-      const problemaCard2: FlowCard = {
+      const servicoMktCard2: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'problema',
-        title: 'Problema com Hardware',
-        description: 'Resolução de problemas com hardware',
-        content: 'Por favor, descreva o problema que está enfrentando com o hardware:',
+        type: 'servico',
+        title: 'Gestão de Redes Sociais',
+        description: 'Gerenciamento completo',
+        content: 'Planejamento, criação de conteúdo e gerenciamento completo das suas redes sociais.',
         position: { x: 100, y: 350 },
         fields: {
-          equipamento: '',
-          modelo: '',
-          anoCompra: ''
+          nome: 'Gestão de Redes Sociais',
+          posts: '15 posts mensais',
+          stories: '30 stories mensais',
+          relatorios: 'Relatório mensal de performance'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Verificar Soluções' },
-          { id: `port-${nanoid(6)}`, label: 'Contatar Suporte' }
+          { id: `port-${nanoid(6)}`, label: 'Solicitar Orçamento' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais serviços' }
         ]
       };
       
-      // Soluções card
-      const solucoesCard: FlowCard = {
+      const servicoMktCard3: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'solucoes',
-        title: 'Soluções Comuns',
-        description: 'Soluções para problemas frequentes',
-        content: 'Aqui estão algumas soluções para problemas comuns:',
-        position: { x: 350, y: 200 },
+        type: 'servico',
+        title: 'Google Ads',
+        description: 'Anúncios no Google',
+        content: 'Campanhas de anúncios no Google para atrair clientes qualificados para seu negócio.',
+        position: { x: 100, y: 500 },
         fields: {
-          solucao1: 'Reinicie o computador',
-          solucao2: 'Verifique as conexões',
-          solucao3: 'Atualize os drivers'
+          nome: 'Google Ads',
+          gestao: 'Gestão de campanhas',
+          relatorios: 'Relatório semanal de performance',
+          investimento: 'Mínimo de R$ 1.500/mês'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Problema Resolvido' },
-          { id: `port-${nanoid(6)}`, label: 'Ainda com Problema' }
+          { id: `port-${nanoid(6)}`, label: 'Solicitar Orçamento' },
+          { id: `port-${nanoid(6)}`, label: 'Ver mais serviços' }
         ]
       };
       
-      // Chamado card
-      const chamadoCard: FlowCard = {
+      // Orçamento card
+      const orcamentoMktCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'chamado',
-        title: 'Abrir Chamado',
-        description: 'Criar um chamado de suporte',
-        content: 'Preencha os dados abaixo para abrir um chamado:',
-        position: { x: 350, y: 350 },
+        type: 'orcamento',
+        title: 'Solicitar Orçamento',
+        description: 'Formulário para orçamento',
+        content: 'Preencha os dados abaixo para receber um orçamento personalizado:',
+        position: { x: 400, y: 250 },
         fields: {
           nome: '',
+          empresa: '',
           email: '',
-          descricao: '',
-          prioridade: 'Média'
+          telefone: '',
+          servicos: '',
+          observacoes: ''
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Enviar' }
+          { id: `port-${nanoid(6)}`, label: 'Enviar' },
+          { id: `port-${nanoid(6)}`, label: 'Cancelar' }
         ]
       };
       
-      // Confirmação de chamado
-      const confirmacaoChamadoCard: FlowCard = {
+      // Cases card
+      const casesCard: FlowCard = {
+        id: `card-${nanoid(6)}`,
+        type: 'cases',
+        title: 'Cases de Sucesso',
+        description: 'Projetos realizados',
+        content: 'Conheça alguns de nossos cases de sucesso:',
+        position: { x: 400, y: 450 },
+        fields: {
+          case1: 'E-commerce XYZ: Aumento de 300% em vendas em 6 meses',
+          case2: 'Restaurante ABC: 500% mais reservas online',
+          case3: 'Clínica ZZZ: Dobrou o número de pacientes em 3 meses'
+        },
+        outputPorts: [
+          { id: `port-${nanoid(6)}`, label: 'Solicitar Orçamento' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
+        ]
+      };
+      
+      // Confirmação card
+      const confirmacaoMktCard: FlowCard = {
         id: `card-${nanoid(6)}`,
         type: 'confirmacao',
-        title: 'Chamado Aberto',
-        description: 'Confirmação de abertura de chamado',
-        content: 'Seu chamado foi aberto com sucesso! Nossa equipe entrará em contato em breve.',
-        position: { x: 550, y: 350 },
+        title: 'Solicitação Enviada',
+        description: 'Confirmação de envio',
+        content: 'Recebemos sua solicitação de orçamento! Nossa equipe entrará em contato em até 24h úteis.',
+        position: { x: 600, y: 250 },
         fields: {
-          numeroChamado: 'SUP-2023-0001',
-          prazoResposta: '24 horas'
+          protocolo: 'ORÇ-2023-0001'
         },
         outputPorts: [
           { id: `port-${nanoid(6)}`, label: 'Finalizar' }
         ]
       };
       
-      // FAQ card
-      const faqCard: FlowCard = {
+      // Pacotes card
+      const pacotesCard: FlowCard = {
         id: `card-${nanoid(6)}`,
-        type: 'faq',
-        title: 'Perguntas Frequentes',
-        description: 'Respostas para dúvidas comuns',
-        content: 'Aqui estão respostas para as perguntas mais comuns:',
-        position: { x: 350, y: 500 },
+        type: 'pacotes',
+        title: 'Pacotes de Serviços',
+        description: 'Opções combinadas',
+        content: 'Confira nossos pacotes especiais combinando diferentes serviços:',
+        position: { x: 600, y: 450 },
         fields: {
-          pergunta1: 'Como redefinir minha senha?',
-          resposta1: 'Acesse a página de login e clique em "Esqueci minha senha".',
-          pergunta2: 'Como atualizar o software?',
-          resposta2: 'Acesse o menu Ajuda > Verificar Atualizações.'
+          pacote1: 'Starter: Redes sociais + Site (R$ 1.200/mês)',
+          pacote2: 'Pro: Redes sociais + Google Ads (R$ 2.500/mês)',
+          pacote3: 'Premium: Redes sociais + Google Ads + SEO (R$ 4.000/mês)'
         },
         outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Dúvida Resolvida' },
-          { id: `port-${nanoid(6)}`, label: 'Abrir Chamado' }
-        ]
-      };
-      
-      // Contato card
-      const contatoSuporteCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'contatos',
-        title: 'Nossos Contatos',
-        description: 'Informações de contato do suporte',
-        content: 'Entre em contato conosco pelos canais abaixo:',
-        position: { x: 550, y: 500 },
-        fields: {
-          telefone: '(11) 66666-6666',
-          email: 'suporte@empresa.com',
-          horario: 'Segunda a Sexta, das 8h às 18h'
-        },
-        outputPorts: [
-          { id: `port-${nanoid(6)}`, label: 'Voltar ao Início' }
+          { id: `port-${nanoid(6)}`, label: 'Solicitar Orçamento' },
+          { id: `port-${nanoid(6)}`, label: 'Voltar' }
         ]
       };
       
@@ -913,103 +1229,108 @@ export const getTemplateData = (templateId: string): FlowData => {
       connections = [
         {
           id: `conn-${nanoid(6)}`,
-          start: initialSupportCard.id,
-          end: problemaCard1.id,
+          start: initialMarketingCard.id,
+          end: servicoMktCard1.id,
           type: 'positive',
-          sourceHandle: initialSupportCard.outputPorts[0].id,
-          sourcePortLabel: initialSupportCard.outputPorts[0].label
+          sourceHandle: initialMarketingCard.outputPorts[0].id,
+          sourcePortLabel: initialMarketingCard.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: initialSupportCard.id,
-          end: faqCard.id,
+          start: initialMarketingCard.id,
+          end: orcamentoMktCard.id,
           type: 'positive',
-          sourceHandle: initialSupportCard.outputPorts[1].id,
-          sourcePortLabel: initialSupportCard.outputPorts[1].label
+          sourceHandle: initialMarketingCard.outputPorts[1].id,
+          sourcePortLabel: initialMarketingCard.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: initialSupportCard.id,
-          end: contatoSuporteCard.id,
+          start: initialMarketingCard.id,
+          end: casesCard.id,
           type: 'positive',
-          sourceHandle: initialSupportCard.outputPorts[2].id,
-          sourcePortLabel: initialSupportCard.outputPorts[2].label
+          sourceHandle: initialMarketingCard.outputPorts[2].id,
+          sourcePortLabel: initialMarketingCard.outputPorts[2].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: problemaCard1.id,
-          end: solucoesCard.id,
+          start: servicoMktCard1.id,
+          end: servicoMktCard2.id,
           type: 'positive',
-          sourceHandle: problemaCard1.outputPorts[0].id,
-          sourcePortLabel: problemaCard1.outputPorts[0].label
+          sourceHandle: servicoMktCard1.outputPorts[1].id,
+          sourcePortLabel: servicoMktCard1.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: problemaCard1.id,
-          end: chamadoCard.id,
+          start: servicoMktCard2.id,
+          end: servicoMktCard3.id,
           type: 'positive',
-          sourceHandle: problemaCard1.outputPorts[1].id,
-          sourcePortLabel: problemaCard1.outputPorts[1].label
+          sourceHandle: servicoMktCard2.outputPorts[1].id,
+          sourcePortLabel: servicoMktCard2.outputPorts[1].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: problemaCard2.id,
-          end: solucoesCard.id,
+          start: servicoMktCard1.id,
+          end: orcamentoMktCard.id,
           type: 'positive',
-          sourceHandle: problemaCard2.outputPorts[0].id,
-          sourcePortLabel: problemaCard2.outputPorts[0].label
+          sourceHandle: servicoMktCard1.outputPorts[0].id,
+          sourcePortLabel: servicoMktCard1.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: problemaCard2.id,
-          end: chamadoCard.id,
+          start: servicoMktCard2.id,
+          end: orcamentoMktCard.id,
           type: 'positive',
-          sourceHandle: problemaCard2.outputPorts[1].id,
-          sourcePortLabel: problemaCard2.outputPorts[1].label
+          sourceHandle: servicoMktCard2.outputPorts[0].id,
+          sourcePortLabel: servicoMktCard2.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: solucoesCard.id,
-          end: chamadoCard.id,
+          start: servicoMktCard3.id,
+          end: orcamentoMktCard.id,
           type: 'positive',
-          sourceHandle: solucoesCard.outputPorts[1].id,
-          sourcePortLabel: solucoesCard.outputPorts[1].label
+          sourceHandle: servicoMktCard3.outputPorts[0].id,
+          sourcePortLabel: servicoMktCard3.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: chamadoCard.id,
-          end: confirmacaoChamadoCard.id,
+          start: orcamentoMktCard.id,
+          end: confirmacaoMktCard.id,
           type: 'positive',
-          sourceHandle: chamadoCard.outputPorts[0].id,
-          sourcePortLabel: chamadoCard.outputPorts[0].label
+          sourceHandle: orcamentoMktCard.outputPorts[0].id,
+          sourcePortLabel: orcamentoMktCard.outputPorts[0].label
         },
         {
           id: `conn-${nanoid(6)}`,
-          start: faqCard.id,
-          end: chamadoCard.id,
+          start: casesCard.id,
+          end: orcamentoMktCard.id,
           type: 'positive',
-          sourceHandle: faqCard.outputPorts[1].id,
-          sourcePortLabel: faqCard.outputPorts[1].label
+          sourceHandle: casesCard.outputPorts[0].id,
+          sourcePortLabel: casesCard.outputPorts[0].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: servicoMktCard3.id,
+          end: pacotesCard.id,
+          type: 'positive',
+          sourceHandle: servicoMktCard3.outputPorts[1].id,
+          sourcePortLabel: servicoMktCard3.outputPorts[1].label
+        },
+        {
+          id: `conn-${nanoid(6)}`,
+          start: pacotesCard.id,
+          end: orcamentoMktCard.id,
+          type: 'positive',
+          sourceHandle: pacotesCard.outputPorts[0].id,
+          sourcePortLabel: pacotesCard.outputPorts[0].label
         }
       ];
       
-      cards = [initialSupportCard, problemaCard1, problemaCard2, solucoesCard, chamadoCard, confirmacaoChamadoCard, faqCard, contatoSuporteCard];
+      cards = [initialMarketingCard, servicoMktCard1, servicoMktCard2, servicoMktCard3, orcamentoMktCard, casesCard, confirmacaoMktCard, pacotesCard];
       break;
       
     default:
-      // Default template with just an initial card
-      const defaultCard: FlowCard = {
-        id: `card-${nanoid(6)}`,
-        type: 'initial',
-        title: 'Boas-vindas',
-        description: 'Mensagem inicial de atendimento',
-        content: 'Olá! Como posso ajudar você hoje?',
-        position: { x: 250, y: 50 },
-        fields: {},
-        outputPorts: []
-      };
-      
-      cards = [defaultCard];
+      // Default to the beauty salon template
+      return getTemplateData('salao');
   }
 
   return {
@@ -1018,4 +1339,3 @@ export const getTemplateData = (templateId: string): FlowData => {
     profile
   };
 };
-

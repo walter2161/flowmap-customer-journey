@@ -1,9 +1,12 @@
 
 import React from 'react';
 import FlowEditor from '@/components/FlowEditor';
-import { initialFlowData } from '@/utils/initialData';
+import { getTemplateData } from '@/utils/templateData';
 
 const Index = () => {
+  // Use the Beauty Salon template as the default initial data
+  const initialData = getTemplateData('salao');
+  
   return (
     <div className="w-full h-screen overflow-hidden bg-gray-100">
       <header className="absolute top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-md shadow-sm">
@@ -16,7 +19,7 @@ const Index = () => {
       </header>
       
       <main className="w-full h-full pt-20 bg-gray-100">
-        <FlowEditor initialData={initialFlowData} />
+        <FlowEditor initialData={initialData} />
       </main>
     </div>
   );
