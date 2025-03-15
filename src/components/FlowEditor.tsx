@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -274,12 +273,12 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     
     // Add assistant profile information if available
     if (currentProfile) {
-      script += `# Bot Profile\n`;
+      script += `# Perfil do Assistente\n`;
       script += `Nome: ${currentProfile.name}\n`;
       script += `Profissão: ${currentProfile.profession}\n`;
       script += `Empresa: ${currentProfile.company}\n`;
       script += `Contatos: ${currentProfile.contacts}\n\n`;
-      script += `Diretrizes:\n${currentProfile.guidelines}\n\n`;
+      script += `## Diretrizes\n${currentProfile.guidelines}\n\n`;
     }
     
     script += `# Roteiro de Atendimento\n\n`;
@@ -319,6 +318,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             if (fields.preco) script += `${indent}Preço: ${fields.preco}\n`;
             if (fields.duracao) script += `${indent}Duração: ${fields.duracao}\n`;
             break;
+          case 'produto':
+            if (fields.nome) script += `${indent}Nome: ${fields.nome}\n`;
+            if (fields.preco) script += `${indent}Preço: ${fields.preco}\n`;
+            if (fields.descricao) script += `${indent}Descrição: ${fields.descricao}\n`;
+            break;
           // Add other card types as needed
         }
       }
@@ -328,17 +332,38 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       // Find outgoing connections
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
       
-      // Process each connection
-      outgoingEdges.forEach(edge => {
-        const targetNode = nodes.find(n => n.id === edge.target);
-        if (targetNode) {
-          const portLabel = edge.data?.sourcePortLabel || '';
-          if (portLabel) {
-            script += `${indent}-> ${portLabel}:\n`;
+      if (outgoingEdges.length > 0) {
+        script += `${indent}### Opções de resposta:\n`;
+        
+        // Process each connection
+        outgoingEdges.forEach(edge => {
+          const targetNode = nodes.find(n => n.id === edge.target);
+          if (targetNode) {
+            const connectionType = edge.data?.type || 'positive';
+            const portLabel = edge.data?.sourcePortLabel || '';
+            
+            if (portLabel) {
+              script += `${indent}- **${portLabel}** (${connectionType}): Leva para "${targetNode.data.title}"\n`;
+            } else {
+              script += `${indent}- Resposta ${connectionType}: Leva para "${targetNode.data.title}"\n`;
+            }
           }
-          processNode(targetNode, depth + 1);
-        }
-      });
+        });
+        
+        script += '\n';
+        
+        // Now process each child node
+        outgoingEdges.forEach(edge => {
+          const targetNode = nodes.find(n => n.id === edge.target);
+          if (targetNode) {
+            const portLabel = edge.data?.sourcePortLabel || '';
+            if (portLabel) {
+              script += `${indent}#### Fluxo para "${portLabel}":\n`;
+            }
+            processNode(targetNode, depth + 1);
+          }
+        });
+      }
     }
     
     // Set script content and open modal
