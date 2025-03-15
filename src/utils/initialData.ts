@@ -644,4 +644,4 @@ export const templates = {
       { id: "cowork-conn-9", start: "cowork-6", end: "cowork-8", type: "custom", sourceHandle: "port-cowork6-1", sourcePortLabel: "Contratar" },
       { id: "cowork-conn-10", start: "cowork-7", end: "cowork-8", type: "custom", sourceHandle: "port-cowork7-1", sourcePortLabel: "Contratar" },
       { id: "cowork-conn-11", start: "cowork-8", end: "cowork-12", type: "custom", sourceHandle: "port-cowork8-1", sourcePortLabel: "Dados enviados" },
-      { id: "cowork-conn-12", start: "cowork-9", end: "cowork-12", type: "custom", sourceHandle: "port-cowork9-1", sourcePortLabel
+      { id: "cowork-conn-12", start: "cowork-9", end: "cowork-12", type: "custom", sourceHandle: "port-cowork9-1", sourcePortLabel: "Confirm
