@@ -290,7 +290,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       
       script += guidelineLines.join('\n') + '\n\n';
       
-      // Add interpretation section
+      // Add interpretation section with fixed content
       script += `## Interpretação do Fluxo\n`;
       script += `### Como ${currentProfile.name} deve interpretar o roteiro de atendimento:\n`;
       script += `- **Sempre entender a intenção do cliente** antes de responder, adaptando o fluxo conforme necessário.\n`;
@@ -346,15 +346,27 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       
       // Add specific fields based on card type
       if (card.fields && Object.keys(card.fields).length > 0) {
-        script += `**Campos Específicos:**  \n`;
+        let hasNonStandardFields = false;
         
         for (const [key, value] of Object.entries(card.fields)) {
           // Skip empty values or title/description/content that are already shown
           if (value && key !== 'title' && key !== 'description' && key !== 'content') {
-            script += `- **${key}:** ${value}  \n`;
+            hasNonStandardFields = true;
+            break;
           }
         }
-        script += '\n';
+        
+        if (hasNonStandardFields) {
+          script += `**Campos Específicos:**  \n`;
+          
+          for (const [key, value] of Object.entries(card.fields)) {
+            // Skip empty values or title/description/content that are already shown
+            if (value && key !== 'title' && key !== 'description' && key !== 'content') {
+              script += `- **${key}:** ${value}  \n`;
+            }
+          }
+          script += '\n';
+        }
       }
       
       // Find outgoing connections
@@ -367,12 +379,12 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
         outgoingEdges.forEach((edge, idx) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
-            const connectionType = edge.data?.type || 'positive';
-            const portLabel = edge.data?.sourcePortLabel || '';
+            const connectionType = edge.data?.type || 'custom';
+            let portLabel = edge.data?.sourcePortLabel || '';
             
-            // Use the user-defined port label if available, otherwise fall back to a generic label
+            // Use the user-defined port label if available, otherwise use a generic label
             let responseLabel = portLabel 
-              ? `"${portLabel}"` 
+              ? portLabel 
               : `Resposta ${idx + 1}`;
             
             let typeEmoji = '';
@@ -387,13 +399,12 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 typeEmoji = '⚪';
                 break;
               case 'custom':
+              default:
                 typeEmoji = '🔶';
                 break;
-              default:
-                typeEmoji = '➡️';
             }
             
-            script += `- ${responseLabel} (${typeEmoji} ${connectionType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
+            script += `- ${responseLabel} (${typeEmoji} ${connectionType === 'custom' ? 'Personalizada' : connectionType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
           }
         });
         
@@ -404,28 +415,13 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
             // Use the port label if available, otherwise use a generic name
-            const portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
-            const connectionType = edge.data?.type || 'positive';
+            const connectionType = edge.data?.type || 'custom';
+            let portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
             
-            let typeEmoji = '';
-            switch (connectionType) {
-              case 'positive':
-                typeEmoji = '✅';
-                break;
-              case 'negative':
-                typeEmoji = '❌';
-                break;
-              case 'neutral':
-                typeEmoji = '⚪';
-                break;
-              case 'custom':
-                typeEmoji = '🔶';
-                break;
-              default:
-                typeEmoji = '➡️';
-            }
+            let typeName = connectionType;
+            if (connectionType === 'custom') typeName = 'Personalizada';
             
-            script += `### Fluxo para "${portLabel}" (${typeEmoji} ${connectionType}):\n\n`;
+            script += `### Fluxo para "${portLabel}" (🔶 ${connectionType}):\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
@@ -436,7 +432,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     
     // Add a footer with generation information
     script += `---\n\n`;
-    script += `Roteiro gerado em: ${new Date().toLocaleString()}  \n`;
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString() + ', ' + currentDate.toLocaleTimeString();
+    script += `Roteiro gerado em: ${formattedDate}  \n`;
     script += `Total de nós: ${nodes.length}  \n`;
     script += `Total de conexões: ${edges.length}  \n`;
     
