@@ -35,7 +35,19 @@ const cardTypeClasses = {
   'imovel-usado': 'bg-gradient-to-br from-violet-50 to-violet-100 border-2 border-violet-500',
   'imovel-comercial': 'bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-500',
   'agendar-visita': 'bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 border-2 border-fuchsia-500',
-  'agendar-reuniao': 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500'
+  'agendar-reuniao': 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500',
+  confirmacao: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
+  documentacao: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
+  duvidas: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-500',
+  detalhes: 'bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-500',
+  orcamento: 'bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-500',
+  carrinho: 'bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-500',
+  checkout: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
+  pedido: 'bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-500',
+  problema: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500',
+  solucoes: 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500',
+  chamado: 'bg-gradient-to-br from-rose-50 to-rose-100 border-2 border-rose-500',
+  faq: 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-500'
 };
 
 const cardTypeHeaders = {
@@ -57,7 +69,19 @@ const cardTypeHeaders = {
   'imovel-usado': 'bg-violet-500 text-white',
   'imovel-comercial': 'bg-sky-500 text-white',
   'agendar-visita': 'bg-fuchsia-500 text-white',
-  'agendar-reuniao': 'bg-lime-500 text-white'
+  'agendar-reuniao': 'bg-lime-500 text-white',
+  confirmacao: 'bg-green-500 text-white',
+  documentacao: 'bg-blue-500 text-white',
+  duvidas: 'bg-yellow-500 text-white',
+  detalhes: 'bg-purple-500 text-white',
+  orcamento: 'bg-teal-500 text-white',
+  carrinho: 'bg-indigo-500 text-white',
+  checkout: 'bg-green-500 text-white',
+  pedido: 'bg-orange-500 text-white',
+  problema: 'bg-red-500 text-white',
+  solucoes: 'bg-lime-500 text-white',
+  chamado: 'bg-rose-500 text-white',
+  faq: 'bg-gray-500 text-white'
 };
 
 const cardTypeLabels = {
@@ -79,7 +103,19 @@ const cardTypeLabels = {
   'imovel-usado': 'IMÓVEL USADO',
   'imovel-comercial': 'IMÓVEL COMERCIAL',
   'agendar-visita': 'AGENDAR VISITA',
-  'agendar-reuniao': 'AGENDAR REUNIÃO'
+  'agendar-reuniao': 'AGENDAR REUNIÃO',
+  confirmacao: 'CONFIRMAÇÃO',
+  documentacao: 'DOCUMENTAÇÃO',
+  duvidas: 'DÚVIDAS',
+  detalhes: 'DETALHES',
+  orcamento: 'ORÇAMENTO',
+  carrinho: 'CARRINHO',
+  checkout: 'CHECKOUT',
+  pedido: 'PEDIDO',
+  problema: 'PROBLEMA',
+  solucoes: 'SOLUÇÕES',
+  chamado: 'CHAMADO',
+  faq: 'FAQ'
 };
 
 // Array de letras para identifcar as portas
@@ -920,4 +956,3 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
 };
 
 export default memo(FlowCardComponent);
-
