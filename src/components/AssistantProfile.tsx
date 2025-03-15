@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -146,17 +145,7 @@ const AssistantProfile: React.FC<AssistantProfileProps> = ({ initialProfile }) =
       description: "As informações do assistente foram salvas com sucesso!",
     });
     
-    // Generate guidelines text for export
-    const guidelinesText = generateGuidelinesText();
-    
-    // Create a downloadable file
-    const blob = new Blob([guidelinesText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'diretrizes_assistente.txt';
-    link.click();
-    URL.revokeObjectURL(url);
+    // Removed the automatic file generation and download from here
   };
   
   // Add a new script guideline
@@ -399,7 +388,7 @@ DIRETRIZES DE INTERPRETAÇÃO DO FLUXO:
           
           <div className="flex justify-between mt-6">
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave}>Salvar e Exportar Diretrizes</Button>
+            <Button onClick={handleSave}>Salvar</Button>
           </div>
         </SheetContent>
       </Sheet>
