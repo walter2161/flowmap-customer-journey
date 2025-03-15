@@ -90,8 +90,8 @@ const FlowControls: React.FC<FlowControlsProps> = ({
         </div>
       </Panel>
 
-      {/* Zoom controls - moved to bottom right */}
-      <Panel position="bottom-right" className="p-2 mb-4 mr-4">
+      {/* Zoom controls - moved to bottom left */}
+      <Panel position="bottom-left" className="p-2 mb-4 ml-4">
         <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
           <button
             onClick={onZoomIn}
