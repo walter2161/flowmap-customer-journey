@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -235,7 +234,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       content: formData.content || '',
       position: newCardPosition,
       fields: { ...formData },
-      outputPorts: []
+      outputPorts: [],
+      files: type === 'arquivo' ? [] : undefined
     };
     
     const newNode = {

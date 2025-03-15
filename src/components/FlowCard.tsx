@@ -2,7 +2,7 @@
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FlowCard, OutputPort } from '@/utils/flowTypes';
-import { Edit, Plus, Trash } from 'lucide-react';
+import { Edit, Plus, Trash, Upload, Image, FileText } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import {
   AlertDialog,
@@ -15,6 +15,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useReactFlow } from 'reactflow';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
@@ -47,7 +49,8 @@ const cardTypeClasses = {
   problema: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500',
   solucoes: 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500',
   chamado: 'bg-gradient-to-br from-rose-50 to-rose-100 border-2 border-rose-500',
-  faq: 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-500'
+  faq: 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-500',
+  arquivo: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500'
 };
 
 const cardTypeHeaders = {
@@ -81,7 +84,8 @@ const cardTypeHeaders = {
   problema: 'bg-red-500 text-white',
   solucoes: 'bg-lime-500 text-white',
   chamado: 'bg-rose-500 text-white',
-  faq: 'bg-gray-500 text-white'
+  faq: 'bg-gray-500 text-white',
+  arquivo: 'bg-blue-500 text-white'
 };
 
 const cardTypeLabels = {
@@ -115,7 +119,8 @@ const cardTypeLabels = {
   problema: 'PROBLEMA',
   solucoes: 'SOLUÇÕES',
   chamado: 'CHAMADO',
-  faq: 'FAQ'
+  faq: 'FAQ',
+  arquivo: 'ARQUIVO'
 };
 
 // Array de letras para identifcar as portas
@@ -135,6 +140,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   const [outputPorts, setOutputPorts] = useState<OutputPort[]>(data.outputPorts || []);
   const [newPortLabel, setNewPortLabel] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [files, setFiles] = useState<any[]>(data.files || []);
   
   const { getNodes, setNodes, getEdges, setEdges } = useReactFlow();
 
@@ -149,6 +155,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     data.content = content;
     data.fields = fields;
     data.outputPorts = outputPorts;
+    data.files = files;
     setIsEditing(false);
   };
 
@@ -159,6 +166,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     setContent(data.content);
     setFields(data.fields || {});
     setOutputPorts(data.outputPorts || []);
+    setFiles(data.files || []);
     setIsEditing(false);
   };
 
@@ -186,6 +194,42 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     });
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      
+      // Process files
+      const filePromises = newFiles.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            resolve({
+              id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              name: file.name,
+              type: file.type,
+              content: file.type.startsWith('image/') ? null : event.target?.result as string,
+              url: file.type.startsWith('image/') ? event.target?.result as string : null
+            });
+          };
+          
+          if (file.type.startsWith('image/')) {
+            reader.readAsDataURL(file);
+          } else {
+            reader.readAsText(file);
+          }
+        });
+      });
+      
+      Promise.all(filePromises).then((fileData: any) => {
+        setFiles([...files, ...fileData]);
+      });
+    }
+  };
+
+  const handleDeleteFile = (fileId: string) => {
+    setFiles(files.filter(file => file.id !== fileId));
+  };
+
   const addOutputPort = () => {
     if (newPortLabel.trim() !== '') {
       const newPort: OutputPort = {
@@ -208,320 +252,25 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       case 'imovel':
         return (
           <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Imóvel</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Tabela de Imóveis</h4>
+            <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-600 block mb-1">Endereço</label>
+                <label className="text-xs text-gray-600 block mb-1">Título da lista</label>
                 <input
                   type="text"
-                  value={fields.endereco || ''}
-                  onChange={(e) => handleFieldChange('endereco', e.target.value)}
+                  value={fields.imovel_titulo || 'Imóveis disponíveis'}
+                  onChange={(e) => handleFieldChange('imovel_titulo', e.target.value)}
                   className="w-full p-1 text-sm border border-gray-300 rounded"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 block mb-1">Preço</label>
-                <input
-                  type="text"
-                  value={fields.preco || ''}
-                  onChange={(e) => handleFieldChange('preco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Área (m²)</label>
-                <input
-                  type="text"
-                  value={fields.area || ''}
-                  onChange={(e) => handleFieldChange('area', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Quartos</label>
-                <input
-                  type="number"
-                  value={fields.quartos || ''}
-                  onChange={(e) => handleFieldChange('quartos', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Tipo</label>
-                <select
-                  value={fields.tipo || 'Apartamento'}
-                  onChange={(e) => handleFieldChange('tipo', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                >
-                  <option value="Apartamento">Apartamento</option>
-                  <option value="Casa">Casa</option>
-                  <option value="Terreno">Terreno</option>
-                  <option value="Comercial">Comercial</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Finalidade</label>
-                <select
-                  value={fields.finalidade || 'Venda'}
-                  onChange={(e) => handleFieldChange('finalidade', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                >
-                  <option value="Venda">Venda</option>
-                  <option value="Aluguel">Aluguel</option>
-                  <option value="Temporada">Temporada</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'imovel-lancamento':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Imóvel Lançamento</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Endereço</label>
-                <input
-                  type="text"
-                  value={fields.endereco || ''}
-                  onChange={(e) => handleFieldChange('endereco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Preço</label>
-                <input
-                  type="text"
-                  value={fields.preco || ''}
-                  onChange={(e) => handleFieldChange('preco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Área (m²)</label>
-                <input
-                  type="text"
-                  value={fields.area || ''}
-                  onChange={(e) => handleFieldChange('area', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Quartos</label>
-                <input
-                  type="number"
-                  value={fields.quartos || ''}
-                  onChange={(e) => handleFieldChange('quartos', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Construtora</label>
-                <input
-                  type="text"
-                  value={fields.construtora || ''}
-                  onChange={(e) => handleFieldChange('construtora', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Previsão Entrega</label>
-                <input
-                  type="text"
-                  value={fields.previsaoEntrega || ''}
-                  onChange={(e) => handleFieldChange('previsaoEntrega', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'imovel-usado':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Imóvel Usado</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Endereço</label>
-                <input
-                  type="text"
-                  value={fields.endereco || ''}
-                  onChange={(e) => handleFieldChange('endereco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Preço</label>
-                <input
-                  type="text"
-                  value={fields.preco || ''}
-                  onChange={(e) => handleFieldChange('preco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Idade</label>
-                <input
-                  type="text"
-                  value={fields.idade || ''}
-                  onChange={(e) => handleFieldChange('idade', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Reformado</label>
-                <select
-                  value={fields.reformado ? "sim" : "nao"}
-                  onChange={(e) => handleFieldChange('reformado', e.target.value === "sim")}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                >
-                  <option value="sim">Sim</option>
-                  <option value="nao">Não</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'imovel-comercial':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Imóvel Comercial</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Endereço</label>
-                <input
-                  type="text"
-                  value={fields.endereco || ''}
-                  onChange={(e) => handleFieldChange('endereco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Valor Aluguel</label>
-                <input
-                  type="text"
-                  value={fields.valorAluguel || ''}
-                  onChange={(e) => handleFieldChange('valorAluguel', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Tipo</label>
-                <select
-                  value={fields.tipoComercial || 'Loja'}
-                  onChange={(e) => handleFieldChange('tipoComercial', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                >
-                  <option value="Loja">Loja</option>
-                  <option value="Sala">Sala Comercial</option>
-                  <option value="Galpão">Galpão</option>
-                  <option value="Ponto">Ponto Comercial</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Área (m²)</label>
-                <input
-                  type="text"
-                  value={fields.area || ''}
-                  onChange={(e) => handleFieldChange('area', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'agendar-visita':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes da Visita</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Imóvel</label>
-                <input
-                  type="text"
-                  value={fields.imovel || ''}
-                  onChange={(e) => handleFieldChange('imovel', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Data</label>
-                <input
-                  type="date"
-                  value={fields.data || ''}
-                  onChange={(e) => handleFieldChange('data', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Horário</label>
-                <input
-                  type="time"
-                  value={fields.horario || ''}
-                  onChange={(e) => handleFieldChange('horario', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Cliente</label>
-                <input
-                  type="text"
-                  value={fields.nomeCliente || ''}
-                  onChange={(e) => handleFieldChange('nomeCliente', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'agendar-reuniao':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes da Reunião</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Assunto</label>
-                <input
-                  type="text"
-                  value={fields.assunto || ''}
-                  onChange={(e) => handleFieldChange('assunto', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Local</label>
-                <select
-                  value={fields.local || 'Escritório'}
-                  onChange={(e) => handleFieldChange('local', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                >
-                  <option value="Escritório">Escritório</option>
-                  <option value="Imóvel">No Imóvel</option>
-                  <option value="Virtual">Reunião Virtual</option>
-                  <option value="Outro">Outro Local</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Data</label>
-                <input
-                  type="date"
-                  value={fields.data || ''}
-                  onChange={(e) => handleFieldChange('data', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Horário</label>
-                <input
-                  type="time"
-                  value={fields.horario || ''}
-                  onChange={(e) => handleFieldChange('horario', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                <label className="text-xs text-gray-600 block mb-1">Lista de imóveis (um por linha)</label>
+                <textarea
+                  value={fields.imoveis || ''}
+                  onChange={(e) => handleFieldChange('imoveis', e.target.value)}
+                  placeholder="Ex: Apartamento, Rua A, 120m², 3 quartos, R$ 450.000&#10;Casa, Rua B, 200m², 4 quartos, R$ 650.000"
+                  className="w-full p-1 text-sm border border-gray-300 rounded h-20"
+                  rows={4}
                 />
               </div>
             </div>
@@ -531,42 +280,197 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       case 'servico':
         return (
           <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Serviço</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Tabela de Serviços</h4>
+            <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-600 block mb-1">Nome</label>
+                <label className="text-xs text-gray-600 block mb-1">Título da lista</label>
                 <input
                   type="text"
-                  value={fields.nome || ''}
-                  onChange={(e) => handleFieldChange('nome', e.target.value)}
+                  value={fields.servico_titulo || 'Serviços oferecidos'}
+                  onChange={(e) => handleFieldChange('servico_titulo', e.target.value)}
                   className="w-full p-1 text-sm border border-gray-300 rounded"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 block mb-1">Preço</label>
+                <label className="text-xs text-gray-600 block mb-1">Lista de serviços (um por linha)</label>
+                <textarea
+                  value={fields.servicos || ''}
+                  onChange={(e) => handleFieldChange('servicos', e.target.value)}
+                  placeholder="Ex: Corte de cabelo, 30min, R$ 50&#10;Manicure, 45min, R$ 35"
+                  className="w-full p-1 text-sm border border-gray-300 rounded h-20"
+                  rows={4}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'produto':
+        return (
+          <div className="mt-4 border-t pt-3 border-gray-200">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Tabela de Produtos</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Título da lista</label>
                 <input
                   type="text"
-                  value={fields.preco || ''}
-                  onChange={(e) => handleFieldChange('preco', e.target.value)}
+                  value={fields.produto_titulo || 'Produtos disponíveis'}
+                  onChange={(e) => handleFieldChange('produto_titulo', e.target.value)}
                   className="w-full p-1 text-sm border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Lista de produtos (um por linha)</label>
+                <textarea
+                  value={fields.produtos || ''}
+                  onChange={(e) => handleFieldChange('produtos', e.target.value)}
+                  placeholder="Ex: Camisa, Azul, M, R$ 79,90&#10;Calça, Preta, 42, R$ 129,90"
+                  className="w-full p-1 text-sm border border-gray-300 rounded h-20"
+                  rows={4}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'arquivo':
+        return (
+          <div className="mt-4 border-t pt-3 border-gray-200">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Arquivos</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Título da seção</label>
+                <input
+                  type="text"
+                  value={fields.arquivo_titulo || 'Arquivos'}
+                  onChange={(e) => handleFieldChange('arquivo_titulo', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Adicionar arquivos</label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                />
+              </div>
+              {files.length > 0 && (
+                <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
+                  {files.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-100 p-2 rounded">
+                      <div className="flex items-center text-xs">
+                        {file.type.startsWith('image/') ? (
+                          <Image size={12} className="mr-2" />
+                        ) : (
+                          <FileText size={12} className="mr-2" />
+                        )}
+                        <span>{file.name}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteFile(file.id)}
+                        className="text-red-500 p-1 rounded hover:bg-red-50"
+                      >
+                        <Trash size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      
+      case 'contatos':
+        return (
+          <div className="mt-4 border-t pt-3 border-gray-200">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Informações de Contato</h4>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Telefone</label>
+                <input
+                  type="text"
+                  value={fields.contato_telefone || ''}
+                  onChange={(e) => handleFieldChange('contato_telefone', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Email</label>
+                <input
+                  type="email"
+                  value={fields.contato_email || ''}
+                  onChange={(e) => handleFieldChange('contato_email', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs text-gray-600 block mb-1">Endereço</label>
+                <textarea
+                  value={fields.contato_endereco || ''}
+                  onChange={(e) => handleFieldChange('contato_endereco', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                  rows={2}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs text-gray-600 block mb-1">Horário de atendimento</label>
+                <input
+                  type="text"
+                  value={fields.contato_horario || ''}
+                  onChange={(e) => handleFieldChange('contato_horario', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                  placeholder="Ex: Seg-Sex: 9h às 18h"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'agendar':
+        return (
+          <div className="mt-4 border-t pt-3 border-gray-200">
+            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Agendamento</h4>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Tipo</label>
+                <input
+                  type="text"
+                  value={fields.agenda_tipo || ''}
+                  onChange={(e) => handleFieldChange('agenda_tipo', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                  placeholder="Ex: Consulta, Reunião"
                 />
               </div>
               <div>
                 <label className="text-xs text-gray-600 block mb-1">Duração</label>
                 <input
                   type="text"
-                  value={fields.duracao || ''}
-                  onChange={(e) => handleFieldChange('duracao', e.target.value)}
+                  value={fields.agenda_duracao || ''}
+                  onChange={(e) => handleFieldChange('agenda_duracao', e.target.value)}
                   className="w-full p-1 text-sm border border-gray-300 rounded"
+                  placeholder="Ex: 1 hora"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-600 block mb-1">Categoria</label>
+                <label className="text-xs text-gray-600 block mb-1">Horários disponíveis</label>
+                <textarea
+                  value={fields.agenda_horarios || ''}
+                  onChange={(e) => handleFieldChange('agenda_horarios', e.target.value)}
+                  className="w-full p-1 text-sm border border-gray-300 rounded"
+                  rows={2}
+                  placeholder="Ex: Segunda: 9h, 10h, 14h..."
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">Preço</label>
                 <input
                   type="text"
-                  value={fields.categoria || ''}
-                  onChange={(e) => handleFieldChange('categoria', e.target.value)}
+                  value={fields.agenda_preco || ''}
+                  onChange={(e) => handleFieldChange('agenda_preco', e.target.value)}
                   className="w-full p-1 text-sm border border-gray-300 rounded"
+                  placeholder="Ex: R$ 100,00"
                 />
               </div>
             </div>
@@ -574,52 +478,8 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         );
       
       // Add cases for other card types as needed
-      case 'produto':
-        return (
-          <div className="mt-4 border-t pt-3 border-gray-200">
-            <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Detalhes do Produto</h4>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={fields.nome || ''}
-                  onChange={(e) => handleFieldChange('nome', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Preço</label>
-                <input
-                  type="text"
-                  value={fields.preco || ''}
-                  onChange={(e) => handleFieldChange('preco', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Estoque</label>
-                <input
-                  type="number"
-                  value={fields.estoque || ''}
-                  onChange={(e) => handleFieldChange('estoque', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">Código</label>
-                <input
-                  type="text"
-                  value={fields.codigo || ''}
-                  onChange={(e) => handleFieldChange('codigo', e.target.value)}
-                  className="w-full p-1 text-sm border border-gray-300 rounded"
-                />
-              </div>
-            </div>
-          </div>
-        );
-      
       default:
+        // For other card types, we just use the standard fields
         return null;
     }
   };
@@ -632,89 +492,36 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         if (!fields) return null;
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel</p>
-            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
-            <div className="flex flex-wrap gap-x-4">
-              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
-              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
-              {fields.quartos && <p className="text-xs text-gray-700"><span className="font-semibold">Quartos:</span> {fields.quartos}</p>}
-              {fields.tipo && <p className="text-xs text-gray-700"><span className="font-semibold">Tipo:</span> {fields.tipo}</p>}
-              {fields.finalidade && <p className="text-xs text-gray-700"><span className="font-semibold">Finalidade:</span> {fields.finalidade}</p>}
-            </div>
-          </div>
-        );
-      
-      case 'imovel-lancamento':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Lançamento</p>
-            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
-            <div className="flex flex-wrap gap-x-4">
-              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
-              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
-              {fields.quartos && <p className="text-xs text-gray-700"><span className="font-semibold">Quartos:</span> {fields.quartos}</p>}
-              {fields.construtora && <p className="text-xs text-gray-700"><span className="font-semibold">Construtora:</span> {fields.construtora}</p>}
-              {fields.previsaoEntrega && <p className="text-xs text-gray-700"><span className="font-semibold">Entrega:</span> {fields.previsaoEntrega}</p>}
-            </div>
-          </div>
-        );
-      
-      case 'imovel-usado':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel Usado</p>
-            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
-            <div className="flex flex-wrap gap-x-4">
-              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
-              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
-              {fields.idade && <p className="text-xs text-gray-700"><span className="font-semibold">Idade:</span> {fields.idade}</p>}
-              {fields.reformado !== undefined && <p className="text-xs text-gray-700"><span className="font-semibold">Reformado:</span> {fields.reformado ? 'Sim' : 'Não'}</p>}
-            </div>
-          </div>
-        );
-      
-      case 'imovel-comercial':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel Comercial</p>
-            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
-            <div className="flex flex-wrap gap-x-4">
-              {fields.valorAluguel && <p className="text-xs text-gray-700"><span className="font-semibold">Aluguel:</span> {fields.valorAluguel}</p>}
-              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
-              {fields.tipoComercial && <p className="text-xs text-gray-700"><span className="font-semibold">Tipo:</span> {fields.tipoComercial}</p>}
-            </div>
-          </div>
-        );
-      
-      case 'agendar-visita':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Visita</p>
-            <div className="flex flex-wrap gap-x-4">
-              {fields.imovel && <p className="text-xs text-gray-700"><span className="font-semibold">Imóvel:</span> {fields.imovel}</p>}
-              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
-              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
-              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
-            </div>
-          </div>
-        );
-      
-      case 'agendar-reuniao':
-        if (!fields) return null;
-        return (
-          <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Reunião</p>
-            <div className="flex flex-wrap gap-x-4">
-              {fields.assunto && <p className="text-xs text-gray-700"><span className="font-semibold">Assunto:</span> {fields.assunto}</p>}
-              {fields.local && <p className="text-xs text-gray-700"><span className="font-semibold">Local:</span> {fields.local}</p>}
-              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
-              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
-              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
-            </div>
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">{fields.imovel_titulo || 'Imóveis disponíveis'}</p>
+            {fields.imoveis ? (
+              <ScrollArea className="h-[120px]">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Descrição</TableHead>
+                      <TableHead className="text-xs">Localização</TableHead>
+                      <TableHead className="text-xs">Área</TableHead>
+                      <TableHead className="text-xs">Preço</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.imoveis.split('\n').filter(Boolean).map((line: string, idx: number) => {
+                      const parts = line.split(',').map(p => p.trim());
+                      return (
+                        <TableRow key={idx}>
+                          <TableCell className="text-xs py-1">{parts[0] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[1] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[2] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[3] || '-'}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            ) : (
+              <p className="text-xs text-gray-500 italic">Nenhum imóvel adicionado</p>
+            )}
           </div>
         );
       
@@ -722,13 +529,34 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         if (!fields) return null;
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Serviço</p>
-            <div className="flex flex-wrap gap-x-4">
-              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
-              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
-              {fields.duracao && <p className="text-xs text-gray-700"><span className="font-semibold">Duração:</span> {fields.duracao}</p>}
-              {fields.categoria && <p className="text-xs text-gray-700"><span className="font-semibold">Categoria:</span> {fields.categoria}</p>}
-            </div>
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">{fields.servico_titulo || 'Serviços oferecidos'}</p>
+            {fields.servicos ? (
+              <ScrollArea className="h-[120px]">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Serviço</TableHead>
+                      <TableHead className="text-xs">Duração</TableHead>
+                      <TableHead className="text-xs">Preço</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.servicos.split('\n').filter(Boolean).map((line: string, idx: number) => {
+                      const parts = line.split(',').map(p => p.trim());
+                      return (
+                        <TableRow key={idx}>
+                          <TableCell className="text-xs py-1">{parts[0] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[1] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[2] || '-'}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            ) : (
+              <p className="text-xs text-gray-500 italic">Nenhum serviço adicionado</p>
+            )}
           </div>
         );
       
@@ -736,12 +564,130 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         if (!fields) return null;
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Produto</p>
-            <div className="flex flex-wrap gap-x-4">
-              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
-              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
-              {fields.estoque && <p className="text-xs text-gray-700"><span className="font-semibold">Estoque:</span> {fields.estoque}</p>}
-              {fields.codigo && <p className="text-xs text-gray-700"><span className="font-semibold">Código:</span> {fields.codigo}</p>}
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">{fields.produto_titulo || 'Produtos disponíveis'}</p>
+            {fields.produtos ? (
+              <ScrollArea className="h-[120px]">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Produto</TableHead>
+                      <TableHead className="text-xs">Variação</TableHead>
+                      <TableHead className="text-xs">Tamanho</TableHead>
+                      <TableHead className="text-xs">Preço</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.produtos.split('\n').filter(Boolean).map((line: string, idx: number) => {
+                      const parts = line.split(',').map(p => p.trim());
+                      return (
+                        <TableRow key={idx}>
+                          <TableCell className="text-xs py-1">{parts[0] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[1] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[2] || '-'}</TableCell>
+                          <TableCell className="text-xs py-1">{parts[3] || '-'}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            ) : (
+              <p className="text-xs text-gray-500 italic">Nenhum produto adicionado</p>
+            )}
+          </div>
+        );
+      
+      case 'arquivo':
+        if (!files || files.length === 0) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">{fields.arquivo_titulo || 'Arquivos'}</p>
+            <ScrollArea className="h-[120px]">
+              <div className="space-y-1">
+                {files.map((file, idx) => (
+                  <div key={idx} className="flex items-center p-1 rounded bg-gray-50">
+                    {file.type.startsWith('image/') ? (
+                      <div className="flex items-center">
+                        <Image size={12} className="mr-2 text-blue-500" />
+                        <span className="text-xs">{file.name}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <FileText size={12} className="mr-2 text-green-500" />
+                        <span className="text-xs">{file.name}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        );
+      
+      case 'contatos':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">Informações de Contato</p>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+              {fields.contato_telefone && (
+                <div className="col-span-1">
+                  <span className="font-semibold">Telefone: </span>
+                  {fields.contato_telefone}
+                </div>
+              )}
+              {fields.contato_email && (
+                <div className="col-span-1">
+                  <span className="font-semibold">Email: </span>
+                  {fields.contato_email}
+                </div>
+              )}
+              {fields.contato_endereco && (
+                <div className="col-span-2">
+                  <span className="font-semibold">Endereço: </span>
+                  {fields.contato_endereco}
+                </div>
+              )}
+              {fields.contato_horario && (
+                <div className="col-span-2">
+                  <span className="font-semibold">Horário: </span>
+                  {fields.contato_horario}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      
+      case 'agendar':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">Detalhes do Agendamento</p>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+              {fields.agenda_tipo && (
+                <div className="col-span-1">
+                  <span className="font-semibold">Tipo: </span>
+                  {fields.agenda_tipo}
+                </div>
+              )}
+              {fields.agenda_duracao && (
+                <div className="col-span-1">
+                  <span className="font-semibold">Duração: </span>
+                  {fields.agenda_duracao}
+                </div>
+              )}
+              {fields.agenda_horarios && (
+                <div className="col-span-2">
+                  <span className="font-semibold">Horários: </span>
+                  {fields.agenda_horarios}
+                </div>
+              )}
+              {fields.agenda_preco && (
+                <div className="col-span-1">
+                  <span className="font-semibold">Preço: </span>
+                  {fields.agenda_preco}
+                </div>
+              )}
             </div>
           </div>
         );

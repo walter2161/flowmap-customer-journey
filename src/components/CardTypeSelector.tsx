@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -6,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define labels for card types
 const cardTypeLabels: Record<CardType, string> = {
@@ -39,7 +41,8 @@ const cardTypeLabels: Record<CardType, string> = {
   'problema': 'Problema',
   'solucoes': 'Soluções',
   'chamado': 'Chamado',
-  'faq': 'FAQ'
+  'faq': 'FAQ',
+  'arquivo': 'Arquivo'
 };
 
 // Define colors for card types
@@ -74,7 +77,20 @@ const cardTypeColors: Record<CardType, string> = {
   'problema': 'bg-red-100 border-red-500',
   'solucoes': 'bg-teal-100 border-teal-500',
   'chamado': 'bg-orange-100 border-orange-500',
-  'faq': 'bg-gray-100 border-gray-500'
+  'faq': 'bg-gray-100 border-gray-500',
+  'arquivo': 'bg-blue-100 border-blue-500'
+};
+
+// Card categories
+const cardCategories = {
+  "Básicos": ['initial', 'regular', 'end'],
+  "Imóveis": ['imovel', 'imovel-lancamento', 'imovel-usado', 'imovel-comercial'],
+  "Produtos e Serviços": ['produto', 'servico', 'ordem-servico'],
+  "Interação": ['multipla-escolha', 'pergunta-respostas', 'acao', 'confirmacao', 'duvidas', 'faq'],
+  "Agendamento": ['agendar', 'agendar-visita', 'agendar-reuniao'],
+  "Informações": ['contatos', 'detalhes', 'documentacao', 'html', 'arquivo', 'briefing'],
+  "Vendas": ['orcamento', 'carrinho', 'checkout', 'pedido'],
+  "Suporte": ['problema', 'solucoes', 'chamado']
 };
 
 interface CardTypeSelectorProps {
@@ -85,6 +101,7 @@ interface CardTypeSelectorProps {
 const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }) => {
   const [selectedType, setSelectedType] = useState<CardType>('regular');
   const [formData, setFormData] = useState<any>({});
+  const [selectedCategory, setSelectedCategory] = useState<string>("Básicos");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -96,7 +113,7 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Selecione o tipo de cartão</DialogTitle>
         </DialogHeader>
@@ -108,16 +125,33 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
           </TabsList>
 
           <TabsContent value="card-type" className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              {Object.entries(cardTypeLabels).map(([type, label]) => (
-                <button
-                  key={type}
-                  className={`p-3 rounded-md text-sm font-medium border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${cardTypeColors[type as CardType]} ${selectedType === type ? 'ring-2 ring-primary ring-offset-1' : ''}`}
-                  onClick={() => setSelectedType(type as CardType)}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="flex">
+              <div className="w-1/4 pr-2 border-r">
+                {Object.keys(cardCategories).map((category) => (
+                  <button
+                    key={category}
+                    className={`w-full text-left px-3 py-2 text-sm rounded-md ${selectedCategory === category ? 'bg-gray-200 font-medium' : 'hover:bg-gray-100'}`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              <div className="w-3/4 pl-4">
+                <ScrollArea className="h-[320px]">
+                  <div className="grid grid-cols-2 gap-4">
+                    {cardCategories[selectedCategory].map((type) => (
+                      <button
+                        key={type}
+                        className={`p-3 rounded-md text-sm font-medium border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${cardTypeColors[type as CardType]} ${selectedType === type ? 'ring-2 ring-primary ring-offset-1' : ''}`}
+                        onClick={() => setSelectedType(type as CardType)}
+                      >
+                        {cardTypeLabels[type as CardType]}
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
             </div>
           </TabsContent>
 
@@ -143,76 +177,80 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
               </div>
 
               {selectedType === 'imovel' && (
-                <>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="endereco" className="text-right">
-                      Endereço
-                    </Label>
-                    <Input id="endereco" value={formData.endereco || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="preco" className="text-right">
-                      Preço
-                    </Label>
-                    <Input id="preco" value={formData.preco || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="area" className="text-right">
-                      Área (m²)
-                    </Label>
-                    <Input id="area" value={formData.area || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="quartos" className="text-right">
-                      Quartos
-                    </Label>
-                    <Input id="quartos" value={formData.quartos || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                </>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="imoveis" className="text-right">
+                    Lista de Imóveis
+                  </Label>
+                  <Textarea
+                    id="imoveis"
+                    value={formData.imoveis || ''}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Apartamento, Rua A, 120m², R$ 450.000&#10;Casa, Rua B, 200m², R$ 650.000" 
+                    className="col-span-3"
+                    rows={3}
+                  />
+                </div>
               )}
 
               {selectedType === 'servico' && (
-                <>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="nome" className="text-right">
-                      Nome
-                    </Label>
-                    <Input id="nome" value={formData.nome || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="preco" className="text-right">
-                      Preço
-                    </Label>
-                    <Input id="preco" value={formData.preco || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="duracao" className="text-right">
-                      Duração
-                    </Label>
-                    <Input id="duracao" value={formData.duracao || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                </>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="servicos" className="text-right">
+                    Lista de Serviços
+                  </Label>
+                  <Textarea
+                    id="servicos"
+                    value={formData.servicos || ''}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Corte de cabelo, 30min, R$ 50&#10;Manicure, 45min, R$ 35" 
+                    className="col-span-3"
+                    rows={3}
+                  />
+                </div>
               )}
 
               {selectedType === 'produto' && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="produtos" className="text-right">
+                    Lista de Produtos
+                  </Label>
+                  <Textarea
+                    id="produtos"
+                    value={formData.produtos || ''}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Camisa, Azul, M, R$ 79,90&#10;Calça, Preta, 42, R$ 129,90" 
+                    className="col-span-3"
+                    rows={3}
+                  />
+                </div>
+              )}
+
+              {selectedType === 'arquivo' && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="arquivo_titulo" className="text-right">
+                    Título da Seção
+                  </Label>
+                  <Input
+                    id="arquivo_titulo"
+                    value={formData.arquivo_titulo || 'Documentos e Arquivos'}
+                    onChange={handleInputChange}
+                    className="col-span-3"
+                  />
+                </div>
+              )}
+
+              {selectedType === 'contatos' && (
                 <>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="nome" className="text-right">
-                      Nome
+                    <Label htmlFor="contato_telefone" className="text-right">
+                      Telefone
                     </Label>
-                    <Input id="nome" value={formData.nome || ''} onChange={handleInputChange} className="col-span-3" />
+                    <Input id="contato_telefone" value={formData.contato_telefone || ''} onChange={handleInputChange} className="col-span-3" />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="preco" className="text-right">
-                      Preço
+                    <Label htmlFor="contato_email" className="text-right">
+                      Email
                     </Label>
-                    <Input id="preco" value={formData.preco || ''} onChange={handleInputChange} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="descricao" className="text-right">
-                      Descrição
-                    </Label>
-                    <Textarea id="descricao" value={formData.descricao || ''} onChange={handleInputChange} className="col-span-3" />
+                    <Input id="contato_email" value={formData.contato_email || ''} onChange={handleInputChange} className="col-span-3" />
                   </div>
                 </>
               )}

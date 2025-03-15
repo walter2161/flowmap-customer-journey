@@ -31,7 +31,8 @@ export type CardType =
   | 'problema'
   | 'solucoes'
   | 'chamado'
-  | 'faq';
+  | 'faq'
+  | 'arquivo';
 
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 
@@ -62,6 +63,7 @@ export interface FlowCard {
   type: CardType;
   outputPorts?: OutputPort[];
   fields?: Record<string, any>;
+  files?: any[]; // For the arquivo card type
 }
 
 // Type for flow connections
