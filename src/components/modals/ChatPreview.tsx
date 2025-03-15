@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { SendHorizontal, Bot, User, Loader2 } from 'lucide-react';
 import { AssistantProfile } from '@/utils/flowTypes';
 
