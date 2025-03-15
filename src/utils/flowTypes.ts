@@ -49,6 +49,7 @@ export interface AssistantProfile {
   contacts: string;
   avatar: string;
   guidelines: string;
+  scriptGuidelines?: string[]; // Array of guidelines specifically for script generation
 }
 
 // Type for flow cards

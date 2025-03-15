@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -274,58 +275,59 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     // Add title
     script += `# Roteiro de Atendimento\n\n`;
     
-    // Add assistant profile information if available
+    // Get profile from state or localStorage
+    let profileToUse: AssistantProfile | null = null;
+    
     if (currentProfile) {
+      profileToUse = currentProfile;
+    } else {
+      // Try to get profile from localStorage
+      const savedProfile = localStorage.getItem('assistantProfile');
+      if (savedProfile) {
+        profileToUse = JSON.parse(savedProfile) as AssistantProfile;
+      }
+    }
+    
+    // Add assistant profile information if available
+    if (profileToUse) {
       script += `## Perfil do Assistente\n\n`;
-      script += `**Nome:** ${currentProfile.name}  \n`;
-      script += `**Profissão:** ${currentProfile.profession}  \n`;
-      script += `**Empresa:** ${currentProfile.company}  \n`;
-      script += `**Contatos:** ${currentProfile.contacts}  \n\n`;
+      script += `**Nome:** ${profileToUse.name}  \n`;
+      script += `**Profissão:** ${profileToUse.profession}  \n`;
+      script += `**Empresa:** ${profileToUse.company}  \n`;
+      script += `**Contatos:** ${profileToUse.contacts}  \n\n`;
       
-      script += `### Diretrizes do Assistente\n`;
+      script += `### Diretrizes Gerais do Assistente\n`;
       // Format guidelines as bullet points
-      const guidelineLines = currentProfile.guidelines.split('\n')
+      const guidelineLines = profileToUse.guidelines.split('\n')
         .filter(line => line.trim().length > 0)
         .map(line => `- ${line.trim()}`);
       
       script += guidelineLines.join('\n') + '\n\n';
-    } else {
-      // Se não há um perfil definido, buscar do localStorage
-      const savedProfile = localStorage.getItem('assistantProfile');
-      if (savedProfile) {
-        const profile = JSON.parse(savedProfile) as AssistantProfile;
-        script += `## Perfil do Assistente\n\n`;
-        script += `**Nome:** ${profile.name}  \n`;
-        script += `**Profissão:** ${profile.profession}  \n`;
-        script += `**Empresa:** ${profile.company}  \n`;
-        script += `**Contatos:** ${profile.contacts}  \n\n`;
-        
-        script += `### Diretrizes do Assistente\n`;
-        // Format guidelines as bullet points
-        const guidelineLines = profile.guidelines.split('\n')
-          .filter(line => line.trim().length > 0)
-          .map(line => `- ${line.trim()}`);
-        
-        script += guidelineLines.join('\n') + '\n\n';
-      }
     }
     
-    // Add fixed interpretation section with guidance on how to use the script
+    // Add interpretation section with custom guidelines from profile
     script += `## Interpretação do Fluxo\n`;
     
-    // Get the assistant name from profile or use generic term
-    const assistantName = currentProfile?.name || 
-                         (localStorage.getItem('assistantProfile') ? 
-                           JSON.parse(localStorage.getItem('assistantProfile')).name : 
-                           'o assistente');
+    // Get the assistant name from profile
+    const assistantName = profileToUse?.name || 'o assistente';
     
     script += `### Como ${assistantName} deve interpretar o roteiro de atendimento:\n`;
-    script += `- **Sempre entender a intenção do cliente** antes de responder, adaptando o fluxo conforme necessário.\n`;
-    script += `- **Navegar entre os cartões de maneira lógica**, seguindo as conexões definidas no fluxo.\n`;
-    script += `- **Se o cliente fornecer uma resposta inesperada**, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
-    script += `- **Voltar para etapas anteriores, se necessário**, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.\n`;
-    script += `- **Confirmar sempre que possível** as escolhas do cliente para evitar erros.\n`;
-    script += `- **Encerrar a conversa de forma educada**, sempre deixando um canal aberto para contato futuro.\n\n`;
+    
+    // Use script guidelines from profile if available
+    if (profileToUse?.scriptGuidelines && profileToUse.scriptGuidelines.length > 0) {
+      profileToUse.scriptGuidelines.forEach(guideline => {
+        script += `- ${guideline}\n`;
+      });
+    } else {
+      // Default guidelines if none are specified
+      script += `- Sempre entender a intenção do cliente antes de responder, adaptando o fluxo conforme necessário.\n`;
+      script += `- Navegar entre os cartões de maneira lógica, seguindo as conexões definidas no fluxo.\n`;
+      script += `- Se o cliente fornecer uma resposta inesperada, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
+      script += `- Voltar para etapas anteriores, se necessário, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.\n`;
+      script += `- Confirmar sempre que possível as escolhas do cliente para evitar erros.\n`;
+      script += `- Encerrar a conversa de forma educada, sempre deixando um canal aberto para contato futuro.\n`;
+    }
+    script += '\n';
     
     // Find initial cards (entry points for the flow)
     const initialCards = nodes.filter(node => node.data.type === 'initial');

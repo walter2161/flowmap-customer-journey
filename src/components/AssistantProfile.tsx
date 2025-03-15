@@ -6,9 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { UserCog } from "lucide-react";
+import { UserCog, BookText, Plus, Minus } from "lucide-react";
 import { AssistantProfile as AssistantProfileType } from '@/utils/flowTypes';
 import { useToast } from "@/components/ui/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Default profile
 const defaultProfile: AssistantProfileType = {
@@ -17,7 +18,15 @@ const defaultProfile: AssistantProfileType = {
   company: "Minha Empresa",
   contacts: "assistente@empresa.com",
   avatar: "",
-  guidelines: "Este assistente deve ser cordial e respeitoso. Deve fornecer informações precisas e úteis. Não deve usar linguagem inapropriada ou compartilhar informações sensíveis."
+  guidelines: "Este assistente deve ser cordial e respeitoso. Deve fornecer informações precisas e úteis. Não deve usar linguagem inapropriada ou compartilhar informações sensíveis.",
+  scriptGuidelines: [
+    "Sempre entender a intenção do cliente antes de responder, adaptando o fluxo conforme necessário.",
+    "Navegar entre os cartões de maneira lógica, seguindo as conexões definidas no fluxo.",
+    "Se o cliente fornecer uma resposta inesperada, reformular a pergunta ou redirecioná-lo para uma opção próxima.",
+    "Voltar para etapas anteriores, se necessário, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.",
+    "Confirmar sempre que possível as escolhas do cliente para evitar erros.",
+    "Encerrar a conversa de forma educada, sempre deixando um canal aberto para contato futuro."
+  ]
 };
 
 interface AssistantProfileProps {
@@ -35,13 +44,30 @@ const AssistantProfile: React.FC<AssistantProfileProps> = ({ initialProfile }) =
     return savedProfile ? JSON.parse(savedProfile) : defaultProfile;
   });
   
+  // Add missing scriptGuidelines if they don't exist
+  useEffect(() => {
+    if (!profile.scriptGuidelines) {
+      setProfile(prev => ({
+        ...prev,
+        scriptGuidelines: defaultProfile.scriptGuidelines
+      }));
+    }
+  }, [profile]);
+  
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [newGuideline, setNewGuideline] = useState("");
 
   // Update profile when initialProfile changes
   useEffect(() => {
     if (initialProfile) {
-      setProfile(initialProfile);
+      // Add scriptGuidelines if they don't exist in the initialProfile
+      const updatedProfile = {
+        ...initialProfile,
+        scriptGuidelines: initialProfile.scriptGuidelines || defaultProfile.scriptGuidelines
+      };
+      setProfile(updatedProfile);
     }
   }, [initialProfile]);
   
@@ -133,18 +159,63 @@ const AssistantProfile: React.FC<AssistantProfileProps> = ({ initialProfile }) =
     URL.revokeObjectURL(url);
   };
   
+  // Add a new script guideline
+  const addScriptGuideline = () => {
+    if (newGuideline.trim() === "") return;
+    
+    setProfile({
+      ...profile,
+      scriptGuidelines: [...(profile.scriptGuidelines || []), newGuideline.trim()]
+    });
+    
+    setNewGuideline("");
+  };
+  
+  // Remove a script guideline
+  const removeScriptGuideline = (index: number) => {
+    const updatedGuidelines = [...(profile.scriptGuidelines || [])];
+    updatedGuidelines.splice(index, 1);
+    
+    setProfile({
+      ...profile,
+      scriptGuidelines: updatedGuidelines
+    });
+  };
+  
+  // Update a script guideline
+  const updateScriptGuideline = (index: number, value: string) => {
+    const updatedGuidelines = [...(profile.scriptGuidelines || [])];
+    updatedGuidelines[index] = value;
+    
+    setProfile({
+      ...profile,
+      scriptGuidelines: updatedGuidelines
+    });
+  };
+  
   // Function to generate guidelines text
   const generateGuidelinesText = () => {
-    return `DIRETRIZES DO ASSISTENTE
+    let text = `DIRETRIZES DO ASSISTENTE
 
 Nome: ${profile.name}
 Profissão: ${profile.profession}
 Empresa: ${profile.company}
 Contatos: ${profile.contacts}
 
-DIRETRIZES:
+DIRETRIZES GERAIS:
 ${profile.guidelines}
+
+DIRETRIZES DE INTERPRETAÇÃO DO FLUXO:
 `;
+
+    // Add script guidelines as bullet points
+    if (profile.scriptGuidelines && profile.scriptGuidelines.length > 0) {
+      profile.scriptGuidelines.forEach((guideline, index) => {
+        text += `- ${guideline}\n`;
+      });
+    }
+    
+    return text;
   };
   
   // Get initials for avatar fallback
@@ -186,89 +257,149 @@ ${profile.guidelines}
             </SheetDescription>
           </SheetHeader>
           
-          <div className="mt-6 space-y-6">
-            <div className="flex flex-col items-center">
-              <div 
-                className="relative cursor-pointer group" 
-                onClick={handleAvatarClick}
-              >
-                <Avatar className="h-24 w-24 border-2 border-primary/30">
-                  {profile.avatar ? (
-                    <AvatarImage src={profile.avatar} alt={profile.name} />
-                  ) : (
-                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                      {getInitials(profile.name)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
-                  Editar
+          <Tabs 
+            defaultValue="profile" 
+            value={activeTab} 
+            onValueChange={setActiveTab} 
+            className="mt-6"
+          >
+            <TabsList className="grid grid-cols-2">
+              <TabsTrigger value="profile">Perfil</TabsTrigger>
+              <TabsTrigger value="guidelines">Diretrizes de Script</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="profile" className="space-y-6">
+              <div className="flex flex-col items-center">
+                <div 
+                  className="relative cursor-pointer group" 
+                  onClick={handleAvatarClick}
+                >
+                  <Avatar className="h-24 w-24 border-2 border-primary/30">
+                    {profile.avatar ? (
+                      <AvatarImage src={profile.avatar} alt={profile.name} />
+                    ) : (
+                      <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                        {getInitials(profile.name)}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                    Editar
+                  </div>
+                </div>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleImageUpload} 
+                />
+                <p className="text-xs mt-2 text-muted-foreground">
+                  Clique para alterar (máx. 350px)
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Nome</Label>
+                  <Input 
+                    id="name" 
+                    value={profile.name}
+                    onChange={(e) => setProfile({...profile, name: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="profession">Profissão</Label>
+                  <Input 
+                    id="profession" 
+                    value={profile.profession}
+                    onChange={(e) => setProfile({...profile, profession: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="company">Empresa</Label>
+                  <Input 
+                    id="company" 
+                    value={profile.company}
+                    onChange={(e) => setProfile({...profile, company: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="contacts">Contatos</Label>
+                  <Input 
+                    id="contacts" 
+                    value={profile.contacts}
+                    onChange={(e) => setProfile({...profile, contacts: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="guidelines">Diretrizes Gerais</Label>
+                  <Textarea 
+                    id="guidelines" 
+                    value={profile.guidelines}
+                    onChange={(e) => setProfile({...profile, guidelines: e.target.value})}
+                    className="h-48"
+                  />
                 </div>
               </div>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleImageUpload} 
-              />
-              <p className="text-xs mt-2 text-muted-foreground">
-                Clique para alterar (máx. 350px)
-              </p>
-            </div>
+            </TabsContent>
             
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Nome</Label>
-                <Input 
-                  id="name" 
-                  value={profile.name}
-                  onChange={(e) => setProfile({...profile, name: e.target.value})}
-                />
+            <TabsContent value="guidelines" className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <BookText className="text-primary h-5 w-5" />
+                <h3 className="text-lg font-medium">Diretrizes de Interpretação do Fluxo</h3>
               </div>
               
-              <div>
-                <Label htmlFor="profession">Profissão</Label>
-                <Input 
-                  id="profession" 
-                  value={profile.profession}
-                  onChange={(e) => setProfile({...profile, profession: e.target.value})}
-                />
+              <div className="space-y-4">
+                {(profile.scriptGuidelines || []).map((guideline, index) => (
+                  <div key={index} className="flex gap-2 items-start">
+                    <Textarea 
+                      value={guideline}
+                      onChange={(e) => updateScriptGuideline(index, e.target.value)}
+                      className="flex-1 min-h-[60px]"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={() => removeScriptGuideline(index)}
+                      className="mt-2"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                
+                <div className="flex gap-2 items-start">
+                  <Textarea 
+                    value={newGuideline}
+                    onChange={(e) => setNewGuideline(e.target.value)}
+                    placeholder="Adicione uma nova diretriz..."
+                    className="flex-1 min-h-[60px]"
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={addScriptGuideline}
+                    className="mt-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
-              <div>
-                <Label htmlFor="company">Empresa</Label>
-                <Input 
-                  id="company" 
-                  value={profile.company}
-                  onChange={(e) => setProfile({...profile, company: e.target.value})}
-                />
+              <div className="text-xs text-muted-foreground">
+                <p>Estas diretrizes serão adicionadas ao script gerado para auxiliar na interpretação do fluxo de atendimento.</p>
               </div>
-              
-              <div>
-                <Label htmlFor="contacts">Contatos</Label>
-                <Input 
-                  id="contacts" 
-                  value={profile.contacts}
-                  onChange={(e) => setProfile({...profile, contacts: e.target.value})}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="guidelines">Diretrizes (O que o assistente pode e não pode fazer)</Label>
-                <Textarea 
-                  id="guidelines" 
-                  value={profile.guidelines}
-                  onChange={(e) => setProfile({...profile, guidelines: e.target.value})}
-                  className="h-48"
-                />
-              </div>
-            </div>
-            
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-              <Button onClick={handleSave}>Salvar e Exportar Diretrizes</Button>
-            </div>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="flex justify-between mt-6">
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSave}>Salvar e Exportar Diretrizes</Button>
           </div>
         </SheetContent>
       </Sheet>
