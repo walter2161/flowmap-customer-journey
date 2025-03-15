@@ -290,11 +290,37 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
         .map(line => `- ${line.trim()}`);
       
       script += guidelineLines.join('\n') + '\n\n';
+    } else {
+      // Se não há um perfil definido, buscar do localStorage
+      const savedProfile = localStorage.getItem('assistantProfile');
+      if (savedProfile) {
+        const profile = JSON.parse(savedProfile) as AssistantProfile;
+        script += `## Perfil do Assistente\n\n`;
+        script += `**Nome:** ${profile.name}  \n`;
+        script += `**Profissão:** ${profile.profession}  \n`;
+        script += `**Empresa:** ${profile.company}  \n`;
+        script += `**Contatos:** ${profile.contacts}  \n\n`;
+        
+        script += `### Diretrizes do Assistente\n`;
+        // Format guidelines as bullet points
+        const guidelineLines = profile.guidelines.split('\n')
+          .filter(line => line.trim().length > 0)
+          .map(line => `- ${line.trim()}`);
+        
+        script += guidelineLines.join('\n') + '\n\n';
+      }
     }
     
     // Add fixed interpretation section with guidance on how to use the script
     script += `## Interpretação do Fluxo\n`;
-    script += `### Como ${currentProfile?.name || 'o assistente'} deve interpretar o roteiro de atendimento:\n`;
+    
+    // Get the assistant name from profile or use generic term
+    const assistantName = currentProfile?.name || 
+                         (localStorage.getItem('assistantProfile') ? 
+                           JSON.parse(localStorage.getItem('assistantProfile')).name : 
+                           'o assistente');
+    
+    script += `### Como ${assistantName} deve interpretar o roteiro de atendimento:\n`;
     script += `- **Sempre entender a intenção do cliente** antes de responder, adaptando o fluxo conforme necessário.\n`;
     script += `- **Navegar entre os cartões de maneira lógica**, seguindo as conexões definidas no fluxo.\n`;
     script += `- **Se o cliente fornecer uma resposta inesperada**, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
@@ -408,8 +434,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             }
             
             // Format connection information with label and emoji
-            let displayType = connectionType;
-            if (connectionType === 'custom') displayType = 'Personalizada';
+            let displayType = connectionType === 'custom' ? 'Personalizada' : connectionType;
             
             script += `- ${responseLabel} (${typeEmoji} ${displayType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
           }
@@ -427,8 +452,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             let portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
             
             // Format connection type for display
-            let displayType = connectionType;
-            if (connectionType === 'custom') displayType = 'custom';
+            let displayType = connectionType === 'custom' ? 'custom' : connectionType;
             
             script += `### Fluxo para "${portLabel}" (🔶 ${displayType}):\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));

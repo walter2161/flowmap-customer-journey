@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { UserCog } from "lucide-react";
 import { AssistantProfile as AssistantProfileType } from '@/utils/flowTypes';
+import { useToast } from "@/components/ui/use-toast";
 
 // Default profile
 const defaultProfile: AssistantProfileType = {
@@ -24,6 +25,8 @@ interface AssistantProfileProps {
 }
 
 const AssistantProfile: React.FC<AssistantProfileProps> = ({ initialProfile }) => {
+  const { toast } = useToast();
+  
   // Load saved profile data from localStorage or use initialProfile or default
   const [profile, setProfile] = useState<AssistantProfileType>(() => {
     if (initialProfile) return initialProfile;
@@ -98,14 +101,24 @@ const AssistantProfile: React.FC<AssistantProfileProps> = ({ initialProfile }) =
     localStorage.setItem('assistantProfile', JSON.stringify(profile));
     
     // Dispatch custom event to notify other components
-    const event = new Event('profileUpdated');
+    const event = new CustomEvent('profileUpdated', { detail: profile });
     window.dispatchEvent(event);
   }, [profile]);
   
   // Function to handle form submission
   const handleSave = () => {
     localStorage.setItem('assistantProfile', JSON.stringify(profile));
+    
+    // Dispatch custom event with the updated profile
+    const event = new CustomEvent('profileUpdated', { detail: profile });
+    window.dispatchEvent(event);
+    
     setIsOpen(false);
+    
+    toast({
+      title: "Perfil salvo",
+      description: "As informações do assistente foram salvas com sucesso!",
+    });
     
     // Generate guidelines text for export
     const guidelinesText = generateGuidelinesText();
