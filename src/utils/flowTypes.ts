@@ -19,7 +19,19 @@ export type CardType =
   | 'imovel-usado' 
   | 'imovel-comercial' 
   | 'agendar-visita' 
-  | 'agendar-reuniao';
+  | 'agendar-reuniao'
+  | 'confirmacao'
+  | 'documentacao'
+  | 'duvidas'
+  | 'detalhes'
+  | 'orcamento'
+  | 'carrinho'
+  | 'checkout'
+  | 'pedido'
+  | 'problema'
+  | 'solucoes'
+  | 'chamado'
+  | 'faq';
 
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 
