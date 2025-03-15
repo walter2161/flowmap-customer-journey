@@ -273,98 +273,134 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     
     // Add assistant profile information if available
     if (currentProfile) {
-      script += `# Perfil do Assistente\n`;
+      script += `# Perfil do Assistente\n\n`;
+      script += `## Informações Básicas\n`;
       script += `Nome: ${currentProfile.name}\n`;
       script += `Profissão: ${currentProfile.profession}\n`;
       script += `Empresa: ${currentProfile.company}\n`;
       script += `Contatos: ${currentProfile.contacts}\n\n`;
-      script += `## Diretrizes\n${currentProfile.guidelines}\n\n`;
+      script += `## Diretrizes de Comportamento\n${currentProfile.guidelines}\n\n`;
+      script += `---\n\n`;
     }
     
     script += `# Roteiro de Atendimento\n\n`;
     
-    // Find initial cards
+    // Find initial cards (entry points for the flow)
     const initialCards = nodes.filter(node => node.data.type === 'initial');
     
-    // Process each initial card and its connections
-    initialCards.forEach(initialNode => {
-      processNode(initialNode, 0);
-    });
+    if (initialCards.length === 0) {
+      script += `> Nota: Este fluxo não possui cartões iniciais definidos! Considere adicionar um cartão do tipo 'initial' para marcar o início do fluxo.\n\n`;
+      // If no initial cards, just use any card as a starting point
+      if (nodes.length > 0) {
+        processNode(nodes[0], 0, new Set());
+      }
+    } else {
+      script += `## Pontos de Entrada (${initialCards.length})\n\n`;
+      // Process each initial card and its connections
+      initialCards.forEach((initialNode, index) => {
+        script += `### Entrada ${index + 1}: ${initialNode.data.title}\n\n`;
+        processNode(initialNode, 0, new Set());
+      });
+    }
     
-    function processNode(node, depth) {
+    // A set to keep track of processed nodes to avoid infinite loops
+    function processNode(node, depth, visited) {
+      // Avoid infinite loops in cyclical graphs
+      if (visited.has(node.id)) {
+        return;
+      }
+      visited.add(node.id);
+      
       const indent = '  '.repeat(depth);
       const card = node.data;
       
       script += `${indent}## ${card.title}\n`;
+      script += `${indent}**Tipo de Cartão:** ${card.type}\n`;
+      script += `${indent}**ID:** ${card.id}\n\n`;
+      
       if (card.description) {
-        script += `${indent}${card.description}\n`;
+        script += `${indent}**Descrição:**\n${indent}${card.description}\n\n`;
       }
+      
       if (card.content) {
-        script += `${indent}${card.content}\n`;
+        script += `${indent}**Conteúdo/Script:**\n${indent}${card.content.replace(/\n/g, '\n' + indent)}\n\n`;
       }
       
       // Add specific fields based on card type
-      if (card.fields) {
-        const fields = card.fields;
-        switch (card.type) {
-          case 'imovel':
-            if (fields.endereco) script += `${indent}Endereço: ${fields.endereco}\n`;
-            if (fields.preco) script += `${indent}Preço: ${fields.preco}\n`;
-            if (fields.area) script += `${indent}Área: ${fields.area}m²\n`;
-            if (fields.quartos) script += `${indent}Quartos: ${fields.quartos}\n`;
-            break;
-          case 'servico':
-            if (fields.nome) script += `${indent}Nome: ${fields.nome}\n`;
-            if (fields.preco) script += `${indent}Preço: ${fields.preco}\n`;
-            if (fields.duracao) script += `${indent}Duração: ${fields.duracao}\n`;
-            break;
-          case 'produto':
-            if (fields.nome) script += `${indent}Nome: ${fields.nome}\n`;
-            if (fields.preco) script += `${indent}Preço: ${fields.preco}\n`;
-            if (fields.descricao) script += `${indent}Descrição: ${fields.descricao}\n`;
-            break;
-          // Add other card types as needed
+      if (card.fields && Object.keys(card.fields).length > 0) {
+        script += `${indent}**Campos Específicos:**\n`;
+        
+        for (const [key, value] of Object.entries(card.fields)) {
+          // Skip empty values or title/description/content that are already shown
+          if (value && key !== 'title' && key !== 'description' && key !== 'content') {
+            script += `${indent}- **${key}:** ${value}\n`;
+          }
         }
+        script += '\n';
       }
-      
-      script += '\n';
       
       // Find outgoing connections
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
       
       if (outgoingEdges.length > 0) {
-        script += `${indent}### Opções de resposta:\n`;
+        script += `${indent}**Opções de Resposta:**\n`;
         
         // Process each connection
-        outgoingEdges.forEach(edge => {
+        outgoingEdges.forEach((edge, idx) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
             const connectionType = edge.data?.type || 'positive';
             const portLabel = edge.data?.sourcePortLabel || '';
             
-            if (portLabel) {
-              script += `${indent}- **${portLabel}** (${connectionType}): Leva para "${targetNode.data.title}"\n`;
-            } else {
-              script += `${indent}- Resposta ${connectionType}: Leva para "${targetNode.data.title}"\n`;
+            let responseLabel = portLabel 
+              ? `"${portLabel}"` 
+              : `Resposta ${idx + 1}`;
+            
+            let typeLabel = '';
+            switch (connectionType) {
+              case 'positive':
+                typeLabel = '✅ Positiva';
+                break;
+              case 'negative':
+                typeLabel = '❌ Negativa';
+                break;
+              case 'neutral':
+                typeLabel = '⚪ Neutra';
+                break;
+              case 'custom':
+                typeLabel = '🔶 Personalizada';
+                break;
+              default:
+                typeLabel = connectionType;
             }
+            
+            script += `${indent}- ${responseLabel} (${typeLabel}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})\n`;
           }
         });
         
         script += '\n';
         
-        // Now process each child node
-        outgoingEdges.forEach(edge => {
+        // Now process each child node with a title showing the flow path
+        outgoingEdges.forEach((edge, idx) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
-            const portLabel = edge.data?.sourcePortLabel || '';
-            if (portLabel) {
-              script += `${indent}#### Fluxo para "${portLabel}":\n`;
-            }
-            processNode(targetNode, depth + 1);
+            const portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
+            const connectionType = edge.data?.type || 'positive';
+            
+            script += `${indent}### Fluxo para "${portLabel}" (${connectionType}):\n\n`;
+            processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
+      } else {
+        script += `${indent}**Nota:** Este é um nó terminal (sem conexões de saída).\n\n`;
       }
     }
+    
+    // Add a footer with generation information
+    script += `---\n\n`;
+    script += `Roteiro gerado em: ${new Date().toLocaleString()}\n`;
+    script += `Total de nós: ${nodes.length}\n`;
+    script += `Total de conexões: ${edges.length}\n`;
     
     // Set script content and open modal
     setScriptContent(script);
