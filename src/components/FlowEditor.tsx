@@ -399,59 +399,30 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
       
       if (outgoingEdges.length > 0) {
-        script += `**Opções de Resposta:**  \n`;
+        script += `**Possíveis Intenções do Usuário:**  \n`;
         
         // Process each connection
-        outgoingEdges.forEach((edge, idx) => {
+        outgoingEdges.forEach((edge) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
-            const connectionType = edge.data?.type || 'custom';
-            // Get the user-defined port label if available
-            let portLabel = edge.data?.sourcePortLabel || '';
+            // Obter o rótulo da porta de saída que representa a intenção do usuário
+            const portLabel = edge.data?.sourcePortLabel || 'Resposta não especificada';
             
-            // Use the user-defined port label if available, otherwise use a generic label
-            let responseLabel = portLabel 
-              ? portLabel 
-              : `Resposta ${idx + 1}`;
-            
-            // Select appropriate emoji based on connection type
-            let typeEmoji = '';
-            switch (connectionType) {
-              case 'positive':
-                typeEmoji = '✅';
-                break;
-              case 'negative':
-                typeEmoji = '❌';
-                break;
-              case 'neutral':
-                typeEmoji = '⚪';
-                break;
-              case 'custom':
-              default:
-                typeEmoji = '🔶';
-                break;
-            }
-            
-            // Format connection information with the new format
-            script += `- Se a resposta do usuário for '${responseLabel}' leve a conversa para a etapa do cartão '${targetNode.data.title}' (ID: ${targetNode.id})  \n`;
+            // Formatar a informação da conexão destacando a intenção do usuário
+            script += `- Se o usuário expressar a intenção "${portLabel}", direcionar para o cartão "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
           }
         });
         
         script += '\n';
         
-        // Now process each child node with a title showing the flow path
-        outgoingEdges.forEach((edge, idx) => {
+        // Agora processar cada nó filho mostrando o caminho do fluxo
+        outgoingEdges.forEach((edge) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
-            // Get connection information
-            const connectionType = edge.data?.type || 'custom';
-            // Use the port label if available, otherwise use generic "Resposta X"
-            let portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
+            // Obter a informação da conexão
+            const portLabel = edge.data?.sourcePortLabel || 'Resposta não especificada';
             
-            // Format connection type for display
-            let displayType = connectionType === 'custom' ? 'custom' : connectionType;
-            
-            script += `### Fluxo para "${portLabel}" (🔶 ${displayType}):\n\n`;
+            script += `### Fluxo para intenção "${portLabel}":\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
