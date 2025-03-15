@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -433,10 +432,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 break;
             }
             
-            // Format connection information with label and emoji
-            let displayType = connectionType === 'custom' ? 'Personalizada' : connectionType;
-            
-            script += `- ${responseLabel} (${typeEmoji} ${displayType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
+            // Format connection information with the new format
+            script += `- Se a resposta do usuário for '${responseLabel}' leve a conversa para a etapa do cartão '${targetNode.data.title}' (ID: ${targetNode.id})  \n`;
           }
         });
         
