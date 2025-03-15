@@ -661,4 +661,4 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         if (!fields) return null;
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text
+            <p className="text-xs uppercase
