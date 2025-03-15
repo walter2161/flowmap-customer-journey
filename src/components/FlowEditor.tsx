@@ -24,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { templateOptions, getTemplateData } from '@/utils/templateData';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Define node types
 const nodeTypes = {
@@ -65,6 +66,15 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   const [jsonImportContent, setJsonImportContent] = useState("");
   const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // State for export modal
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFileName, setExportFileName] = useState("flow-data.json");
+  const [exportFileRef, setExportFileRef] = useState<HTMLAnchorElement | null>(null);
+  const [exportJsonData, setExportJsonData] = useState("");
+  const exportFileInputRef = useRef<HTMLInputElement>(null);
+  const [isExportFileSelected, setIsExportFileSelected] = useState(false);
+  const [selectedExportFile, setSelectedExportFile] = useState<File | null>(null);
   
   // State for assistant profile
   const [currentProfile, setCurrentProfile] = useState<AssistantProfile | undefined>(initialData.profile);
@@ -140,7 +150,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       reactFlowInstance.current.fitView();
     }
   }, []);
-  
+
   // Save flow function
   const onSaveFlow = useCallback(() => {
     if (nodes.length === 0) return;
@@ -280,9 +290,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     setImportError(null);
   }, []);
   
-  // Export flow function
-  const onExportFlow = useCallback(() => {
-    if (nodes.length === 0) return;
+  // Prepare Export Flow Data
+  const prepareExportData = useCallback(() => {
+    if (nodes.length === 0) return null;
     
     // Convert nodes to cards
     const cards = nodes.map(node => node.data);
@@ -316,22 +326,116 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       profile: profileToExport
     };
     
-    // Create a JSON file and download it
-    const dataStr = JSON.stringify(flowData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    return flowData;
+  }, [nodes, edges, currentProfile]);
+  
+  // Export flow function - now opens the export dialog
+  const onExportFlow = useCallback(() => {
+    const flowData = prepareExportData();
+    if (!flowData) {
+      toast({
+        title: "Sem conteúdo",
+        description: "Adicione cartões ao fluxo antes de exportar.",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    const exportFileDefaultName = 'flow-data.json';
+    // Set the export data and open the modal
+    setExportJsonData(JSON.stringify(flowData, null, 2));
+    setIsExportModalOpen(true);
+    
+  }, [prepareExportData, toast]);
+  
+  // Handle export file selection
+  const handleExportFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setIsExportFileSelected(false);
+      setSelectedExportFile(null);
+      return;
+    }
+    
+    setSelectedExportFile(file);
+    setIsExportFileSelected(true);
+    setExportFileName(file.name);
+  };
+  
+  // Handle direct download export
+  const handleDirectDownload = () => {
+    // Create a JSON file and download it
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(exportJsonData);
     
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.setAttribute('download', exportFileName);
     linkElement.click();
+    
+    setIsExportModalOpen(false);
     
     toast({
       title: "Fluxo exportado",
       description: "Seu fluxo de atendimento foi exportado com sucesso!",
     });
-  }, [nodes, edges, currentProfile, toast]);
+  };
+  
+  // Handle update existing file export
+  const handleUpdateExistingFile = async () => {
+    if (!selectedExportFile) {
+      toast({
+        title: "Nenhum arquivo selecionado",
+        description: "Selecione um arquivo para atualizar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      // Create a new file with the same name
+      const file = new File([exportJsonData], selectedExportFile.name, {
+        type: 'application/json',
+      });
+      
+      // Use the File System Access API if available
+      if ('showSaveFilePicker' in window) {
+        try {
+          const options = {
+            suggestedName: selectedExportFile.name,
+            types: [{
+              description: 'JSON Files',
+              accept: {'application/json': ['.json']},
+            }],
+          };
+          
+          const fileHandle = await window.showSaveFilePicker(options);
+          const writable = await fileHandle.createWritable();
+          await writable.write(file);
+          await writable.close();
+          
+          toast({
+            title: "Arquivo atualizado",
+            description: "O arquivo foi atualizado com sucesso!",
+          });
+        } catch (err) {
+          console.error('Error with File System Access API:', err);
+          // Fall back to regular download if the File System API fails
+          handleDirectDownload();
+        }
+      } else {
+        // Fall back to regular download for browsers without File System Access API
+        handleDirectDownload();
+      }
+    } catch (error) {
+      console.error('Error exporting file:', error);
+      toast({
+        title: "Erro ao exportar",
+        description: "Ocorreu um erro ao exportar o arquivo. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+    
+    setIsExportModalOpen(false);
+  };
   
   // Generate script function
   const onGenerateScript = useCallback(() => {
@@ -807,22 +911,4 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 onClick={() => {
                   // Create a text file and download it
                   const dataStr = 'data:text/plain;charset=utf-8,' + encodeURIComponent(scriptContent);
-                  const exportFileDefaultName = 'flow-script.txt';
-                  
-                  const linkElement = document.createElement('a');
-                  linkElement.setAttribute('href', dataStr);
-                  linkElement.setAttribute('download', exportFileDefaultName);
-                  linkElement.click();
-                }}
-              >
-                Baixar Roteiro
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </ReactFlowProvider>
-  );
-};
-
-export default FlowEditor;
+                  const exportFileDefaultName = 'flow-
