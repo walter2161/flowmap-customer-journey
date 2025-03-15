@@ -6,15 +6,56 @@ export interface Position {
   y: number;
 }
 
-export type CardType = 'initial' | 'message' | 'question' | 'condition' | 'action' | 'product' | 'service' | 'contact' | 'imovel' | 'servico' | 'agendar-visita' | 'confirmacao' | 'documentacao' | 'duvidas' | 'contatos' | 'detalhes' | 'ordem-servico' | 'orcamento' | 'produto' | 'carrinho' | 'checkout' | 'pedido' | 'problema' | 'solucoes' | 'chamado' | 'faq';
+export type CardType = 
+  | 'initial' 
+  | 'message' 
+  | 'question' 
+  | 'condition' 
+  | 'action' 
+  | 'product' 
+  | 'service' 
+  | 'contact' 
+  | 'imovel' 
+  | 'servico' 
+  | 'agendar-visita' 
+  | 'confirmacao' 
+  | 'documentacao' 
+  | 'duvidas' 
+  | 'contatos' 
+  | 'detalhes' 
+  | 'ordem-servico' 
+  | 'orcamento' 
+  | 'produto' 
+  | 'carrinho' 
+  | 'checkout' 
+  | 'pedido' 
+  | 'problema' 
+  | 'solucoes' 
+  | 'chamado' 
+  | 'faq'
+  | 'regular'
+  | 'end'
+  | 'imovel-lancamento'
+  | 'imovel-usado'
+  | 'imovel-comercial'
+  | 'agendar-reuniao'
+  | 'multipla-escolha'
+  | 'pergunta-respostas'
+  | 'agendar'
+  | 'briefing'
+  | 'acao'
+  | 'html';
 
 export interface Port {
   id: string;
   label: string;
 }
 
+// Define OutputPort as alias to Port for better semantic meaning
+export type OutputPort = Port;
+
 export interface FlowCardFields {
-  [key: string]: string | number;
+  [key: string]: string | number | boolean | string[];
 }
 
 export interface FlowCard {
@@ -25,7 +66,7 @@ export interface FlowCard {
   content: string;
   position: Position;
   fields: FlowCardFields;
-  outputPorts: Port[];
+  outputPorts: OutputPort[];
   style?: CSSProperties;
 }
 
