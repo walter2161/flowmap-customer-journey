@@ -1,129 +1,330 @@
-
 import { FlowData } from './flowTypes';
 import { nanoid } from 'nanoid';
 
-// Generate some unique IDs for ports
+// Generate some unique IDs for ports where needed
 const port1 = `port-${nanoid(6)}`;
 const port2 = `port-${nanoid(6)}`;
 const port3 = `port-${nanoid(6)}`;
 const port4 = `port-${nanoid(6)}`;
 
-// Default flow data - will also serve as a "generic" template
+// Default flow data - Loja model
 export const initialFlowData: FlowData = {
   cards: [
     {
-      id: 'card-1',
-      title: 'Início da Conversa',
-      description: 'Primeiro contato com o cliente',
-      content: 'Olá! Como posso te ajudar hoje?',
-      position: { x: 50, y: 50 },
-      type: 'initial',
+      id: "card-1",
+      title: "Conversa Inicial",
+      description: "Primeiro contato com o cliente",
+      content: "Olá! Como posso te ajudar hoje?",
+      position: {
+        x: 50,
+        y: 50
+      },
+      type: "initial",
       outputPorts: [
-        { id: port1, label: "Informações sobre serviços" },
-        { id: port2, label: "Agendar atendimento" },
-        { id: `port-${nanoid(6)}`, label: "Orçamento" }
+        {
+          "id": "port-VQMEgE",
+          "label": "Dúvida sobre um produto"
+        },
+        {
+          "id": "port-AFu80O",
+          "label": "Dúvida sobre a Loja"
+        },
+        {
+          "id": "port-Hbj8hW",
+          "label": "Outro assunto"
+        }
+      ],
+      fields: {}
+    },
+    {
+      id: "card-3",
+      title: "Agendar Atendimento",
+      description: "Opções de agendamento",
+      content: "Podemos agendar um atendimento. Qual horário seria melhor para você?",
+      position: {
+        x: 400,
+        y: 250
+      },
+      type: "agendar",
+      outputPorts: [
+        {
+          "id": "port-fC6kNY",
+          "label": "Manhã"
+        },
+        {
+          "id": "port-yNnZM1",
+          "label": "Tarde"
+        }
       ]
     },
     {
-      id: 'card-2',
-      title: 'Informações sobre Serviços',
-      description: 'Fornece detalhes sobre os serviços disponíveis',
-      content: 'Oferecemos diversos serviços. Qual deles você tem interesse?',
-      position: { x: 400, y: 50 },
-      type: 'servico',
+      id: "card-4",
+      title: "Finalização",
+      description: "Encerramento da conversa",
+      content: "Obrigado pelo seu contato! Estamos à disposição para ajudar.",
+      position: {
+        x: 750,
+        y: 150
+      },
+      type: "end"
+    },
+    {
+      id: "card-6",
+      title: "Contatos",
+      description: "Coleta de informações de contato",
+      content: "Para dar continuidade, poderia me informar seu nome e telefone para contato?",
+      position: {
+        x: 750,
+        y: 350
+      },
+      type: "contatos",
       outputPorts: [
-        { id: port3, label: "Serviço A" },
-        { id: `port-${nanoid(6)}`, label: "Serviço B" },
-        { id: `port-${nanoid(6)}`, label: "Serviço C" }
+        {
+          "id": "port-I6oF-z",
+          "label": "Finalizar"
+        }
       ]
     },
     {
-      id: 'card-3',
-      title: 'Agendar Atendimento',
-      description: 'Opções de agendamento',
-      content: 'Podemos agendar um atendimento. Qual horário seria melhor para você?',
-      position: { x: 400, y: 250 },
-      type: 'agendar',
+      id: "card-zupAEH",
+      type: "produto",
+      title: "Produtos",
+      description: "Roupas e Acessórios Masculinos e Femíneos",
+      content: "* Camisetas\n* Camisas\n* Calças\n* Bermudas\n* Shorts\n* Vestidos\n* Calçados\n* Acessorios",
+      position: {
+        x: 27.578618781154717,
+        y: 216.02208237216868
+      },
+      fields: {
+        title: "Novo Cartão Produto",
+        description: "Descrição do cartão",
+        content: "Conteúdo do cartão",
+        nome: "Camisetas",
+        preco: "a partir de R$ 15,00",
+        estoque: "10",
+        categoria: "",
+        codigo: "#10"
+      },
       outputPorts: [
-        { id: port4, label: "Manhã" },
-        { id: `port-${nanoid(6)}`, label: "Tarde" }
+        {
+          "id": "port-Rnle8V",
+          "label": "Conhecer a Loja Virtual"
+        },
+        {
+          "id": "port-3lfNwi",
+          "label": "Conhecer a Loja física"
+        },
+        {
+          "id": "port-tVgFE0",
+          "label": "Outro Assunto"
+        }
       ]
     },
     {
-      id: 'card-4',
-      title: 'Finalização',
-      description: 'Encerramento da conversa',
-      content: 'Obrigado pelo seu contato! Estamos à disposição para ajudar.',
-      position: { x: 750, y: 150 },
-      type: 'end'
-    },
-    {
-      id: 'card-5',
-      title: 'Orçamento',
-      description: 'Solicitação de orçamento',
-      content: 'Para elaborarmos um orçamento, precisamos de algumas informações. Qual serviço você deseja?',
-      position: { x: 400, y: 450 },
-      type: 'ordem-servico',
+      id: "card-lWCKgQ",
+      type: "regular",
+      title: "Outro Assunto",
+      description: "Somente assuntos referentes aso produtos ou sobre a loja. ",
+      content: "Infelizmente só posso ajudar com assunto referentes a produtos e sobre a nossa loja! \nDeseja tirar alguma dúvida sobre os produtos ou sobre a loja?",
+      position: {
+        x: 602.0727218253166,
+        y: 490.4684788240313
+      },
+      fields: {
+        title: "Novo Cartão Padrão",
+        description: "Descrição do cartão",
+        content: "Conteúdo do cartão"
+      },
       outputPorts: [
-        { id: `port-${nanoid(6)}`, label: "Prosseguir" }
+        {
+          "id": "port-K3tGM0",
+          "label": "Dúvida sobre produto"
+        },
+        {
+          "id": "port-P9atsS",
+          "label": "Dúvida sobre a Loja"
+        },
+        {
+          "id": "port-n3bSvG",
+          "label": "Outro assunto"
+        }
       ]
     },
     {
-      id: 'card-6',
-      title: 'Contatos',
-      description: 'Coleta de informações de contato',
-      content: 'Para dar continuidade, poderia me informar seu nome e telefone para contato?',
-      position: { x: 750, y: 350 },
-      type: 'contatos',
+      id: "card-f-APxQ",
+      type: "regular",
+      title: "Sobre a Loja",
+      description: "Loja Física e Loja Virtual",
+      content: "Nossa Loja Física esta localizada no centro comercial de Praia Grande e conta com mais de 2.000 produtos. Av. Costa e Silva, 888 - Boqueirão Praia Grande - SP.\nNossa loja virtual conta com mais de 1.000 produtos cadastrados e facilita a comprar de nossos clientes, podendo comprar no conforto da sua casa. www.lojanewtop.com.br",
+      position: {
+        x: 899.6180978392736,
+        y: 543.8441523846896
+      },
+      fields: {
+        title: "Novo Cartão Padrão",
+        description: "Descrição do cartão",
+        content: "Conteúdo do cartão"
+      },
       outputPorts: [
-        { id: `port-${nanoid(6)}`, label: "Finalizar" }
+        {
+          "id": "port-rRX7TD",
+          "label": "Entrar em contato"
+        },
+        {
+          "id": "port-gUc0TS",
+          "label": "Acessar a Loja Virtual"
+        }
+      ]
+    },
+    {
+      id: "card-ly0SQL",
+      type: "regular",
+      title: "Acessar o Site",
+      description: "Acesse nossa Loja Virtual",
+      content: "Link: https://lojanewtop.com.br",
+      position: {
+        x: 1147.974014537599,
+        y: 472.1761654883219
+      },
+      fields: {
+        title: "Novo Cartão Padrão",
+        description: "Descrição do cartão",
+        content: "Conteúdo do cartão"
+      },
+      outputPorts: [
+        {
+          "id": "port-lsR1SL",
+          "label": "finalizar"
+        },
+        {
+          "id": "port-s0juuv",
+          "label": "Outro Assunto"
+        }
       ]
     }
   ],
   connections: [
     {
-      id: 'conn-1',
-      start: 'card-1',
-      end: 'card-2',
-      type: 'custom',
-      sourceHandle: port1
+      id: "conn-2",
+      start: "card-1",
+      end: "card-3",
+      type: "custom",
+      sourceHandle: "port-Cw4jL5"
     },
     {
-      id: 'conn-2',
-      start: 'card-1',
-      end: 'card-3',
-      type: 'custom',
-      sourceHandle: port2
+      id: "conn-4",
+      start: "card-3",
+      end: "card-6",
+      type: "custom",
+      sourceHandle: "port-fC6kNY"
     },
     {
-      id: 'conn-3',
-      start: 'card-2',
-      end: 'card-4',
-      type: 'custom',
-      sourceHandle: port3
+      id: "conn-6",
+      start: "card-6",
+      end: "card-4",
+      type: "custom",
+      sourceHandle: "port-Dtgdwt"
     },
     {
-      id: 'conn-4',
-      start: 'card-3',
-      end: 'card-6',
-      type: 'custom',
-      sourceHandle: port4
+      id: "edge-EuPf49",
+      start: "card-1",
+      end: "card-zupAEH",
+      type: "positive",
+      sourceHandle: "port-VQMEgE"
     },
     {
-      id: 'conn-5',
-      start: 'card-1',
-      end: 'card-5',
-      type: 'custom',
-      sourceHandle: `port-${nanoid(6)}`
+      id: "edge-F4fP_V",
+      start: "card-zupAEH",
+      end: "card-3",
+      type: "positive",
+      sourceHandle: "port-3lfNwi"
     },
     {
-      id: 'conn-6',
-      start: 'card-6',
-      end: 'card-4',
-      type: 'custom',
-      sourceHandle: `port-${nanoid(6)}`
+      id: "edge-WkVHQm",
+      start: "card-1",
+      end: "card-lWCKgQ",
+      type: "positive",
+      sourceHandle: "port-Hbj8hW"
+    },
+    {
+      id: "edge-qtIT06",
+      start: "card-zupAEH",
+      end: "card-lWCKgQ",
+      type: "positive",
+      sourceHandle: "port-tVgFE0"
+    },
+    {
+      id: "edge-1PSH7g",
+      start: "card-lWCKgQ",
+      end: "card-zupAEH",
+      type: "positive",
+      sourceHandle: "port-K3tGM0"
+    },
+    {
+      id: "edge-kVGmIH",
+      start: "card-lWCKgQ",
+      end: "card-6",
+      type: "positive",
+      sourceHandle: "port-n3bSvG"
+    },
+    {
+      id: "edge-yoPUsF",
+      start: "card-1",
+      end: "card-f-APxQ",
+      type: "positive",
+      sourceHandle: "port-AFu80O"
+    },
+    {
+      id: "edge-ExlwBb",
+      start: "card-f-APxQ",
+      end: "card-3",
+      type: "positive",
+      sourceHandle: "port-rRX7TD"
+    },
+    {
+      id: "edge-x6h92r",
+      start: "card-zupAEH",
+      end: "card-f-APxQ",
+      type: "positive",
+      sourceHandle: "port-3lfNwi"
+    },
+    {
+      id: "edge-hvOi9n",
+      start: "card-f-APxQ",
+      end: "card-ly0SQL",
+      type: "positive",
+      sourceHandle: "port-gUc0TS"
+    },
+    {
+      id: "edge-7xG4n5",
+      start: "card-ly0SQL",
+      end: "card-lWCKgQ",
+      type: "positive",
+      sourceHandle: "port-s0juuv"
+    },
+    {
+      id: "edge-K5EXKH",
+      start: "card-lWCKgQ",
+      end: "card-f-APxQ",
+      type: "positive",
+      sourceHandle: "port-P9atsS"
+    },
+    {
+      id: "edge-BQl92w",
+      start: "card-ly0SQL",
+      end: "card-4",
+      type: "positive",
+      sourceHandle: "port-lsR1SL"
     }
-  ]
+  ],
+  profile: {
+    name: "Assistente de Loja",
+    profession: "Assistente Virtual",
+    company: "Loja New Top",
+    contacts: "www.lojanewtop.com.br | contato@lojanewtop.com.br | (13) 99999-9999",
+    avatar: "",
+    guidelines: "Seja sempre cordial e atencioso. Forneça informações precisas sobre produtos e serviços da loja. Direcione o cliente para o atendimento presencial quando necessário."
+  }
 };
 
 // Templates data
@@ -448,509 +649,4 @@ export const templates = {
       { id: "cowork-conn-8", start: "cowork-3", end: "cowork-9", type: "custom", sourceHandle: "port-cowork3-1", sourcePortLabel: "Manhã" },
       { id: "cowork-conn-9", start: "cowork-6", end: "cowork-8", type: "custom", sourceHandle: "port-cowork6-1", sourcePortLabel: "Contratar" },
       { id: "cowork-conn-10", start: "cowork-7", end: "cowork-8", type: "custom", sourceHandle: "port-cowork7-1", sourcePortLabel: "Contratar" },
-      { id: "cowork-conn-11", start: "cowork-8", end: "cowork-12", type: "custom", sourceHandle: "port-cowork8-1", sourcePortLabel: "Dados enviados" },
-      { id: "cowork-conn-12", start: "cowork-9", end: "cowork-12", type: "custom", sourceHandle: "port-cowork9-1", sourcePortLabel: "Confirmar" },
-      { id: "cowork-conn-13", start: "cowork-5", end: "cowork-8", type: "custom", sourceHandle: "port-cowork5-1", sourcePortLabel: "Sala pequena (4 pessoas)" },
-      { id: "cowork-conn-14", start: "cowork-11", end: "cowork-3", type: "custom", sourceHandle: "port-cowork11-2", sourcePortLabel: "Agendar visita" },
-      { id: "cowork-conn-15", start: "cowork-4", end: "cowork-10", type: "custom", sourceHandle: "port-cowork4-2", sourcePortLabel: "Palestras" }
-    ]
-  },
-  clinica: {
-    cards: [
-      {
-        id: "clinic-1",
-        title: "Boas-vindas Clínica",
-        description: "Primeiro contato com paciente",
-        content: "Olá! Bem-vindo à Clínica Saúde Total. Como posso ajudar você hoje? Deseja agendar uma consulta ou tirar dúvidas sobre nossos serviços?",
-        position: { x: 71, y: 32 },
-        type: "initial",
-        outputPorts: [
-          { id: "port-clinic1-1", label: "Agendar consulta" },
-          { id: "port-clinic1-2", label: "Dúvidas sobre serviços" },
-          { id: "port-clinic1-3", label: "Resultados de exames" },
-          { id: "port-clinic1-4", label: "Informações sobre convênios" }
-        ]
-      },
-      {
-        id: "clinic-2",
-        title: "Agendamento de Consulta",
-        description: "Paciente deseja agendar consulta",
-        content: "Para agendar sua consulta, preciso de algumas informações: 1) Qual especialidade médica você procura? 2) Tem preferência de data e horário? 3) Já é paciente da clínica?",
-        position: { x: 300, y: 150 },
-        type: "agendar",
-        outputPorts: [
-          { id: "port-clinic2-1", label: "Cardiologia" },
-          { id: "port-clinic2-2", label: "Dermatologia" },
-          { id: "port-clinic2-3", label: "Ortopedia" },
-          { id: "port-clinic2-4", label: "Outras especialidades" }
-        ]
-      },
-      {
-        id: "clinic-3",
-        title: "Informações sobre Serviços",
-        description: "Paciente com dúvidas",
-        content: "Nossa clínica oferece diversas especialidades médicas, incluindo: cardiologia, dermatologia, ortopedia, e muitas outras. Qual serviço específico você gostaria de saber mais?",
-        position: { x: 300, y: 300 },
-        type: "servico",
-        outputPorts: [
-          { id: "port-clinic3-1", label: "Exames laboratoriais" },
-          { id: "port-clinic3-2", label: "Cirurgias" },
-          { id: "port-clinic3-3", label: "Tratamentos estéticos" },
-          { id: "port-clinic3-4", label: "Fisioterapia" }
-        ]
-      },
-      {
-        id: "clinic-4",
-        title: "Resultados de Exames",
-        description: "Acesso a resultados",
-        content: "Para acessar seus resultados de exames, precisamos confirmar seus dados. Por favor, informe seu CPF e data de nascimento.",
-        position: { x: 300, y: 450 },
-        type: "contatos",
-        outputPorts: [
-          { id: "port-clinic4-1", label: "Dados confirmados" }
-        ]
-      },
-      {
-        id: "clinic-5",
-        title: "Informações sobre Convênios",
-        description: "Convênios aceitos",
-        content: "Trabalhamos com diversos convênios médicos, incluindo: Unimed, Bradesco Saúde, Amil, SulAmérica, entre outros. Qual convênio você utiliza?",
-        position: { x: 300, y: 600 },
-        type: "multipla-escolha",
-        outputPorts: [
-          { id: "port-clinic5-1", label: "Unimed" },
-          { id: "port-clinic5-2", label: "Bradesco Saúde" },
-          { id: "port-clinic5-3", label: "Outros convênios" },
-          { id: "port-clinic5-4", label: "Não tenho convênio" }
-        ]
-      },
-      {
-        id: "clinic-6",
-        title: "Cardiologia",
-        description: "Especialidade médica",
-        content: "Na nossa clínica, o departamento de Cardiologia realiza consultas, exames cardiológicos como eletrocardiograma, teste ergométrico e holter. Deseja agendar?",
-        position: { x: 600, y: 100 },
-        type: "servico",
-        outputPorts: [
-          { id: "port-clinic6-1", label: "Agendar consulta" },
-          { id: "port-clinic6-2", label: "Agendar exame" }
-        ]
-      },
-      {
-        id: "clinic-7",
-        title: "Exames Laboratoriais",
-        description: "Informações sobre exames",
-        content: "Realizamos todos os tipos de exames laboratoriais, com coleta a partir das 6h da manhã até às 16h. É necessário jejum para alguns exames.",
-        position: { x: 600, y: 250 },
-        type: "produto",
-        outputPorts: [
-          { id: "port-clinic7-1", label: "Agendar coleta" },
-          { id: "port-clinic7-2", label: "Tirar dúvidas sobre preparo" }
-        ]
-      },
-      {
-        id: "clinic-8",
-        title: "Cadastro de Paciente",
-        description: "Coleta de dados",
-        content: "Para finalizar o agendamento, preciso registrar ou atualizar seu cadastro. Por favor, informe: nome completo, CPF, data de nascimento, endereço, telefone e email.",
-        position: { x: 600, y: 400 },
-        type: "briefing",
-        outputPorts: [
-          { id: "port-clinic8-1", label: "Dados enviados" }
-        ]
-      },
-      {
-        id: "clinic-9",
-        title: "Portal do Paciente",
-        description: "Acesso online",
-        content: "Você pode acessar seus resultados de exames através do nosso Portal do Paciente. Acesse: www.clinicasaudetotal.com.br/portal e faça login com seu CPF e data de nascimento.",
-        position: { x: 600, y: 550 },
-        type: "html",
-        outputPorts: [
-          { id: "port-clinic9-1", label: "Entendi" }
-        ]
-      },
-      {
-        id: "clinic-10",
-        title: "Tratamentos Estéticos",
-        description: "Procedimentos estéticos",
-        content: "Nosso departamento de estética oferece diversos tratamentos: botox, preenchimento, peeling, tratamentos para manchas e rejuvenescimento facial e corporal.",
-        position: { x: 600, y: 700 },
-        type: "produto",
-        outputPorts: [
-          { id: "port-clinic10-1", label: "Quero uma avaliação" },
-          { id: "port-clinic10-2", label: "Preços" }
-        ]
-      },
-      {
-        id: "clinic-11",
-        title: "Preparo para Exames",
-        description: "Instruções pré-exame",
-        content: "Para a maioria dos exames de sangue é necessário jejum de 8 a 12 horas. Evite atividades físicas intensas no dia anterior e informe sobre medicamentos em uso.",
-        position: { x: 900, y: 250 },
-        type: "pergunta-respostas",
-        outputPorts: [
-          { id: "port-clinic11-1", label: "Entendi" }
-        ]
-      },
-      {
-        id: "clinic-12",
-        title: "Confirmação",
-        description: "Finalização do atendimento",
-        content: "Sua consulta foi agendada com sucesso! Enviaremos um lembrete 24h antes. Lembre-se de trazer seus documentos e chegar 15 minutos antes do horário marcado.",
-        position: { x: 900, y: 400 },
-        type: "end"
-      }
-    ],
-    connections: [
-      { id: "clinic-conn-1", start: "clinic-1", end: "clinic-2", type: "custom", sourceHandle: "port-clinic1-1", sourcePortLabel: "Agendar consulta" },
-      { id: "clinic-conn-2", start: "clinic-1", end: "clinic-3", type: "custom", sourceHandle: "port-clinic1-2", sourcePortLabel: "Dúvidas sobre serviços" },
-      { id: "clinic-conn-3", start: "clinic-1", end: "clinic-4", type: "custom", sourceHandle: "port-clinic1-3", sourcePortLabel: "Resultados de exames" },
-      { id: "clinic-conn-4", start: "clinic-1", end: "clinic-5", type: "custom", sourceHandle: "port-clinic1-4", sourcePortLabel: "Informações sobre convênios" },
-      { id: "clinic-conn-5", start: "clinic-2", end: "clinic-6", type: "custom", sourceHandle: "port-clinic2-1", sourcePortLabel: "Cardiologia" },
-      { id: "clinic-conn-6", start: "clinic-3", end: "clinic-7", type: "custom", sourceHandle: "port-clinic3-1", sourcePortLabel: "Exames laboratoriais" },
-      { id: "clinic-conn-7", start: "clinic-3", end: "clinic-10", type: "custom", sourceHandle: "port-clinic3-3", sourcePortLabel: "Tratamentos estéticos" },
-      { id: "clinic-conn-8", start: "clinic-4", end: "clinic-9", type: "custom", sourceHandle: "port-clinic4-1", sourcePortLabel: "Dados confirmados" },
-      { id: "clinic-conn-9", start: "clinic-6", end: "clinic-8", type: "custom", sourceHandle: "port-clinic6-1", sourcePortLabel: "Agendar consulta" },
-      { id: "clinic-conn-10", start: "clinic-7", end: "clinic-11", type: "custom", sourceHandle: "port-clinic7-2", sourcePortLabel: "Tirar dúvidas sobre preparo" },
-      { id: "clinic-conn-11", start: "clinic-7", end: "clinic-8", type: "custom", sourceHandle: "port-clinic7-1", sourcePortLabel: "Agendar coleta" },
-      { id: "clinic-conn-12", start: "clinic-8", end: "clinic-12", type: "custom", sourceHandle: "port-clinic8-1", sourcePortLabel: "Dados enviados" },
-      { id: "clinic-conn-13", start: "clinic-9", end: "clinic-12", type: "custom", sourceHandle: "port-clinic9-1", sourcePortLabel: "Entendi" },
-      { id: "clinic-conn-14", start: "clinic-10", end: "clinic-8", type: "custom", sourceHandle: "port-clinic10-1", sourcePortLabel: "Quero uma avaliação" },
-      { id: "clinic-conn-15", start: "clinic-11", end: "clinic-12", type: "custom", sourceHandle: "port-clinic11-1", sourcePortLabel: "Entendi" }
-    ]
-  },
-  marketing: {
-    cards: [
-      {
-        id: "mkt-1",
-        title: "Boas-vindas Marketing",
-        description: "Primeiro contato com cliente",
-        content: "Olá! Bem-vindo à Agência Impacto Digital. Como posso ajudar sua empresa hoje? Está interessado em melhorar sua presença online ou em uma campanha específica?",
-        position: { x: 71, y: 32 },
-        type: "initial",
-        outputPorts: [
-          { id: "port-mkt1-1", label: "Presença online" },
-          { id: "port-mkt1-2", label: "Campanha específica" },
-          { id: "port-mkt1-3", label: "Gestão de redes sociais" },
-          { id: "port-mkt1-4", label: "Desenvolvimento de site" }
-        ]
-      },
-      {
-        id: "mkt-2",
-        title: "Presença Online",
-        description: "Cliente interessado em presença digital",
-        content: "Para melhorar sua presença online, oferecemos serviços de otimização de SEO, gestão de redes sociais e marketing de conteúdo. Qual aspecto é mais urgente para seu negócio?",
-        position: { x: 300, y: 150 },
-        type: "servico",
-        outputPorts: [
-          { id: "port-mkt2-1", label: "SEO" },
-          { id: "port-mkt2-2", label: "Redes sociais" },
-          { id: "port-mkt2-3", label: "Marketing de conteúdo" },
-          { id: "port-mkt2-4", label: "Consultoria completa" }
-        ]
-      },
-      {
-        id: "mkt-3",
-        title: "Campanhas Específicas",
-        description: "Cliente interessado em campanhas",
-        content: "Desenvolvemos campanhas personalizadas para diversos objetivos: lançamento de produtos, aumento de vendas, reconhecimento de marca. Qual é o principal objetivo da sua campanha?",
-        position: { x: 300, y: 300 },
-        type: "acao",
-        outputPorts: [
-          { id: "port-mkt3-1", label: "Lançamento de produto" },
-          { id: "port-mkt3-2", label: "Aumento de vendas" },
-          { id: "port-mkt3-3", label: "Reconhecimento de marca" },
-          { id: "port-mkt3-4", label: "Geração de leads" }
-        ]
-      },
-      {
-        id: "mkt-4",
-        title: "Gestão de Redes Sociais",
-        description: "Serviços para redes sociais",
-        content: "Nossa equipe pode cuidar integralmente das suas redes sociais, incluindo criação de conteúdo, planejamento editorial, design de posts e interação com seguidores.",
-        position: { x: 300, y: 450 },
-        type: "produto",
-        outputPorts: [
-          { id: "port-mkt4-1", label: "Instagram e Facebook" },
-          { id: "port-mkt4-2", label: "LinkedIn" },
-          { id: "port-mkt4-3", label: "TikTok e YouTube" },
-          { id: "port-mkt4-4", label: "Todas as redes" }
-        ]
-      },
-      {
-        id: "mkt-5",
-        title: "Desenvolvimento de Site",
-        description: "Criação de website",
-        content: "Desenvolvemos sites responsivos, otimizados para SEO e com foco em conversão. Temos opções desde landing pages até e-commerces complexos. O que você procura?",
-        position: { x: 300, y: 600 },
-        type: "produto",
-        outputPorts: [
-          { id: "port-mkt5-1", label: "Site institucional" },
-          { id: "port-mkt5-2", label: "E-commerce" },
-          { id: "port-mkt5-3", label: "Landing page" },
-          { id: "port-mkt5-4", label: "Blog" }
-        ]
-      },
-      {
-        id: "mkt-6",
-        title: "SEO",
-        description: "Otimização para buscadores",
-        content: "Nossos serviços de SEO incluem análise técnica, otimização on-page, construção de backlinks e geração de conteúdo otimizado para palavras-chave relevantes.",
-        position: { x: 600, y: 100 },
-        type: "servico",
-        outputPorts: [
-          { id: "port-mkt6-1", label: "Quero uma análise gratuita" },
-          { id: "port-mkt6-2", label: "Contratar pacote mensal" }
-        ]
-      },
-      {
-        id: "mkt-7",
-        title: "Campanha de Lançamento",
-        description: "Lançamento de produtos/serviços",
-        content: "Nossa estratégia de lançamento cria expectativa, engajamento e conversões, com ações integradas em diversos canais digitais e físicos.",
-        position: { x: 600, y: 250 },
-        type: "briefing",
-        outputPorts: [
-          { id: "port-mkt7-1", label: "Quero saber mais" },
-          { id: "port-mkt7-2", label: "Solicitar orçamento" }
-        ]
-      },
-      {
-        id: "mkt-8",
-        title: "Briefing do Projeto",
-        description: "Coleta de informações",
-        content: "Para elaborarmos uma proposta sob medida, precisamos entender melhor seu negócio. Por favor, informe área de atuação, público-alvo, objetivos e concorrentes principais.",
-        position: { x: 600, y: 400 },
-        type: "briefing",
-        outputPorts: [
-          { id: "port-mkt8-1", label: "Preencher briefing" }
-        ]
-      },
-      {
-        id: "mkt-9",
-        title: "E-commerce",
-        description: "Desenvolvimento de loja virtual",
-        content: "Desenvolvemos lojas virtuais completas, com integração de pagamento, gestão de estoque, múltiplos canais de venda e experiência mobile otimizada.",
-        position: { x: 600, y: 550 },
-        type: "ordem-servico",
-        outputPorts: [
-          { id: "port-mkt9-1", label: "Ver portfolio" },
-          { id: "port-mkt9-2", label: "Solicitar orçamento" }
-        ]
-      },
-      {
-        id: "mkt-10",
-        title: "Portfolio da Agência",
-        description: "Exemplos de trabalhos",
-        content: "Veja alguns dos nossos cases de sucesso em: www.impactodigital.com.br/portfolio. Trabalhamos com empresas de diversos portes e segmentos.",
-        position: { x: 600, y: 700 },
-        type: "html",
-        outputPorts: [
-          { id: "port-mkt10-1", label: "Já vi o portfolio" }
-        ]
-      },
-      {
-        id: "mkt-11",
-        title: "Dados para Contato",
-        description: "Coleta de informações",
-        content: "Para darmos continuidade, precisamos de seus dados para contato. Por favor, informe nome, empresa, telefone e email.",
-        position: { x: 900, y: 400 },
-        type: "contatos",
-        outputPorts: [
-          { id: "port-mkt11-1", label: "Dados enviados" }
-        ]
-      },
-      {
-        id: "mkt-12",
-        title: "Proposta Comercial",
-        description: "Envio de proposta",
-        content: "Baseado em suas necessidades, prepararemos uma proposta detalhada. Nossa equipe entrará em contato em até 24 horas úteis para apresentá-la.",
-        position: { x: 900, y: 550 },
-        type: "end"
-      }
-    ],
-    connections: [
-      { id: "mkt-conn-1", start: "mkt-1", end: "mkt-2", type: "custom", sourceHandle: "port-mkt1-1", sourcePortLabel: "Presença online" },
-      { id: "mkt-conn-2", start: "mkt-1", end: "mkt-3", type: "custom", sourceHandle: "port-mkt1-2", sourcePortLabel: "Campanha específica" },
-      { id: "mkt-conn-3", start: "mkt-1", end: "mkt-4", type: "custom", sourceHandle: "port-mkt1-3", sourcePortLabel: "Gestão de redes sociais" },
-      { id: "mkt-conn-4", start: "mkt-1", end: "mkt-5", type: "custom", sourceHandle: "port-mkt1-4", sourcePortLabel: "Desenvolvimento de site" },
-      { id: "mkt-conn-5", start: "mkt-2", end: "mkt-6", type: "custom", sourceHandle: "port-mkt2-1", sourcePortLabel: "SEO" },
-      { id: "mkt-conn-6", start: "mkt-3", end: "mkt-7", type: "custom", sourceHandle: "port-mkt3-1", sourcePortLabel: "Lançamento de produto" },
-      { id: "mkt-conn-7", start: "mkt-4", end: "mkt-8", type: "custom", sourceHandle: "port-mkt4-4", sourcePortLabel: "Todas as redes" },
-      { id: "mkt-conn-8", start: "mkt-5", end: "mkt-9", type: "custom", sourceHandle: "port-mkt5-2", sourcePortLabel: "E-commerce" },
-      { id: "mkt-conn-9", start: "mkt-6", end: "mkt-8", type: "custom", sourceHandle: "port-mkt6-1", sourcePortLabel: "Quero uma análise gratuita" },
-      { id: "mkt-conn-10", start: "mkt-7", end: "mkt-8", type: "custom", sourceHandle: "port-mkt7-2", sourcePortLabel: "Solicitar orçamento" },
-      { id: "mkt-conn-11", start: "mkt-8", end: "mkt-11", type: "custom", sourceHandle: "port-mkt8-1", sourcePortLabel: "Preencher briefing" },
-      { id: "mkt-conn-12", start: "mkt-9", end: "mkt-10", type: "custom", sourceHandle: "port-mkt9-1", sourcePortLabel: "Ver portfolio" },
-      { id: "mkt-conn-13", start: "mkt-9", end: "mkt-11", type: "custom", sourceHandle: "port-mkt9-2", sourcePortLabel: "Solicitar orçamento" },
-      { id: "mkt-conn-14", start: "mkt-10", end: "mkt-11", type: "custom", sourceHandle: "port-mkt10-1", sourcePortLabel: "Já vi o portfolio" },
-      { id: "mkt-conn-15", start: "mkt-11", end: "mkt-12", type: "custom", sourceHandle: "port-mkt11-1", sourcePortLabel: "Dados enviados" }
-    ]
-  },
-  servicos: {
-    cards: [
-      {
-        id: "serv-1",
-        title: "Boas-vindas Empresa de Serviços",
-        description: "Primeiro contato com cliente",
-        content: "Olá! Bem-vindo à Empresa de Serviços ABC. Como podemos ajudar você hoje? Estamos à disposição para orçamentos, agendamentos ou informações sobre nossos serviços.",
-        position: { x: 71, y: 32 },
-        type: "initial",
-        outputPorts: [
-          { id: "port-serv1-1", label: "Conhecer serviços" },
-          { id: "port-serv1-2", label: "Solicitar orçamento" },
-          { id: "port-serv1-3", label: "Agendar visita técnica" },
-          { id: "port-serv1-4", label: "Suporte técnico" }
-        ]
-      },
-      {
-        id: "serv-2",
-        title: "Nossos Serviços",
-        description: "Informações sobre serviços",
-        content: "Oferecemos uma variedade de serviços para atender suas necessidades. Nossos principais serviços incluem instalação, manutenção, consultoria e projetos personalizados.",
-        position: { x: 300, y: 150 },
-        type: "servico",
-        outputPorts: [
-          { id: "port-serv2-1", label: "Serviço de Instalação" },
-          { id: "port-serv2-2", label: "Serviço de Manutenção" },
-          { id: "port-serv2-3", label: "Consultoria" },
-          { id: "port-serv2-4", label: "Projetos Personalizados" }
-        ]
-      },
-      {
-        id: "serv-3",
-        title: "Solicitação de Orçamento",
-        description: "Pedido de orçamento",
-        content: "Para elaborarmos um orçamento preciso, precisamos de algumas informações sobre o serviço desejado. Qual tipo de serviço você está procurando?",
-        position: { x: 300, y: 300 },
-        type: "ordem-servico",
-        outputPorts: [
-          { id: "port-serv3-1", label: "Instalação" },
-          { id: "port-serv3-2", label: "Manutenção" },
-          { id: "port-serv3-3", label: "Projeto novo" }
-        ]
-      },
-      {
-        id: "serv-4",
-        title: "Agendamento de Visita",
-        description: "Visita técnica",
-        content: "Para agendar uma visita técnica, precisamos de algumas informações. Por favor, indique o melhor dia e horário para realizarmos a visita ao local.",
-        position: { x: 300, y: 450 },
-        type: "agendar",
-        outputPorts: [
-          { id: "port-serv4-1", label: "Próximos dias" },
-          { id: "port-serv4-2", label: "Próxima semana" },
-          { id: "port-serv4-3", label: "Data específica" }
-        ]
-      },
-      {
-        id: "serv-5",
-        title: "Suporte Técnico",
-        description: "Ajuda para problemas",
-        content: "Nosso suporte técnico está aqui para ajudar. Por favor, descreva o problema que está enfrentando para que possamos orientá-lo da melhor forma possível.",
-        position: { x: 300, y: 600 },
-        type: "pergunta-respostas",
-        outputPorts: [
-          { id: "port-serv5-1", label: "Problema com instalação" },
-          { id: "port-serv5-2", label: "Equipamento com defeito" },
-          { id: "port-serv5-3", label: "Dúvidas de operação" }
-        ]
-      },
-      {
-        id: "serv-6",
-        title: "Serviço de Instalação",
-        description: "Detalhes de instalação",
-        content: "Nosso serviço de instalação inclui avaliação do local, projeto básico, fornecimento de materiais e execução por técnicos especializados com garantia de 3 meses.",
-        position: { x: 600, y: 100 },
-        type: "produto",
-        outputPorts: [
-          { id: "port-serv6-1", label: "Solicitar orçamento" },
-          { id: "port-serv6-2", label: "Agendar visita" }
-        ]
-      },
-      {
-        id: "serv-7",
-        title: "Projeto Personalizado",
-        description: "Projetos sob medida",
-        content: "Desenvolvemos projetos personalizados de acordo com suas necessidades específicas, combinando nossa experiência técnica com soluções inovadoras.",
-        position: { x: 600, y: 250 },
-        type: "briefing",
-        outputPorts: [
-          { id: "port-serv7-1", label: "Iniciar briefing" },
-          { id: "port-serv7-2", label: "Ver exemplos" }
-        ]
-      },
-      {
-        id: "serv-8",
-        title: "Formulário de Orçamento",
-        description: "Coleta de informações",
-        content: "Por favor, forneça detalhes sobre o serviço desejado: local, dimensões aproximadas, requisitos específicos e prazo desejado para conclusão.",
-        position: { x: 600, y: 400 },
-        type: "contatos",
-        outputPorts: [
-          { id: "port-serv8-1", label: "Enviar informações" }
-        ]
-      },
-      {
-        id: "serv-9",
-        title: "Confirmação de Agendamento",
-        description: "Visita agendada",
-        content: "Sua visita técnica foi agendada! Um de nossos técnicos irá até o local na data e horário combinados. Por favor, garanta que alguém estará presente para recebê-lo.",
-        position: { x: 600, y: 550 },
-        type: "agendar-visita",
-        outputPorts: [
-          { id: "port-serv9-1", label: "Confirmar" }
-        ]
-      },
-      {
-        id: "serv-10",
-        title: "Soluções Comuns",
-        description: "Respostas para problemas frequentes",
-        content: "Para problemas de instalação, verifique: 1) Se todos os cabos estão conectados corretamente; 2) Se há energia no local; 3) Se o disjuntor não está desarmado.",
-        position: { x: 600, y: 700 },
-        type: "html",
-        outputPorts: [
-          { id: "port-serv10-1", label: "Problema resolvido" },
-          { id: "port-serv10-2", label: "Ainda com problemas" }
-        ]
-      },
-      {
-        id: "serv-11",
-        title: "Dados para Contato",
-        description: "Informações do cliente",
-        content: "Para finalizar, precisamos de seus dados para contato. Por favor, informe nome completo, telefone, email e endereço completo do local de atendimento.",
-        position: { x: 900, y: 400 },
-        type: "contatos",
-        outputPorts: [
-          { id: "port-serv11-1", label: "Dados enviados" }
-        ]
-      },
-      {
-        id: "serv-12",
-        title: "Finalização",
-        description: "Encerramento do atendimento",
-        content: "Agradecemos pelo seu contato! Nossa equipe entrará em contato em até 24 horas úteis para dar continuidade ao seu atendimento.",
-        position: { x: 900, y: 550 },
-        type: "end"
-      }
-    ],
-    connections: [
-      { id: "serv-conn-1", start: "serv-1", end: "serv-2", type: "custom", sourceHandle: "port-serv1-1", sourcePortLabel: "Conhecer serviços" },
-      { id: "serv-conn-2", start: "serv-1", end: "serv-3", type: "custom", sourceHandle: "port-serv1-2", sourcePortLabel: "Solicitar orçamento" },
-      { id: "serv-conn-3", start: "serv-1", end: "serv-4", type: "custom", sourceHandle: "port-serv1-3", sourcePortLabel: "Agendar visita técnica" },
-      { id: "serv-conn-4", start: "serv-1", end: "serv-5", type: "custom", sourceHandle: "port-serv1-4", sourcePortLabel: "Suporte técnico" },
-      { id: "serv-conn-5", start: "serv-2", end: "serv-6", type: "custom", sourceHandle: "port-serv2-1", sourcePortLabel: "Serviço de Instalação" },
-      { id: "serv-conn-6", start: "serv-2", end: "serv-7", type: "custom", sourceHandle: "port-serv2-4", sourcePortLabel: "Projetos Personalizados" },
-      { id: "serv-conn-7", start: "serv-3", end: "serv-8", type: "custom", sourceHandle: "port-serv3-1", sourcePortLabel: "Instalação" },
-      { id: "serv-conn-8", start: "serv-4", end: "serv-9", type: "custom", sourceHandle: "port-serv4-1", sourcePortLabel: "Próximos dias" },
-      { id: "serv-conn-9", start: "serv-5", end: "serv-10", type: "custom", sourceHandle: "port-serv5-1", sourcePortLabel: "Problema com instalação" },
-      { id: "serv-conn-10", start: "serv-6", end: "serv-8", type: "custom", sourceHandle: "port-serv6-1", sourcePortLabel: "Solicitar orçamento" },
-      { id: "serv-conn-11", start: "serv-7", end: "serv-8", type: "custom", sourceHandle: "port-serv7-1", sourcePortLabel: "Iniciar briefing" },
-      { id: "serv-conn-12", start: "serv-8", end: "serv-11", type: "custom", sourceHandle: "port-serv8-1", sourcePortLabel: "Enviar informações" },
-      { id: "serv-conn-13", start: "serv-9", end: "serv-11", type: "custom", sourceHandle: "port-serv9-1", sourcePortLabel: "Confirmar" },
-      { id: "serv-conn-14", start: "serv-10", end: "serv-4", type: "custom", sourceHandle: "port-serv10-2", sourcePortLabel: "Ainda com problemas" },
-      { id: "serv-conn-15", start: "serv-11", end: "serv-12", type: "custom", sourceHandle: "port-serv11-1", sourcePortLabel: "Dados enviados" }
-    ]
-  }
-};
+      { id: "cowork-conn-11", start: "cowork-8", end: "cowork-12", type: "custom", sourceHandle: "port-cowork8-1", sourcePortLabel:
