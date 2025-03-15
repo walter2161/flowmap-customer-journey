@@ -213,12 +213,13 @@
   marker: none !important;
   fill: none;
   stroke-width: 3px !important;
+  stroke-linecap: square !important; /* Changed from round to square for sharper corners */
 }
 
 .react-flow__connectionline {
   stroke: #6B7280;
   stroke-width: 3;
-  stroke-linecap: round;
+  stroke-linecap: square; /* Changed from round to square for sharper corners */
   marker-end: none !important;
   fill: none;
 }

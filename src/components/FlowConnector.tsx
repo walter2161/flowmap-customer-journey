@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { EdgeProps, getBezierPath, useReactFlow } from 'reactflow';
+import { EdgeProps, getSmoothStepPath, useReactFlow } from 'reactflow';
 import { ConnectionType } from '@/utils/flowTypes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -49,14 +49,15 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   
   const strokeColor = connectionColors[connectionType];
   
-  // Get the bezier path and extract just the path string
-  const [edgePath] = getBezierPath({
+  // Get the smooth step path for elbow lines with 90 and 180 degree angles
+  const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
+    borderRadius: 0, // Set to 0 for sharp corners (90 and 180 degree angles)
   });
 
   const handleDelete = () => {
@@ -73,7 +74,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
         style={{
           stroke: strokeColor,
           strokeWidth: 3,
-          strokeLinecap: 'round',
+          strokeLinecap: 'square', // Changed from 'round' to 'square' for sharper corners
           fill: 'none',
           zIndex: 1000,
         }}
