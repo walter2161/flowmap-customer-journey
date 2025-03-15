@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -283,23 +284,23 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       script += `**Contatos:** ${currentProfile.contacts}  \n\n`;
       
       script += `### Diretrizes do Assistente\n`;
-      // Split guidelines by new lines and format as list items
+      // Format guidelines as bullet points
       const guidelineLines = currentProfile.guidelines.split('\n')
         .filter(line => line.trim().length > 0)
         .map(line => `- ${line.trim()}`);
       
       script += guidelineLines.join('\n') + '\n\n';
-      
-      // Add interpretation section with fixed content
-      script += `## Interpretação do Fluxo\n`;
-      script += `### Como ${currentProfile.name} deve interpretar o roteiro de atendimento:\n`;
-      script += `- **Sempre entender a intenção do cliente** antes de responder, adaptando o fluxo conforme necessário.\n`;
-      script += `- **Navegar entre os cartões de maneira lógica**, seguindo as conexões definidas no fluxo.\n`;
-      script += `- **Se o cliente fornecer uma resposta inesperada**, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
-      script += `- **Voltar para etapas anteriores, se necessário**, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.\n`;
-      script += `- **Confirmar sempre que possível** as escolhas do cliente para evitar erros.\n`;
-      script += `- **Encerrar a conversa de forma educada**, sempre deixando um canal aberto para contato futuro.\n\n`;
     }
+    
+    // Add fixed interpretation section with guidance on how to use the script
+    script += `## Interpretação do Fluxo\n`;
+    script += `### Como ${currentProfile?.name || 'o assistente'} deve interpretar o roteiro de atendimento:\n`;
+    script += `- **Sempre entender a intenção do cliente** antes de responder, adaptando o fluxo conforme necessário.\n`;
+    script += `- **Navegar entre os cartões de maneira lógica**, seguindo as conexões definidas no fluxo.\n`;
+    script += `- **Se o cliente fornecer uma resposta inesperada**, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
+    script += `- **Voltar para etapas anteriores, se necessário**, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.\n`;
+    script += `- **Confirmar sempre que possível** as escolhas do cliente para evitar erros.\n`;
+    script += `- **Encerrar a conversa de forma educada**, sempre deixando um canal aberto para contato futuro.\n\n`;
     
     // Find initial cards (entry points for the flow)
     const initialCards = nodes.filter(node => node.data.type === 'initial');
@@ -380,6 +381,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
             const connectionType = edge.data?.type || 'custom';
+            // Get the user-defined port label if available
             let portLabel = edge.data?.sourcePortLabel || '';
             
             // Use the user-defined port label if available, otherwise use a generic label
@@ -387,6 +389,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
               ? portLabel 
               : `Resposta ${idx + 1}`;
             
+            // Select appropriate emoji based on connection type
             let typeEmoji = '';
             switch (connectionType) {
               case 'positive':
@@ -404,7 +407,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 break;
             }
             
-            script += `- ${responseLabel} (${typeEmoji} ${connectionType === 'custom' ? 'Personalizada' : connectionType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
+            // Format connection information with label and emoji
+            let displayType = connectionType;
+            if (connectionType === 'custom') displayType = 'Personalizada';
+            
+            script += `- ${responseLabel} (${typeEmoji} ${displayType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
           }
         });
         
@@ -414,14 +421,16 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
         outgoingEdges.forEach((edge, idx) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
-            // Use the port label if available, otherwise use a generic name
+            // Get connection information
             const connectionType = edge.data?.type || 'custom';
+            // Use the port label if available, otherwise use generic "Resposta X"
             let portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
             
-            let typeName = connectionType;
-            if (connectionType === 'custom') typeName = 'Personalizada';
+            // Format connection type for display
+            let displayType = connectionType;
+            if (connectionType === 'custom') displayType = 'custom';
             
-            script += `### Fluxo para "${portLabel}" (🔶 ${connectionType}):\n\n`;
+            script += `### Fluxo para "${portLabel}" (🔶 ${displayType}):\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
