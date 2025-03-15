@@ -25,13 +25,22 @@ export const useFileSystem = () => {
   
   // Handle direct download export
   const handleDirectDownload = useCallback((exportJsonData: string) => {
-    // Create a JSON file and download it
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(exportJsonData);
+    // Create a blob with the JSON data
+    const blob = new Blob([exportJsonData], { type: 'application/json' });
     
+    // Create a data URL
+    const url = URL.createObjectURL(blob);
+    
+    // Create and click a download link
     const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileName);
+    linkElement.href = url;
+    linkElement.download = exportFileName;
+    document.body.appendChild(linkElement);
     linkElement.click();
+    document.body.removeChild(linkElement);
+    
+    // Clean up the URL
+    URL.revokeObjectURL(url);
     
     toast({
       title: "Fluxo exportado",
@@ -53,14 +62,10 @@ export const useFileSystem = () => {
     }
     
     try {
-      // Create a new file with the same name
-      const file = new File([exportJsonData], selectedExportFile.name, {
-        type: 'application/json',
-      });
-      
-      // Use the File System Access API if available
+      // First try to use the File System Access API
       if ('showSaveFilePicker' in window) {
         try {
+          // Create options with the original filename
           const options = {
             suggestedName: selectedExportFile.name,
             types: [{
@@ -69,9 +74,10 @@ export const useFileSystem = () => {
             }],
           };
           
+          // Show the save file picker with the original filename
           const fileHandle = await window.showSaveFilePicker(options);
           const writable = await fileHandle.createWritable();
-          await writable.write(file);
+          await writable.write(exportJsonData);
           await writable.close();
           
           toast({
@@ -82,12 +88,32 @@ export const useFileSystem = () => {
           return true;
         } catch (err) {
           console.error('Error with File System Access API:', err);
-          // Fall back to regular download if the File System API fails
+          // If it's a security error or the API fails, fall back to regular download
           return handleDirectDownload(exportJsonData);
         }
       } else {
-        // Fall back to regular download for browsers without File System Access API
-        return handleDirectDownload(exportJsonData);
+        // For browsers without File System Access API, use regular download
+        // Create a blob with the new content
+        const blob = new Blob([exportJsonData], { type: 'application/json' });
+        
+        // Create a download link with the original filename
+        const url = URL.createObjectURL(blob);
+        const linkElement = document.createElement('a');
+        linkElement.href = url;
+        linkElement.download = selectedExportFile.name;
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        document.body.removeChild(linkElement);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Arquivo salvo",
+          description: "O arquivo foi salvo com sucesso. Por favor, substitua o original manualmente.",
+        });
+        
+        return true;
       }
     } catch (error) {
       console.error('Error exporting file:', error);

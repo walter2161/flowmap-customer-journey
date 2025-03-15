@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DialogDescription } from '@/components/ui/dialog';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -39,6 +40,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Exportar Fluxo</DialogTitle>
+          <DialogDescription>
+            Escolha como deseja exportar seu fluxo de atendimento
+          </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="download" className="w-full" value={activeTab} onValueChange={setActiveTab}>
@@ -59,11 +63,12 @@ const ExportModal: React.FC<ExportModalProps> = ({
               </div>
               
               <div className="border rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Conteúdo do arquivo:</p>
-                <pre className="text-xs bg-gray-50 p-2 rounded overflow-x-auto max-h-[200px] overflow-y-auto">
-                  {exportJsonData.substring(0, 500)}
-                  {exportJsonData.length > 500 ? '...' : ''}
-                </pre>
+                <p className="text-sm text-gray-600 mb-2">Conteúdo do arquivo (prévia):</p>
+                <div className="text-xs bg-gray-50 p-2 rounded max-h-[200px] overflow-y-auto">
+                  <pre className="whitespace-pre-wrap overflow-x-auto">
+                    {exportJsonData}
+                  </pre>
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -96,6 +101,17 @@ const ExportModal: React.FC<ExportModalProps> = ({
             <div className="text-sm text-gray-500 p-2 bg-gray-50 rounded-lg">
               <p>Ao atualizar um arquivo existente, seu conteúdo será substituído pelo fluxo atual.</p>
             </div>
+            
+            {isExportFileSelected && (
+              <div className="border rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-2">Conteúdo que será salvo:</p>
+                <div className="text-xs bg-gray-50 p-2 rounded max-h-[200px] overflow-y-auto">
+                  <pre className="whitespace-pre-wrap overflow-x-auto">
+                    {exportJsonData}
+                  </pre>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
         

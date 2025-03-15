@@ -171,8 +171,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       return;
     }
     
+    // Format the JSON with indentation for better readability
+    const formattedJsonData = JSON.stringify(flowData, null, 2);
+    
     // Set the export data and open the modal
-    setExportJsonData(JSON.stringify(flowData, null, 2));
+    setExportJsonData(formattedJsonData);
     setIsExportModalOpen(true);
   }, [prepareExportData, toast]);
   
