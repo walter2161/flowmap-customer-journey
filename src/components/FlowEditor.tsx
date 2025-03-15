@@ -327,6 +327,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           isOpen={isScriptModalOpen}
           onOpenChange={setIsScriptModalOpen}
           scriptContent={scriptContent}
+          currentProfile={currentProfile}
         />
         
         {/* Export Modal */}

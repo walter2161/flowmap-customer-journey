@@ -13,7 +13,6 @@ interface FlowConnectorProps extends EdgeProps {
 
 // Map of card types to their colors
 const cardTypeColors: Record<CardType, string> = {
-  inicial: '#32CD32',
   initial: '#32CD32',
   regular: '#424242',
   end: '#FF4136',
