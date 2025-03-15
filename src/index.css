@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -193,11 +192,11 @@
 
 /* Dark theme for the flow editor */
 .react-flow {
-  background-color: #f9fafb;
+  background-color: #f1f1f1; /* Updated to a light gray color */
 }
 
 .react-flow__background {
-  @apply bg-gray-50;
+  @apply bg-gray-200; /* Updated to a slightly darker gray */
 }
 
 /* Custom Connection Styles - W3C Compatible SVG Solutions */

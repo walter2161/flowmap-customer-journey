@@ -15,7 +15,7 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="w-full h-full pt-20">
+      <main className="w-full h-full pt-20 bg-gray-100">
         <FlowEditor initialData={initialFlowData} />
       </main>
     </div>
