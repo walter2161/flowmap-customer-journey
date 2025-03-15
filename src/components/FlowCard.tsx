@@ -602,19 +602,38 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
             <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-1">{fields.arquivo_titulo || 'Arquivos'}</p>
-            <ScrollArea className="h-[120px]">
-              <div className="space-y-1">
+            <ScrollArea className="h-[200px]">
+              <div className="space-y-2">
                 {files.map((file, idx) => (
-                  <div key={idx} className="flex items-center p-1 rounded bg-gray-50">
+                  <div key={idx} className="p-1 rounded bg-gray-50">
+                    <div className="flex items-center mb-1">
+                      {file.type.startsWith('image/') ? (
+                        <div className="flex items-center">
+                          <Image size={12} className="mr-2 text-blue-500" />
+                          <span className="text-xs">{file.name}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <FileText size={12} className="mr-2 text-green-500" />
+                          <span className="text-xs">{file.name}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Display file content based on type */}
                     {file.type.startsWith('image/') ? (
-                      <div className="flex items-center">
-                        <Image size={12} className="mr-2 text-blue-500" />
-                        <span className="text-xs">{file.name}</span>
+                      <div className="mt-1 border border-gray-200 rounded overflow-hidden">
+                        <img 
+                          src={file.url} 
+                          alt={file.name} 
+                          className="max-w-full h-auto max-h-[150px] object-contain mx-auto"
+                        />
                       </div>
                     ) : (
-                      <div className="flex items-center">
-                        <FileText size={12} className="mr-2 text-green-500" />
-                        <span className="text-xs">{file.name}</span>
+                      <div className="mt-1 p-2 bg-white border border-gray-200 rounded">
+                        <pre className="text-xs whitespace-pre-wrap overflow-auto max-h-[150px]">
+                          {file.content}
+                        </pre>
                       </div>
                     )}
                   </div>

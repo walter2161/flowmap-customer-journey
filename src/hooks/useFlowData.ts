@@ -399,6 +399,28 @@ export const useFlowData = (initialData: FlowData) => {
         }
       }
       
+      // Process files for arquivo card type
+      if (card.type === 'arquivo' && card.files && card.files.length > 0) {
+        script += `**Arquivos:**  \n`;
+        
+        card.files.forEach((file, index) => {
+          script += `- **Arquivo ${index + 1}:** ${file.name}  \n`;
+          
+          if (file.type.startsWith('image/')) {
+            script += `  - **Tipo:** Imagem (${file.type})  \n`;
+            script += `  - **URL:** ${file.url || 'Não disponível'}  \n`;
+          } else {
+            script += `  - **Tipo:** Texto (${file.type})  \n`;
+            if (file.content) {
+              // Format text content as a markdown block
+              script += `  - **Conteúdo:**  \n\`\`\`\n${file.content}\n\`\`\`  \n`;
+            }
+          }
+        });
+        
+        script += '\n';
+      }
+      
       // Find outgoing connections
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
       
