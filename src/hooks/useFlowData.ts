@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { useNodesState, useEdgesState, addEdge, Connection, Edge } from 'reactflow';
 import { FlowData, FlowCard, AssistantProfile } from '@/utils/flowTypes';
@@ -21,8 +22,12 @@ export const useFlowData = (initialData: FlowData) => {
       const flowNodes = initialData.cards.map(card => ({
         id: card.id,
         type: 'flowCard',
-        position: card.position,
-        data: card
+        position: card.position || { x: 0, y: 0 }, // Ensure position exists
+        data: {
+          ...card,
+          // Make sure the position is included in the data
+          position: card.position || { x: 0, y: 0 }
+        }
       }));
       
       // Convert connections to edges
@@ -38,7 +43,10 @@ export const useFlowData = (initialData: FlowData) => {
         }
       }));
       
-      setNodes(flowNodes);
+      // When initializing, distribute nodes in a grid if they're piled up
+      const positionedNodes = distributeNodesIfNeeded(flowNodes);
+      
+      setNodes(positionedNodes);
       setEdges(flowEdges);
       
       // Set the profile if it exists in the initialData
@@ -47,6 +55,53 @@ export const useFlowData = (initialData: FlowData) => {
       }
     }
   }, [initialData, setNodes, setEdges]);
+  
+  // Function to check if nodes are piled up and distribute them if needed
+  const distributeNodesIfNeeded = (nodes) => {
+    // Check if nodes are piled up (too many with the same position)
+    const positions = {};
+    let needsRedistribution = false;
+    
+    nodes.forEach(node => {
+      const posKey = `${Math.round(node.position.x)},${Math.round(node.position.y)}`;
+      positions[posKey] = (positions[posKey] || 0) + 1;
+      
+      // If more than 2 nodes in same position, we need redistribution
+      if (positions[posKey] > 2) {
+        needsRedistribution = true;
+      }
+    });
+    
+    if (!needsRedistribution || nodes.length <= 1) {
+      return nodes;
+    }
+    
+    // Distribute nodes in a grid layout
+    const GRID_SPACING = 250; // Space between nodes
+    const GRID_COLS = Math.ceil(Math.sqrt(nodes.length)); // Number of columns in grid
+    
+    return nodes.map((node, index) => {
+      // Calculate position in grid
+      const col = index % GRID_COLS;
+      const row = Math.floor(index / GRID_COLS);
+      
+      // Set new position
+      const newPosition = {
+        x: col * GRID_SPACING + 50, // Add some margin
+        y: row * GRID_SPACING + 50  // Add some margin
+      };
+      
+      // Update both node position and the position in the data
+      return {
+        ...node,
+        position: newPosition,
+        data: {
+          ...node.data,
+          position: newPosition
+        }
+      };
+    });
+  };
   
   // Handle connection between nodes
   const onConnect = useCallback(
@@ -68,8 +123,11 @@ export const useFlowData = (initialData: FlowData) => {
   const saveFlow = useCallback(() => {
     if (nodes.length === 0) return;
     
-    // Convert nodes to cards
-    const cards = nodes.map(node => node.data);
+    // Convert nodes to cards, ensuring positions are saved
+    const cards = nodes.map(node => ({
+      ...node.data,
+      position: node.position // Ensure we use the latest position from the node
+    }));
     
     // Convert edges to connections
     const connections = edges.map(edge => ({
@@ -116,8 +174,11 @@ export const useFlowData = (initialData: FlowData) => {
   const prepareExportData = useCallback(() => {
     if (nodes.length === 0) return null;
     
-    // Convert nodes to cards
-    const cards = nodes.map(node => node.data);
+    // Convert nodes to cards, ensuring positions are saved
+    const cards = nodes.map(node => ({
+      ...node.data,
+      position: node.position // Ensure we use the latest position from the node
+    }));
     
     // Convert edges to connections
     const connections = edges.map(edge => ({
@@ -153,13 +214,23 @@ export const useFlowData = (initialData: FlowData) => {
   
   // Process imported data
   const processImportedData = useCallback((jsonData: FlowData) => {
-    // Convert cards to nodes
-    const flowNodes = jsonData.cards.map(card => ({
-      id: card.id,
-      type: 'flowCard',
-      position: card.position,
-      data: card
-    }));
+    // Convert cards to nodes, ensuring positions are preserved
+    const flowNodes = jsonData.cards.map(card => {
+      // Make sure position exists and is valid
+      const position = card.position && typeof card.position.x === 'number' && typeof card.position.y === 'number'
+        ? card.position
+        : { x: 0, y: 0 };
+      
+      return {
+        id: card.id,
+        type: 'flowCard',
+        position: position,
+        data: {
+          ...card,
+          position: position // Ensure position is in data too
+        }
+      };
+    });
     
     // Convert connections to edges
     const flowEdges = (jsonData.connections || []).map(conn => ({
@@ -174,7 +245,10 @@ export const useFlowData = (initialData: FlowData) => {
       }
     }));
     
-    setNodes(flowNodes);
+    // Check if nodes need distribution (if they're piled up)
+    const positionedNodes = distributeNodesIfNeeded(flowNodes);
+    
+    setNodes(positionedNodes);
     setEdges(flowEdges);
     
     // Import the profile data if it exists
