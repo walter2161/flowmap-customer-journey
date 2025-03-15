@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -307,6 +308,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     function processNode(node, depth, visited) {
       // Avoid infinite loops in cyclical graphs
       if (visited.has(node.id)) {
+        script += `${' '.repeat(depth * 2)}**Nota:** Este nó já foi processado anteriormente (referência cíclica).\n\n`;
         return;
       }
       visited.add(node.id);
@@ -352,6 +354,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
             const connectionType = edge.data?.type || 'positive';
             const portLabel = edge.data?.sourcePortLabel || '';
             
+            // Use the user-defined port label if available, otherwise fall back to a generic label
             let responseLabel = portLabel 
               ? `"${portLabel}"` 
               : `Resposta ${idx + 1}`;
@@ -384,10 +387,29 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
         outgoingEdges.forEach((edge, idx) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
+            // Use the port label if available, otherwise use a generic name
             const portLabel = edge.data?.sourcePortLabel || `Resposta ${idx + 1}`;
             const connectionType = edge.data?.type || 'positive';
             
-            script += `${indent}### Fluxo para "${portLabel}" (${connectionType}):\n\n`;
+            let typeEmoji = '';
+            switch (connectionType) {
+              case 'positive':
+                typeEmoji = '✅';
+                break;
+              case 'negative':
+                typeEmoji = '❌';
+                break;
+              case 'neutral':
+                typeEmoji = '⚪';
+                break;
+              case 'custom':
+                typeEmoji = '🔶';
+                break;
+              default:
+                typeEmoji = '➡️';
+            }
+            
+            script += `${indent}### Fluxo para "${portLabel}" (${typeEmoji} ${connectionType}):\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
