@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Panel } from 'reactflow';
-import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle } from 'lucide-react';
+import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle, MessageCircle } from 'lucide-react';
 import AssistantProfile from '@/components/AssistantProfile';
 import { AssistantProfile as AssistantProfileType } from '@/utils/flowTypes';
+import ChatPreview from './modals/ChatPreview';
 
 interface FlowControlsProps {
   onZoomIn: () => void;
@@ -30,6 +31,23 @@ const FlowControls: React.FC<FlowControlsProps> = ({
   onNewCard,
   currentProfile
 }) => {
+  // Add state for chat preview modal
+  const [isChatPreviewOpen, setIsChatPreviewOpen] = useState(false);
+  const [scriptContent, setScriptContent] = useState('');
+
+  // Function to fetch and generate script content when chat is opened
+  const handleOpenChat = async () => {
+    try {
+      // Generate script content from flow
+      // This is a simplified version for now
+      const generatedScript = "Este é um roteiro de atendimento baseado no fluxo atual.";
+      setScriptContent(generatedScript);
+      setIsChatPreviewOpen(true);
+    } catch (error) {
+      console.error("Erro ao gerar script para o chat:", error);
+    }
+  };
+
   return (
     <>
       {/* File operations */}
@@ -86,6 +104,13 @@ const FlowControls: React.FC<FlowControlsProps> = ({
             >
               <LayoutTemplate className="w-5 h-5 text-gray-700" />
             </button>
+            <button
+              onClick={handleOpenChat}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              title="Abrir Chat Preview"
+            >
+              <MessageCircle className="w-5 h-5 text-gray-700" />
+            </button>
           </div>
         </div>
       </Panel>
@@ -116,6 +141,14 @@ const FlowControls: React.FC<FlowControlsProps> = ({
           </button>
         </div>
       </Panel>
+
+      {/* Chat Preview Modal */}
+      <ChatPreview 
+        isOpen={isChatPreviewOpen} 
+        onOpenChange={setIsChatPreviewOpen} 
+        scriptContent={scriptContent}
+        profile={currentProfile}
+      />
     </>
   );
 };
