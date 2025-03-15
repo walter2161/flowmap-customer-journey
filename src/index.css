@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -212,12 +213,10 @@
   marker: none !important;
   fill: none;
   stroke-width: 3px !important;
-  stroke: #333333 !important; /* Set all connection lines to black */
   stroke-linecap: round !important; /* Changed back to round for smoother appearance */
 }
 
 .react-flow__connectionline {
-  stroke: #333333; /* Black color for connection line */
   stroke-width: 3;
   stroke-linecap: round; /* Changed back to round for smoother appearance */
   marker-end: none !important;

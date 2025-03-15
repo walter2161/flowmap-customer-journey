@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { EdgeProps, getSmoothStepPath, useReactFlow } from 'reactflow';
-import { ConnectionType } from '@/utils/flowTypes';
+import { CardType, ConnectionType } from '@/utils/flowTypes';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface FlowConnectorProps extends EdgeProps {
@@ -12,12 +12,39 @@ interface FlowConnectorProps extends EdgeProps {
   sourceHandle?: string;
 }
 
-// All connection lines will be black now
-const connectionColors = {
-  positive: '#333333', // Black
-  negative: '#333333', // Black
-  neutral: '#333333',  // Black
-  custom: '#333333'    // Black
+// Map of card types to their colors
+const cardTypeColors: Record<CardType, string> = {
+  initial: '#32CD32',
+  regular: '#424242',
+  end: '#FF4136',
+  imovel: '#3498db',
+  servico: '#9b59b6',
+  produto: '#f1c40f',
+  'multipla-escolha': '#6610f2',
+  'pergunta-respostas': '#20c997',
+  contatos: '#e83e8c',
+  agendar: '#fd7e14',
+  'ordem-servico': '#00b8d4',
+  briefing: '#cddc39',
+  acao: '#ffb300',
+  html: '#e91e63',
+  'imovel-lancamento': '#00b0ff',
+  'imovel-usado': '#00e676',
+  'imovel-comercial': '#651fff',
+  'agendar-visita': '#d500f9',
+  'agendar-reuniao': '#64748b',
+  confirmacao: '#32CD32',
+  documentacao: '#3498db',
+  duvidas: '#f1c40f',
+  detalhes: '#9b59b6',
+  orcamento: '#00b8d4',
+  carrinho: '#6610f2',
+  checkout: '#00e676',
+  pedido: '#ffb300',
+  problema: '#FF4136',
+  solucoes: '#20c997',
+  chamado: '#fd7e14',
+  faq: '#424242'
 };
 
 const FlowConnector: React.FC<FlowConnectorProps> = ({
@@ -32,9 +59,10 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   data,
   sourceHandle,
   source,
+  target,
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-  const { setEdges } = useReactFlow();
+  const { setEdges, getNode } = useReactFlow();
 
   // Default to custom connection type for new system
   let connectionType: ConnectionType = 'custom';
@@ -48,7 +76,16 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     connectionType = 'negative';
   }
   
-  const strokeColor = connectionColors[connectionType];
+  // Get the target node to determine its color
+  const targetNode = getNode(target);
+  let strokeColor = '#333333'; // Default color
+  
+  if (targetNode && targetNode.data && targetNode.data.type) {
+    const cardType = targetNode.data.type as CardType;
+    if (cardTypeColors[cardType]) {
+      strokeColor = cardTypeColors[cardType];
+    }
+  }
   
   // Get the smooth step path with rounded corners
   const [edgePath] = getSmoothStepPath({
