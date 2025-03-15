@@ -648,4 +648,4 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
             <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Lançamento</p>
-            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span>
