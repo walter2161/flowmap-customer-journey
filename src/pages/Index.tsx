@@ -5,7 +5,7 @@ import { initialFlowData } from '@/utils/initialData';
 
 const Index = () => {
   return (
-    <div className="w-full h-screen overflow-hidden">
+    <div className="w-full h-screen overflow-hidden bg-gray-100">
       <header className="absolute top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-md shadow-sm">
         <div className="container mx-auto py-4 px-6 flex justify-between items-center">
           <div>

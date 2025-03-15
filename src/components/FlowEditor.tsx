@@ -98,6 +98,11 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       
       setNodes(flowNodes);
       setEdges(flowEdges);
+      
+      // Set the profile if it exists in the initialData
+      if (initialData.profile) {
+        setCurrentProfile(initialData.profile);
+      }
     }
   }, [initialData, setNodes, setEdges]);
   
@@ -153,14 +158,26 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       sourcePortLabel: edge.data?.sourcePortLabel
     }));
     
-    // Create flow data object
+    // Get the most up-to-date profile from localStorage if available
+    let profileToSave = currentProfile;
+    const savedProfileStr = localStorage.getItem('assistantProfile');
+    if (savedProfileStr) {
+      try {
+        const savedProfile = JSON.parse(savedProfileStr);
+        profileToSave = savedProfile;
+      } catch (e) {
+        console.error('Error parsing saved profile:', e);
+      }
+    }
+    
+    // Create flow data object with the current profile
     const flowData: FlowData = {
       cards,
       connections,
-      profile: currentProfile
+      profile: profileToSave
     };
     
-    // Save flow data (e.g., to localStorage or backend)
+    // Save flow data to localStorage
     localStorage.setItem('flowData', JSON.stringify(flowData));
     
     console.log('Flow saved:', flowData);
@@ -230,8 +247,17 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       setNodes(flowNodes);
       setEdges(flowEdges);
       
+      // Import the profile data if it exists
       if (jsonData.profile) {
+        // Update the current profile state
         setCurrentProfile(jsonData.profile);
+        
+        // Also update the profile in localStorage
+        localStorage.setItem('assistantProfile', JSON.stringify(jsonData.profile));
+        
+        // Dispatch custom event to notify other components about profile update
+        const event = new CustomEvent('profileUpdated', { detail: jsonData.profile });
+        window.dispatchEvent(event);
       }
       
       setIsImportModalOpen(false);
@@ -271,11 +297,23 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       sourcePortLabel: edge.data?.sourcePortLabel
     }));
     
-    // Create flow data object
+    // Get the most up-to-date profile from localStorage if available
+    let profileToExport = currentProfile;
+    const savedProfileStr = localStorage.getItem('assistantProfile');
+    if (savedProfileStr) {
+      try {
+        const savedProfile = JSON.parse(savedProfileStr);
+        profileToExport = savedProfile;
+      } catch (e) {
+        console.error('Error parsing saved profile:', e);
+      }
+    }
+    
+    // Create flow data object with the current profile
     const flowData: FlowData = {
       cards,
       connections,
-      profile: currentProfile
+      profile: profileToExport
     };
     
     // Create a JSON file and download it
@@ -565,6 +603,19 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       description: `O template foi aplicado com sucesso ao seu fluxo!`,
     });
   }, [templatePreviewData, setNodes, setEdges, toast]);
+
+  // Listen for profile update events
+  useEffect(() => {
+    const handleProfileUpdate = (event: CustomEvent) => {
+      setCurrentProfile(event.detail);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate as EventListener);
+    };
+  }, []);
 
   return (
     <ReactFlowProvider>
