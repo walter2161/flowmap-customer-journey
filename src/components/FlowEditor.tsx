@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -911,4 +912,116 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 onClick={() => {
                   // Create a text file and download it
                   const dataStr = 'data:text/plain;charset=utf-8,' + encodeURIComponent(scriptContent);
-                  const exportFileDefaultName = 'flow-
+                  const exportFileDefaultName = 'flow-script.md';
+                  
+                  const downloadLink = document.createElement('a');
+                  downloadLink.setAttribute('href', dataStr);
+                  downloadLink.setAttribute('download', exportFileDefaultName);
+                  downloadLink.click();
+                }}
+              >
+                Baixar Script
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Export Modal */}
+        <Dialog open={isExportModalOpen} onOpenChange={setIsExportModalOpen}>
+          <DialogContent className="sm:max-w-[700px]">
+            <DialogHeader>
+              <DialogTitle>Exportar Fluxo</DialogTitle>
+            </DialogHeader>
+            
+            <Tabs defaultValue="download" className="w-full">
+              <TabsList className="grid grid-cols-2 mb-4">
+                <TabsTrigger value="download">Download</TabsTrigger>
+                <TabsTrigger value="update">Atualizar Arquivo</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="download" className="space-y-4">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="fileName">Nome do arquivo</Label>
+                    <Input
+                      id="fileName"
+                      value={exportFileName}
+                      onChange={(e) => setExportFileName(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-2">Conteúdo do arquivo:</p>
+                    <pre className="text-xs bg-gray-50 p-2 rounded overflow-x-auto max-h-[200px] overflow-y-auto">
+                      {exportJsonData.substring(0, 500)}
+                      {exportJsonData.length > 500 ? '...' : ''}
+                    </pre>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="update" className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Input
+                    ref={exportFileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleExportFileSelect}
+                    className="hidden"
+                  />
+                  <div className="mb-4">
+                    <p className="text-gray-600 mb-2">Selecione um arquivo JSON existente para atualizar</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => exportFileInputRef.current?.click()}
+                    >
+                      Escolher Arquivo
+                    </Button>
+                  </div>
+                  {isExportFileSelected && (
+                    <div className="text-sm text-gray-500 truncate max-w-full">
+                      Arquivo selecionado: {selectedExportFile?.name}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-500 p-2 bg-gray-50 rounded-lg">
+                  <p>Ao atualizar um arquivo existente, seu conteúdo será substituído pelo fluxo atual.</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsExportModalOpen(false)}>
+                Cancelar
+              </Button>
+              
+              <Tabs.Consumer>
+                {(value) => (
+                  <>
+                    {value === 'download' ? (
+                      <Button
+                        onClick={handleDirectDownload}
+                      >
+                        Baixar Arquivo
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleUpdateExistingFile}
+                        disabled={!isExportFileSelected}
+                      >
+                        Atualizar Arquivo
+                      </Button>
+                    )}
+                  </>
+                )}
+              </Tabs.Consumer>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </ReactFlowProvider>
+  );
+};
+
+export default FlowEditor;
