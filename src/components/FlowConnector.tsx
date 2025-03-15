@@ -103,6 +103,13 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     setShowDeleteConfirm(false);
   };
   
+  // Determine if we have a port label (intenção do usuário)
+  const hasPortLabel = data?.sourcePortLabel && data.sourcePortLabel.trim() !== '';
+  
+  // Label position calculation
+  const labelX = (sourceX + targetX) / 2;
+  const labelY = (sourceY + targetY) / 2 - 20; // Move label above the line
+  
   return (
     <>
       <path
@@ -117,6 +124,25 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
           zIndex: 1000,
         }}
       />
+      
+      {/* Connection label showing the user intention */}
+      {hasPortLabel && (
+        <foreignObject
+          width={150}
+          height={30}
+          x={labelX - 75}
+          y={labelY - 15}
+          className="flow-connection-label"
+          style={{ zIndex: 1001 }}
+        >
+          <div 
+            className="px-2 py-1 bg-white border border-gray-200 rounded-md text-xs text-center text-gray-700 shadow-sm overflow-hidden text-ellipsis whitespace-nowrap"
+            style={{ maxWidth: '150px' }}
+          >
+            {data.sourcePortLabel}
+          </div>
+        </foreignObject>
+      )}
       
       {/* Delete button in the middle of the path */}
       <foreignObject
