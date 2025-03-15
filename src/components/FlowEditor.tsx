@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -23,6 +22,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { templateOptions, getTemplateData } from '@/utils/templateData';
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 // Define node types
 const nodeTypes = {
@@ -58,6 +59,12 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   // State for script modal
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
   const [scriptContent, setScriptContent] = useState("");
+  
+  // State for import modal
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [jsonImportContent, setJsonImportContent] = useState("");
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // State for assistant profile
   const [currentProfile, setCurrentProfile] = useState<AssistantProfile | undefined>(initialData.profile);
@@ -163,59 +170,89 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     });
   }, [nodes, edges, currentProfile, toast]);
   
+  // Import JSON function
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setImportError(null);
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        setJsonImportContent(content);
+      } catch (error) {
+        console.error('Error reading file:', error);
+        setImportError('Erro ao ler o arquivo. Verifique se é um arquivo válido.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  
+  const processImportedJson = () => {
+    try {
+      setImportError(null);
+      let jsonData: FlowData;
+      
+      try {
+        jsonData = JSON.parse(jsonImportContent) as FlowData;
+      } catch (e) {
+        setImportError('JSON inválido. Verifique o formato e tente novamente.');
+        return;
+      }
+      
+      if (!jsonData.cards || !Array.isArray(jsonData.cards)) {
+        setImportError('Formato de dados inválido. O JSON deve conter um array "cards".');
+        return;
+      }
+      
+      // Convert cards to nodes
+      const flowNodes = jsonData.cards.map(card => ({
+        id: card.id,
+        type: 'flowCard',
+        position: card.position,
+        data: card
+      }));
+      
+      // Convert connections to edges
+      const flowEdges = (jsonData.connections || []).map(conn => ({
+        id: conn.id,
+        source: conn.start,
+        target: conn.end,
+        type: 'flowConnector',
+        sourceHandle: conn.sourceHandle,
+        data: {
+          type: conn.type,
+          sourcePortLabel: conn.sourcePortLabel
+        }
+      }));
+      
+      setNodes(flowNodes);
+      setEdges(flowEdges);
+      
+      if (jsonData.profile) {
+        setCurrentProfile(jsonData.profile);
+      }
+      
+      setIsImportModalOpen(false);
+      setJsonImportContent("");
+      
+      toast({
+        title: "Fluxo importado",
+        description: "Seu fluxo de atendimento foi importado com sucesso!",
+      });
+    } catch (error) {
+      console.error('Error processing imported JSON:', error);
+      setImportError('Erro ao processar o JSON. Verifique o formato e tente novamente.');
+    }
+  };
+  
   // Load flow function
   const onLoad = useCallback(() => {
-    const savedFlow = localStorage.getItem('flowData');
-    if (savedFlow) {
-      try {
-        const flowData = JSON.parse(savedFlow) as FlowData;
-        
-        // Convert cards to nodes
-        const flowNodes = flowData.cards.map(card => ({
-          id: card.id,
-          type: 'flowCard',
-          position: card.position,
-          data: card
-        }));
-        
-        // Convert connections to edges
-        const flowEdges = flowData.connections.map(conn => ({
-          id: conn.id,
-          source: conn.start,
-          target: conn.end,
-          type: 'flowConnector',
-          sourceHandle: conn.sourceHandle,
-          data: {
-            type: conn.type,
-            sourcePortLabel: conn.sourcePortLabel
-          }
-        }));
-        
-        setNodes(flowNodes);
-        setEdges(flowEdges);
-        setCurrentProfile(flowData.profile);
-        
-        console.log('Flow loaded:', flowData);
-        toast({
-          title: "Fluxo carregado",
-          description: "Seu fluxo de atendimento foi carregado com sucesso!",
-        });
-      } catch (error) {
-        console.error('Error loading flow:', error);
-        toast({
-          title: "Erro ao carregar",
-          description: "Não foi possível carregar o fluxo salvo.",
-          variant: "destructive",
-        });
-      }
-    } else {
-      toast({
-        title: "Nenhum fluxo encontrado",
-        description: "Não há fluxos salvos para carregar.",
-        variant: "destructive",
-      });
-    }
-  }, [setNodes, setEdges, toast]);
+    setIsImportModalOpen(true);
+    setJsonImportContent("");
+    setImportError(null);
+  }, []);
   
   // Export flow function
   const onExportFlow = useCallback(() => {
@@ -631,6 +668,75 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 disabled={!templatePreviewData}
               >
                 Aplicar Template
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Import JSON Modal */}
+        <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
+          <DialogContent className="sm:max-w-[700px]">
+            <DialogHeader>
+              <DialogTitle>Importar Fluxo</DialogTitle>
+            </DialogHeader>
+            
+            <Tabs defaultValue="paste" className="w-full">
+              <TabsList className="grid grid-cols-2 mb-4">
+                <TabsTrigger value="paste">Colar JSON</TabsTrigger>
+                <TabsTrigger value="upload">Carregar Arquivo</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="paste" className="space-y-4">
+                <Textarea
+                  placeholder="Cole o conteúdo JSON aqui..."
+                  value={jsonImportContent}
+                  onChange={(e) => setJsonImportContent(e.target.value)}
+                  className="h-[300px] font-mono text-sm"
+                />
+              </TabsContent>
+              
+              <TabsContent value="upload" className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <div className="mb-4">
+                    <p className="text-gray-600 mb-2">Selecione um arquivo JSON para importar</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Escolher Arquivo
+                    </Button>
+                  </div>
+                  {jsonImportContent && (
+                    <div className="text-sm text-gray-500 truncate max-w-full">
+                      Arquivo carregado com sucesso!
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            {importError && (
+              <div className="text-red-500 text-sm border border-red-200 bg-red-50 p-3 rounded">
+                {importError}
+              </div>
+            )}
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsImportModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={processImportedJson}
+                disabled={!jsonImportContent}
+              >
+                Importar Fluxo
               </Button>
             </DialogFooter>
           </DialogContent>
