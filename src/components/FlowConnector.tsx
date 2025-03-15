@@ -12,11 +12,12 @@ interface FlowConnectorProps extends EdgeProps {
   sourceHandle?: string;
 }
 
+// All connection lines will be black now
 const connectionColors = {
-  positive: '#10B981', // Green
-  negative: '#EF4444', // Red
-  neutral: '#6B7280',  // Gray
-  custom: '#3B82F6'    // Blue
+  positive: '#333333', // Black
+  negative: '#333333', // Black
+  neutral: '#333333',  // Black
+  custom: '#333333'    // Black
 };
 
 const FlowConnector: React.FC<FlowConnectorProps> = ({
@@ -49,7 +50,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
   
   const strokeColor = connectionColors[connectionType];
   
-  // Get the smooth step path for elbow lines with 90 and 180 degree angles
+  // Get the smooth step path with rounded corners
   const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -57,7 +58,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
     targetX,
     targetY,
     targetPosition,
-    borderRadius: 0, // Set to 0 for sharp corners (90 and 180 degree angles)
+    borderRadius: 16, // Set to a higher value for rounded corners
   });
 
   const handleDelete = () => {
@@ -74,7 +75,7 @@ const FlowConnector: React.FC<FlowConnectorProps> = ({
         style={{
           stroke: strokeColor,
           strokeWidth: 3,
-          strokeLinecap: 'square', // Changed from 'round' to 'square' for sharper corners
+          strokeLinecap: 'round', // Changed back to 'round' for smoother appearance
           fill: 'none',
           zIndex: 1000,
         }}

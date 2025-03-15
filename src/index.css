@@ -213,13 +213,14 @@
   marker: none !important;
   fill: none;
   stroke-width: 3px !important;
-  stroke-linecap: square !important; /* Changed from round to square for sharper corners */
+  stroke: #333333 !important; /* Set all connection lines to black */
+  stroke-linecap: round !important; /* Changed back to round for smoother appearance */
 }
 
 .react-flow__connectionline {
-  stroke: #6B7280;
+  stroke: #333333; /* Black color for connection line */
   stroke-width: 3;
-  stroke-linecap: square; /* Changed from round to square for sharper corners */
+  stroke-linecap: round; /* Changed back to round for smoother appearance */
   marker-end: none !important;
   fill: none;
 }
