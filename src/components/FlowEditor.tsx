@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -272,19 +271,35 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     // Convert flow to script text
     let script = '';
     
+    // Add title
+    script += `# Roteiro de Atendimento\n\n`;
+    
     // Add assistant profile information if available
     if (currentProfile) {
-      script += `# Perfil do Assistente\n\n`;
-      script += `## Informações Básicas\n`;
-      script += `Nome: ${currentProfile.name}\n`;
-      script += `Profissão: ${currentProfile.profession}\n`;
-      script += `Empresa: ${currentProfile.company}\n`;
-      script += `Contatos: ${currentProfile.contacts}\n\n`;
-      script += `## Diretrizes de Comportamento\n${currentProfile.guidelines}\n\n`;
-      script += `---\n\n`;
+      script += `## Perfil do Assistente\n\n`;
+      script += `**Nome:** ${currentProfile.name}  \n`;
+      script += `**Profissão:** ${currentProfile.profession}  \n`;
+      script += `**Empresa:** ${currentProfile.company}  \n`;
+      script += `**Contatos:** ${currentProfile.contacts}  \n\n`;
+      
+      script += `### Diretrizes do Assistente\n`;
+      // Split guidelines by new lines and format as list items
+      const guidelineLines = currentProfile.guidelines.split('\n')
+        .filter(line => line.trim().length > 0)
+        .map(line => `- ${line.trim()}`);
+      
+      script += guidelineLines.join('\n') + '\n\n';
+      
+      // Add interpretation section
+      script += `## Interpretação do Fluxo\n`;
+      script += `### Como ${currentProfile.name} deve interpretar o roteiro de atendimento:\n`;
+      script += `- **Sempre entender a intenção do cliente** antes de responder, adaptando o fluxo conforme necessário.\n`;
+      script += `- **Navegar entre os cartões de maneira lógica**, seguindo as conexões definidas no fluxo.\n`;
+      script += `- **Se o cliente fornecer uma resposta inesperada**, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
+      script += `- **Voltar para etapas anteriores, se necessário**, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.\n`;
+      script += `- **Confirmar sempre que possível** as escolhas do cliente para evitar erros.\n`;
+      script += `- **Encerrar a conversa de forma educada**, sempre deixando um canal aberto para contato futuro.\n\n`;
     }
-    
-    script += `# Roteiro de Atendimento\n\n`;
     
     // Find initial cards (entry points for the flow)
     const initialCards = nodes.filter(node => node.data.type === 'initial');
@@ -293,6 +308,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       script += `> Nota: Este fluxo não possui cartões iniciais definidos! Considere adicionar um cartão do tipo 'initial' para marcar o início do fluxo.\n\n`;
       // If no initial cards, just use any card as a starting point
       if (nodes.length > 0) {
+        script += `## Pontos de Entrada (1)\n\n`;
+        script += `### Entrada 1: ${nodes[0].data.title}\n\n`;
         processNode(nodes[0], 0, new Set());
       }
     } else {
@@ -308,34 +325,33 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     function processNode(node, depth, visited) {
       // Avoid infinite loops in cyclical graphs
       if (visited.has(node.id)) {
-        script += `${' '.repeat(depth * 2)}**Nota:** Este nó já foi processado anteriormente (referência cíclica).\n\n`;
+        script += `**Nota:** Este nó já foi processado anteriormente (referência cíclica).\n\n`;
         return;
       }
       visited.add(node.id);
       
-      const indent = '  '.repeat(depth);
       const card = node.data;
       
-      script += `${indent}## ${card.title}\n`;
-      script += `${indent}**Tipo de Cartão:** ${card.type}\n`;
-      script += `${indent}**ID:** ${card.id}\n\n`;
+      script += `## ${card.title}  \n`;
+      script += `**Tipo de Cartão:** ${card.type}  \n`;
+      script += `**ID:** ${card.id}  \n\n`;
       
       if (card.description) {
-        script += `${indent}**Descrição:**\n${indent}${card.description}\n\n`;
+        script += `**Descrição:**  \n${card.description}  \n\n`;
       }
       
       if (card.content) {
-        script += `${indent}**Conteúdo/Script:**\n${indent}${card.content.replace(/\n/g, '\n' + indent)}\n\n`;
+        script += `**Conteúdo/Script:**  \n${card.content}  \n\n`;
       }
       
       // Add specific fields based on card type
       if (card.fields && Object.keys(card.fields).length > 0) {
-        script += `${indent}**Campos Específicos:**\n`;
+        script += `**Campos Específicos:**  \n`;
         
         for (const [key, value] of Object.entries(card.fields)) {
           // Skip empty values or title/description/content that are already shown
           if (value && key !== 'title' && key !== 'description' && key !== 'content') {
-            script += `${indent}- **${key}:** ${value}\n`;
+            script += `- **${key}:** ${value}  \n`;
           }
         }
         script += '\n';
@@ -345,7 +361,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
       
       if (outgoingEdges.length > 0) {
-        script += `${indent}**Opções de Resposta:**\n`;
+        script += `**Opções de Resposta:**  \n`;
         
         // Process each connection
         outgoingEdges.forEach((edge, idx) => {
@@ -359,25 +375,25 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
               ? `"${portLabel}"` 
               : `Resposta ${idx + 1}`;
             
-            let typeLabel = '';
+            let typeEmoji = '';
             switch (connectionType) {
               case 'positive':
-                typeLabel = '✅ Positiva';
+                typeEmoji = '✅';
                 break;
               case 'negative':
-                typeLabel = '❌ Negativa';
+                typeEmoji = '❌';
                 break;
               case 'neutral':
-                typeLabel = '⚪ Neutra';
+                typeEmoji = '⚪';
                 break;
               case 'custom':
-                typeLabel = '🔶 Personalizada';
+                typeEmoji = '🔶';
                 break;
               default:
-                typeLabel = connectionType;
+                typeEmoji = '➡️';
             }
             
-            script += `${indent}- ${responseLabel} (${typeLabel}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})\n`;
+            script += `- ${responseLabel} (${typeEmoji} ${connectionType}): ➡️ Leva para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
           }
         });
         
@@ -409,26 +425,26 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
                 typeEmoji = '➡️';
             }
             
-            script += `${indent}### Fluxo para "${portLabel}" (${typeEmoji} ${connectionType}):\n\n`;
+            script += `### Fluxo para "${portLabel}" (${typeEmoji} ${connectionType}):\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
       } else {
-        script += `${indent}**Nota:** Este é um nó terminal (sem conexões de saída).\n\n`;
+        script += `**Nota:** Este é um nó terminal (sem conexões de saída).  \n\n`;
       }
     }
     
     // Add a footer with generation information
     script += `---\n\n`;
-    script += `Roteiro gerado em: ${new Date().toLocaleString()}\n`;
-    script += `Total de nós: ${nodes.length}\n`;
-    script += `Total de conexões: ${edges.length}\n`;
+    script += `Roteiro gerado em: ${new Date().toLocaleString()}  \n`;
+    script += `Total de nós: ${nodes.length}  \n`;
+    script += `Total de conexões: ${edges.length}  \n`;
     
     // Set script content and open modal
     setScriptContent(script);
     setIsScriptModalOpen(true);
   }, [nodes, edges, currentProfile, toast]);
-  
+
   // Handle new card
   const handleNewCard = useCallback(() => {
     if (reactFlowInstance.current) {
