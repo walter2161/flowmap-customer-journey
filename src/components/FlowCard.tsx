@@ -1,6 +1,7 @@
+
 import React, { memo, useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { FlowCard, CardType, OutputPort } from '@/utils/flowTypes';
+import { FlowCard, OutputPort } from '@/utils/flowTypes';
 import { Edit, Plus, Trash } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import {
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useReactFlow } from 'reactflow';
 
-const cardTypeClasses: Record<CardType, string> = {
+const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
   regular: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
   end: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500',
@@ -34,28 +35,10 @@ const cardTypeClasses: Record<CardType, string> = {
   'imovel-usado': 'bg-gradient-to-br from-violet-50 to-violet-100 border-2 border-violet-500',
   'imovel-comercial': 'bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-500',
   'agendar-visita': 'bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 border-2 border-fuchsia-500',
-  'agendar-reuniao': 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500',
-  message: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
-  question: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-500',
-  condition: 'bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-500',
-  action: 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-500',
-  service: 'bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-500',
-  contact: 'bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-500',
-  confirmacao: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
-  documentacao: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
-  duvidas: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-500',
-  detalhes: 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-500',
-  orcamento: 'bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-500',
-  carrinho: 'bg-gradient-to-br from-cyan-50 to-cyan-100 border-2 border-cyan-500',
-  checkout: 'bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-500',
-  pedido: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
-  problema: 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500',
-  solucoes: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
-  chamado: 'bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-500',
-  faq: 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-500'
+  'agendar-reuniao': 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500'
 };
 
-const cardTypeHeaders: Record<CardType, string> = {
+const cardTypeHeaders = {
   initial: 'bg-green-500 text-white',
   regular: 'bg-blue-500 text-white',
   end: 'bg-red-500 text-white',
@@ -74,28 +57,10 @@ const cardTypeHeaders: Record<CardType, string> = {
   'imovel-usado': 'bg-violet-500 text-white',
   'imovel-comercial': 'bg-sky-500 text-white',
   'agendar-visita': 'bg-fuchsia-500 text-white',
-  'agendar-reuniao': 'bg-lime-500 text-white',
-  message: 'bg-blue-500 text-white',
-  question: 'bg-yellow-500 text-white',
-  condition: 'bg-orange-500 text-white',
-  action: 'bg-emerald-500 text-white',
-  service: 'bg-purple-500 text-white',
-  contact: 'bg-indigo-500 text-white',
-  confirmacao: 'bg-green-500 text-white',
-  documentacao: 'bg-blue-500 text-white',
-  duvidas: 'bg-yellow-500 text-white',
-  detalhes: 'bg-gray-500 text-white',
-  orcamento: 'bg-teal-500 text-white',
-  carrinho: 'bg-cyan-500 text-white',
-  checkout: 'bg-pink-500 text-white',
-  pedido: 'bg-blue-500 text-white',
-  problema: 'bg-red-500 text-white',
-  solucoes: 'bg-green-500 text-white',
-  chamado: 'bg-purple-500 text-white',
-  faq: 'bg-yellow-500 text-white'
+  'agendar-reuniao': 'bg-lime-500 text-white'
 };
 
-const cardTypeLabels: Record<CardType, string> = {
+const cardTypeLabels = {
   initial: 'INÍCIO',
   regular: 'PADRÃO',
   end: 'FIM',
@@ -114,25 +79,7 @@ const cardTypeLabels: Record<CardType, string> = {
   'imovel-usado': 'IMÓVEL USADO',
   'imovel-comercial': 'IMÓVEL COMERCIAL',
   'agendar-visita': 'AGENDAR VISITA',
-  'agendar-reuniao': 'AGENDAR REUNIÃO',
-  message: 'MENSAGEM',
-  question: 'QUESTÃO',
-  condition: 'CONDIÇÃO',
-  action: 'AÇÃO',
-  service: 'SERVIÇO',
-  contact: 'CONTATO',
-  confirmacao: 'CONFIRMAÇÃO',
-  documentacao: 'DOCUMENTAÇÃO',
-  duvidas: 'DÚVIDAS',
-  detalhes: 'DETALHES',
-  orcamento: 'ORÇAMENTO',
-  carrinho: 'CARRINHO',
-  checkout: 'CHECKOUT',
-  pedido: 'PEDIDO',
-  problema: 'PROBLEMA',
-  solucoes: 'SOLUÇÕES',
-  chamado: 'CHAMADO',
-  faq: 'FAQ'
+  'agendar-reuniao': 'AGENDAR REUNIÃO'
 };
 
 // Array de letras para identifcar as portas
@@ -649,4 +596,327 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
         if (!fields) return null;
         return (
           <div className="mt-3 border-t pt-2 border-gray-200">
-            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel</p
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.quartos && <p className="text-xs text-gray-700"><span className="font-semibold">Quartos:</span> {fields.quartos}</p>}
+              {fields.tipo && <p className="text-xs text-gray-700"><span className="font-semibold">Tipo:</span> {fields.tipo}</p>}
+              {fields.finalidade && <p className="text-xs text-gray-700"><span className="font-semibold">Finalidade:</span> {fields.finalidade}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'imovel-lancamento':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Lançamento</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.quartos && <p className="text-xs text-gray-700"><span className="font-semibold">Quartos:</span> {fields.quartos}</p>}
+              {fields.construtora && <p className="text-xs text-gray-700"><span className="font-semibold">Construtora:</span> {fields.construtora}</p>}
+              {fields.previsaoEntrega && <p className="text-xs text-gray-700"><span className="font-semibold">Entrega:</span> {fields.previsaoEntrega}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'imovel-usado':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel Usado</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.idade && <p className="text-xs text-gray-700"><span className="font-semibold">Idade:</span> {fields.idade}</p>}
+              {fields.reformado !== undefined && <p className="text-xs text-gray-700"><span className="font-semibold">Reformado:</span> {fields.reformado ? 'Sim' : 'Não'}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'imovel-comercial':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Imóvel Comercial</p>
+            {fields.endereco && <p className="text-xs text-gray-700"><span className="font-semibold">Endereço:</span> {fields.endereco}</p>}
+            <div className="flex flex-wrap gap-x-4">
+              {fields.valorAluguel && <p className="text-xs text-gray-700"><span className="font-semibold">Aluguel:</span> {fields.valorAluguel}</p>}
+              {fields.area && <p className="text-xs text-gray-700"><span className="font-semibold">Área:</span> {fields.area}m²</p>}
+              {fields.tipoComercial && <p className="text-xs text-gray-700"><span className="font-semibold">Tipo:</span> {fields.tipoComercial}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'agendar-visita':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Visita</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.imovel && <p className="text-xs text-gray-700"><span className="font-semibold">Imóvel:</span> {fields.imovel}</p>}
+              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
+              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
+              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'agendar-reuniao':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes da Reunião</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.assunto && <p className="text-xs text-gray-700"><span className="font-semibold">Assunto:</span> {fields.assunto}</p>}
+              {fields.local && <p className="text-xs text-gray-700"><span className="font-semibold">Local:</span> {fields.local}</p>}
+              {fields.data && <p className="text-xs text-gray-700"><span className="font-semibold">Data:</span> {fields.data}</p>}
+              {fields.horario && <p className="text-xs text-gray-700"><span className="font-semibold">Horário:</span> {fields.horario}</p>}
+              {fields.nomeCliente && <p className="text-xs text-gray-700"><span className="font-semibold">Cliente:</span> {fields.nomeCliente}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'servico':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Serviço</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.duracao && <p className="text-xs text-gray-700"><span className="font-semibold">Duração:</span> {fields.duracao}</p>}
+              {fields.categoria && <p className="text-xs text-gray-700"><span className="font-semibold">Categoria:</span> {fields.categoria}</p>}
+            </div>
+          </div>
+        );
+      
+      case 'produto':
+        if (!fields) return null;
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Detalhes do Produto</p>
+            <div className="flex flex-wrap gap-x-4">
+              {fields.nome && <p className="text-xs text-gray-700"><span className="font-semibold">Nome:</span> {fields.nome}</p>}
+              {fields.preco && <p className="text-xs text-gray-700"><span className="font-semibold">Preço:</span> {fields.preco}</p>}
+              {fields.estoque && <p className="text-xs text-gray-700"><span className="font-semibold">Estoque:</span> {fields.estoque}</p>}
+              {fields.codigo && <p className="text-xs text-gray-700"><span className="font-semibold">Código:</span> {fields.codigo}</p>}
+            </div>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div 
+      className={`rounded-md shadow-md overflow-hidden ${cardTypeClasses[data.type]} ${selected ? 'ring-2 ring-black ring-opacity-50' : ''}`}
+      style={{ width: '350px' }} // Set standard width for all cards
+    >
+      {/* Input source handle */}
+      {data.type !== 'initial' && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{ background: '#555', width: 10, height: 10 }}
+          id="in"
+        />
+      )}
+      
+      {/* Header */}
+      <div className={`px-3 py-1 ${cardTypeHeaders[data.type]} flex justify-between items-center`}>
+        <div className="text-xs font-semibold">{cardTypeLabels[data.type]}</div>
+        <div className="flex gap-1">
+          {!isEditing && (
+            <button
+              onClick={handleEdit}
+              className="text-white p-1 rounded hover:bg-white hover:bg-opacity-20"
+            >
+              <Edit size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {/* Card Content */}
+      <div className="bg-white p-3">
+        {isEditing ? (
+          // Edit mode
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Título</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Descrição</label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Conteúdo</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full p-1 text-sm border border-gray-300 rounded"
+                rows={3}
+              />
+            </div>
+            
+            {/* Type-specific fields */}
+            {renderTypeSpecificFields()}
+
+            {/* Output port management - only show for non-end cards */}
+            {data.type !== 'end' && (
+              <div className="mt-4 border-t pt-3 border-gray-200">
+                <h4 className="text-xs uppercase text-gray-500 font-semibold tracking-wide mb-2">Portas de Saída</h4>
+                
+                {outputPorts.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {outputPorts.map((port, index) => (
+                      <div key={port.id} className="flex items-center justify-between">
+                        <span className="text-xs text-gray-700 flex items-center">
+                          <span className="inline-flex items-center justify-center bg-blue-500 text-white rounded-full w-5 h-5 text-xs mr-2">
+                            {index < portLetters.length ? portLetters[index] : '#'}
+                          </span>
+                          {port.label}
+                        </span>
+                        <button
+                          onClick={() => removeOutputPort(port.id)}
+                          className="text-red-500 p-1 rounded hover:bg-red-50"
+                        >
+                          <Trash size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={newPortLabel}
+                    onChange={(e) => setNewPortLabel(e.target.value)}
+                    placeholder="Adicionar porta..."
+                    className="flex-1 p-1 text-sm border border-gray-300 rounded"
+                  />
+                  <button
+                    onClick={addOutputPort}
+                    className="bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
+                    disabled={newPortLabel.trim() === ''}
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Action buttons */}
+            <div className="flex justify-between mt-4">
+              {/* Delete button */}
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 flex items-center gap-1"
+              >
+                <Trash size={12} />
+                Excluir
+              </button>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleCancel}
+                  className="px-2 py-1 text-xs bg-gray-100 rounded border border-gray-300 hover:bg-gray-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // View mode
+          <div>
+            <h3 className="font-medium text-sm">{title}</h3>
+            {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+            {content && <p className="text-xs text-gray-700 mt-2">{content}</p>}
+            
+            {/* Display type-specific fields */}
+            {renderTypeSpecificDisplay()}
+            
+            {/* Display output ports with connection points at the end of each row */}
+            {data.type !== 'end' && outputPorts.length > 0 && (
+              <div className="mt-3 border-t pt-2 border-gray-200">
+                <p className="text-xs uppercase text-gray-500 font-semibold tracking-wide">Portas de Saída</p>
+                <div className="flex flex-col gap-2 mt-1">
+                  {outputPorts.map((port, index) => (
+                    <div key={port.id} className="flex items-center justify-between relative">
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded flex-1">{port.label}</span>
+                      {/* Connection point at the end of each row */}
+                      <Handle
+                        type="source"
+                        position={Position.Right}
+                        id={port.id}
+                        style={{
+                          position: 'absolute',
+                          right: '-10px',
+                          width: '10px',
+                          height: '10px',
+                          background: '#3B82F6',
+                          borderRadius: '50%',
+                          border: '2px solid white'
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Cartão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita e todas as conexões associadas também serão removidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default memo(FlowCardComponent);

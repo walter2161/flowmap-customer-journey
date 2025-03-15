@@ -1,75 +1,57 @@
 
-import { CSSProperties } from 'react';
-
-export interface Position {
-  x: number;
-  y: number;
-}
-
+// Define types for flow cards and connections
 export type CardType = 
   | 'initial' 
-  | 'message' 
-  | 'question' 
-  | 'condition' 
-  | 'action' 
-  | 'product' 
-  | 'service' 
-  | 'contact' 
+  | 'regular' 
+  | 'end' 
   | 'imovel' 
   | 'servico' 
-  | 'agendar-visita' 
-  | 'confirmacao' 
-  | 'documentacao' 
-  | 'duvidas' 
-  | 'contatos' 
-  | 'detalhes' 
-  | 'ordem-servico' 
-  | 'orcamento' 
   | 'produto' 
-  | 'carrinho' 
-  | 'checkout' 
-  | 'pedido' 
-  | 'problema' 
-  | 'solucoes' 
-  | 'chamado' 
-  | 'faq'
-  | 'regular'
-  | 'end'
-  | 'imovel-lancamento'
-  | 'imovel-usado'
-  | 'imovel-comercial'
-  | 'agendar-reuniao'
-  | 'multipla-escolha'
-  | 'pergunta-respostas'
-  | 'agendar'
-  | 'briefing'
-  | 'acao'
-  | 'html';
+  | 'multipla-escolha' 
+  | 'pergunta-respostas' 
+  | 'contatos' 
+  | 'agendar' 
+  | 'ordem-servico' 
+  | 'briefing' 
+  | 'acao' 
+  | 'html' 
+  | 'imovel-lancamento' 
+  | 'imovel-usado' 
+  | 'imovel-comercial' 
+  | 'agendar-visita' 
+  | 'agendar-reuniao';
 
-export interface Port {
+export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
+
+// Type for output ports
+export interface OutputPort {
   id: string;
   label: string;
 }
 
-// Define OutputPort as alias to Port for better semantic meaning
-export type OutputPort = Port;
-
-export interface FlowCardFields {
-  [key: string]: string | number | boolean | string[];
+// Type for the assistant profile
+export interface AssistantProfile {
+  name: string;
+  profession: string;
+  company: string;
+  contacts: string;
+  avatar: string;
+  guidelines: string;
 }
 
+// Type for flow cards
 export interface FlowCard {
   id: string;
-  type: CardType;
   title: string;
   description: string;
   content: string;
-  position: Position;
-  fields: FlowCardFields;
-  outputPorts: OutputPort[];
-  style?: CSSProperties;
+  position: { x: number; y: number };
+  type: CardType;
+  outputPorts?: OutputPort[];
+  fields?: Record<string, any>;
 }
 
+// Type for flow connections
 export interface FlowConnection {
   id: string;
   start: string;
@@ -79,17 +61,7 @@ export interface FlowConnection {
   sourcePortLabel?: string;
 }
 
-export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
-
-export interface AssistantProfile {
-  name: string;
-  profession: string;
-  company: string;
-  contacts: string;
-  guidelines: string;
-  avatar: string;
-}
-
+// Type for flow data
 export interface FlowData {
   cards: FlowCard[];
   connections: FlowConnection[];
