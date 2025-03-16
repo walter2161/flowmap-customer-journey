@@ -41,27 +41,34 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
   // Initialize chat with system and welcome messages when modal opens
   useEffect(() => {
     if (isOpen && !initialized) {
-      // Create system message with instructions and strict limitations
+      // Create system message with instructions for the assistant
       const systemMessage: ChatMessage = {
         role: 'system',
         content: `Instruções para o assistente virtual:
-        
-1. Você é um assistente com conhecimento EXCLUSIVAMENTE baseado no seguinte roteiro:
+
+1. Você é um assistente de atendimento que deve utilizar as informações do roteiro abaixo para guiar suas interações:
 ${scriptContent}
 
-2. IMPORTANTE: Você NÃO DEVE fornecer informações sobre serviços, produtos ou quaisquer detalhes que NÃO estejam explicitamente mencionados no roteiro acima.
+2. IMPORTANTE: 
+   - Não mencione que está usando um "roteiro", "script" ou "fluxo de atendimento".
+   - Atue como se este conhecimento fosse natural para você.
+   - Nunca mencione os "cartões", "cards" ou a existência de um fluxograma.
+   - Nunca repita trechos do roteiro diretamente, reformule com suas próprias palavras.
 
-3. Se uma pergunta estiver fora do escopo do roteiro, informe gentilmente que não pode ajudar com isso, dizendo: "Desculpe, não tenho informações sobre isso no meu roteiro de atendimento. Posso ajudar com algo que esteja no escopo do nosso fluxo de atendimento?"
+3. Use o conteúdo dos cartões, seus títulos, descrições e as conexões entre eles como guia para sua conversa.
 
-4. Mantenha um tom conversacional e amigável.
+4. Quando o usuário expressar uma intenção específica, identifique qual conexão do fluxo deve seguir e direcione a conversa conforme o conteúdo do próximo cartão.
 
-5. Seja conciso nas respostas.
+5. Seja conversacional, dinâmico e intuitivo:
+   - Evite respostas repetitivas ou mecânicas.
+   - Adapte seu tom para ser amigável e natural.
+   - Faça perguntas relevantes para guiar o usuário pelo fluxo.
 
-6. Use análise de linguagem natural (NLP) para interpretar a intenção do usuário e encontrar informações relevantes APENAS no roteiro fornecido.
+6. Se uma pergunta estiver fora do escopo, diga: "Não tenho essa informação no momento. Posso ajudar com algo relacionado a [mencione tópicos do roteiro]?"
 
-7. Mantenha contexto da conversa para proporcionar respostas coerentes ao longo da interação.
+7. Seja conciso nas respostas. Prefira respostas breves e objetivas.
 
-8. Nunca invente informações ou forneça detalhes que não estejam explicitamente no roteiro.`,
+8. Nunca invente informações além do que está no roteiro.`,
         timestamp: new Date()
       };
       
@@ -69,9 +76,9 @@ ${scriptContent}
       let welcomeMessage = '';
       
       if (profile) {
-        welcomeMessage = `Olá! Eu sou ${profile.name} ${profile.profession ? `da ${profile.profession}` : ''} ${profile.company ? `na ${profile.company}` : ''}. Como posso ajudar você hoje? Estarei fornecendo informações de acordo com nosso roteiro de atendimento.`;
+        welcomeMessage = `Olá! Eu sou ${profile.name} ${profile.profession ? `da ${profile.profession}` : ''} ${profile.company ? `na ${profile.company}` : ''}. Como posso ajudar você hoje?`;
       } else {
-        welcomeMessage = 'Olá! Como posso ajudar você hoje? Estarei fornecendo informações de acordo com nosso roteiro de atendimento.';
+        welcomeMessage = 'Olá! Como posso ajudar você hoje?';
       }
       
       const assistantWelcome: ChatMessage = {
@@ -138,7 +145,7 @@ ${scriptContent}
         body: JSON.stringify({
           model: 'mistral-tiny',
           messages: messagesForApi,
-          temperature: 0.5, // Slightly reduce temperature for more factual responses
+          temperature: 0.7, // Increased slightly to encourage more dynamic responses
           max_tokens: 800
         })
       });
