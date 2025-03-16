@@ -4,15 +4,17 @@ import FlowEditor from '@/components/FlowEditor';
 import { getTemplateData } from '@/utils/templateData';
 import { AuthCheck } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, Bot } from 'lucide-react';
+import { LogOut, Bot, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ChatPreview from '@/components/modals/ChatPreview';
+import WhatsAppSync from '@/components/modals/WhatsAppSync';
 
 const Index = () => {
   // Use o template do Salão de Beleza como dados iniciais
   const initialData = getTemplateData('salao');
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isWhatsAppSyncOpen, setIsWhatsAppSyncOpen] = useState(false);
   
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
@@ -30,6 +32,15 @@ const Index = () => {
               <p className="text-sm text-gray-500">Crie e edite fluxos de atendimento para sua empresa</p>
             </div>
             <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsWhatsAppSyncOpen(true)} 
+                className="gap-2"
+              >
+                <MessageSquare size={16} className="text-green-600" />
+                Sincronizar WhatsApp
+              </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -55,6 +66,11 @@ const Index = () => {
           isOpen={isChatOpen} 
           onOpenChange={setIsChatOpen} 
           scriptContent={initialData ? generateScriptFromData(initialData) : "Sem roteiro disponível."} 
+        />
+        
+        <WhatsAppSync
+          isOpen={isWhatsAppSyncOpen}
+          onOpenChange={setIsWhatsAppSyncOpen}
         />
       </div>
     </AuthCheck>
