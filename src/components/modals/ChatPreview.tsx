@@ -1,10 +1,10 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SendHorizontal, Bot, User, Loader2 } from 'lucide-react';
 import { AssistantProfile } from '@/utils/flowTypes';
 import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
 interface ChatPreviewProps {
@@ -25,8 +25,8 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [apiKey, setApiKey] = useState<string>('');
-  const [showApiKeyInput, setShowApiKeyInput] = useState(true);
+  const [apiKey, setApiKey] = useState<string>('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');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   
   // Start with assistant welcome message and system message when modal opens
   useEffect(() => {
@@ -273,33 +273,32 @@ ${scriptContent}
             </div>
             
             <div className="p-4 border-t bg-white">
-              <form 
-                className="flex gap-2" 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSendMessage();
-                }}
-              >
-                <Input
-                  type="text"
+              <div className="relative">
+                <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Digite sua mensagem..."
-                  className="flex-1"
+                  className="w-full min-h-[80px] pr-12 resize-none rounded-xl border-gray-300 focus:border-primary focus:ring focus:ring-primary/20"
                   disabled={isLoading}
-                  autoComplete="off"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
                 />
-                <Button 
-                  type="submit"
-                  variant="default" 
-                  size="icon"
+                <Button
+                  type="button"
+                  onClick={handleSendMessage}
                   disabled={isLoading || input.trim() === ''}
+                  className="absolute bottom-3 right-3 p-2 rounded-full bg-primary hover:bg-primary/90 transition-colors"
+                  size="icon"
                 >
-                  <SendHorizontal className="h-5 w-5" />
+                  <SendHorizontal className="h-5 w-5 text-white" />
                 </Button>
-              </form>
+              </div>
               <div className="mt-2 text-xs text-gray-500 italic text-center">
-                Chat com OpenAI LLM em tempo real. Suas mensagens são processadas por IA.
+                Chat com OpenAI LLM em tempo real usando gpt-4o-mini. Pressione Enter para enviar.
               </div>
             </div>
           </>
