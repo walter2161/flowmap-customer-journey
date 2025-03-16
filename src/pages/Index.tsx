@@ -77,11 +77,11 @@ const generateScriptFromData = (data) => {
     script += `Função: ${data.profile.profession}\n\n`;
   }
   
-  // Add each card to the script
+  // Add each card to the script with their positions
   data.cards.forEach(card => {
     script += `## ${card.title}\n`;
     
-    // Add position information with clearer formatting
+    // Add position information with precise formatting
     if (card.position) {
       script += `**Posição:** x: ${card.position.x.toFixed(2)}, y: ${card.position.y.toFixed(2)}\n`;
     }

@@ -17,20 +17,25 @@ export const useFlowData = (initialData: FlowData) => {
   // Initialize flow data
   useEffect(() => {
     if (initialData) {
-      // Convert cards to nodes
+      // Convert cards to nodes, ensuring each card has a distinct position
       const flowNodes = initialData.cards.map(card => ({
         id: card.id,
         type: 'flowCard',
-        position: card.position || { x: 0, y: 0 }, // Ensure position exists
+        // Ensure position exists and is not zero
+        position: card.position && card.position.x !== 0 && card.position.y !== 0 
+          ? card.position 
+          : { x: 0, y: 0 }, // This will be replaced by distributeNodes
         data: {
           ...card,
           // Make sure the position is included in the data
-          position: card.position || { x: 0, y: 0 }
+          position: card.position && card.position.x !== 0 && card.position.y !== 0 
+            ? card.position 
+            : { x: 0, y: 0 } // This will be replaced
         }
       }));
       
-      // Always distribute nodes to ensure proper layout
-      const positionedNodes = distributeNodesIfNeeded(flowNodes);
+      // Always distribute nodes to ensure proper layout and prevent stacking
+      const positionedNodes = distributeNodes(flowNodes);
       
       setNodes(positionedNodes);
       setEdges(initialData.connections.map(conn => ({
@@ -52,74 +57,135 @@ export const useFlowData = (initialData: FlowData) => {
     }
   }, [initialData, setNodes, setEdges]);
   
-  // Function to distribute nodes in a better layout
-  const distributeNodesIfNeeded = (nodes) => {
-    // First check if nodes have defined positions
-    const nodesWithDefinedPositions = nodes.filter(node => 
-      node.position && 
-      typeof node.position.x === 'number' && 
-      typeof node.position.y === 'number' &&
-      (Math.abs(node.position.x) > 10 || Math.abs(node.position.y) > 10) // Positions must be significantly non-zero
-    );
-    
-    // If most nodes already have meaningful positions, use those
-    if (nodesWithDefinedPositions.length > nodes.length * 0.7) {
-      return nodes;
-    }
-    
-    // If we need to distribute the nodes, do it in a more natural flow layout
-    
-    // Define some layout parameters for different node types
+  // Improved function to distribute nodes with proper spacing
+  const distributeNodes = (nodes) => {
+    // Define base positions for different node types
     const typePositions = {
-      'initial': { x: -300, y: -80 },     // Boas-vindas (initial node)
-      'servico': { x: 200, y: -250 },     // Services (like Corte de Cabelo, Coloração, etc)
-      'agendar': { x: 1250, y: 90 },      // Agendar Horário
-      'confirmacao': { x: 1780, y: 55 },  // Agendamento Confirmado
-      'promocao': { x: 150, y: 240 },     // Promoções
-      'produto': { x: 940, y: 420 }       // Produtos Profissionais
+      'initial': { x: -339, y: -77 },         // Boas-vindas
+      'servico': { x: 90, y: -176 },          // Services (like Corte de Cabelo)
+      'agendar': { x: 1244, y: 88 },          // Agendar Horário
+      'confirmacao': { x: 1783, y: 56 },      // Agendamento Confirmado
+      'promocao': { x: 154, y: 242 },         // Promoções
+      'produto': { x: 938, y: 418 }           // Produtos Profissionais
     };
     
-    // Distribution parameters
-    const serviceOffsetX = 450;  // Horizontal spacing between service nodes
-    const serviceOffsetY = -100; // Vertical offset for additional service nodes
+    // Specific service positions for common services
+    const specificServicePositions = {
+      'Corte de Cabelo': { x: 90, y: -176 },
+      'Coloração': { x: 552, y: -300 },
+      'Manicure e Pedicure': { x: 1056, y: -399 },
+    };
     
-    // Count for different types
+    // Track occupied positions to avoid overlaps
+    const occupiedPositions = [];
+    
+    // Minimum distance between nodes (50px as requested)
+    const minDistance = 50;
+    
+    // Count different types
     let serviceCounts = 0;
+    let defaultCounts = 0;
+    
+    // Function to check if a position is too close to any occupied position
+    const isTooClose = (pos) => {
+      return occupiedPositions.some(occupiedPos => 
+        Math.abs(occupiedPos.x - pos.x) < minDistance && 
+        Math.abs(occupiedPos.y - pos.y) < minDistance
+      );
+    };
+    
+    // Function to find a safe position
+    const findSafePosition = (basePos, attempts = 0) => {
+      // If this is a valid position, return it
+      if (!isTooClose(basePos)) {
+        return basePos;
+      }
+      
+      // If we've tried too many times, add some random offset
+      if (attempts > 10) {
+        const randomOffset = 100 + Math.random() * 200;
+        const randomAngle = Math.random() * Math.PI * 2;
+        return {
+          x: basePos.x + Math.cos(randomAngle) * randomOffset,
+          y: basePos.y + Math.sin(randomAngle) * randomOffset
+        };
+      }
+      
+      // Try shifting the position
+      const shiftDistance = minDistance + 20;
+      const directions = [
+        { x: shiftDistance, y: 0 },
+        { x: 0, y: shiftDistance },
+        { x: -shiftDistance, y: 0 },
+        { x: 0, y: -shiftDistance },
+        { x: shiftDistance, y: shiftDistance },
+        { x: -shiftDistance, y: shiftDistance },
+        { x: shiftDistance, y: -shiftDistance },
+        { x: -shiftDistance, y: -shiftDistance }
+      ];
+      
+      const newPos = {
+        x: basePos.x + directions[attempts % directions.length].x,
+        y: basePos.y + directions[attempts % directions.length].y
+      };
+      
+      return findSafePosition(newPos, attempts + 1);
+    };
     
     return nodes.map(node => {
-      // Get node type (default to 'default' if not found)
+      // Get node type 
       const nodeType = node.data.type || 'default';
+      const nodeTitle = node.data.title || '';
       
-      // If the node already has a significant non-zero position, keep it
-      if (Math.abs(node.position.x) > 10 || Math.abs(node.position.y) > 10) {
+      // If the node already has a significant non-zero position that's not close to others, keep it
+      if (
+        node.position && 
+        Math.abs(node.position.x) > 10 && 
+        Math.abs(node.position.y) > 10 && 
+        !isTooClose(node.position)
+      ) {
+        occupiedPositions.push(node.position);
         return node;
       }
       
-      // Set position based on node type
-      let newPosition;
+      // Determine the base position based on node type and title
+      let basePosition;
       
-      if (nodeType === 'servico') {
-        // Position services in a row with offset
-        newPosition = {
-          x: typePositions.servico.x + (serviceCounts * serviceOffsetX),
-          y: typePositions.servico.y + (serviceCounts * serviceOffsetY)
+      if (specificServicePositions[nodeTitle]) {
+        // If this is a known service with a specific position
+        basePosition = specificServicePositions[nodeTitle];
+      } else if (nodeType === 'servico') {
+        // Position services with consistent offset
+        basePosition = {
+          x: typePositions.servico.x + (serviceCounts * 180),
+          y: typePositions.servico.y + (serviceCounts * -20)
         };
         serviceCounts++;
+      } else if (typePositions[nodeType]) {
+        // Use predefined positions for known types
+        basePosition = typePositions[nodeType];
       } else {
-        // Use predefined positions for other types, or fallback
-        newPosition = typePositions[nodeType] || { 
-          x: Math.random() * 800, 
-          y: Math.random() * 500 
+        // Default positioning for unknown types
+        basePosition = {
+          x: 200 + (defaultCounts * 180),
+          y: 100 + (defaultCounts * 100)
         };
+        defaultCounts++;
       }
+      
+      // Find a safe position that's not too close to other nodes
+      const safePosition = findSafePosition(basePosition);
+      
+      // Track this position
+      occupiedPositions.push(safePosition);
       
       // Update both node position and the position in the data
       return {
         ...node,
-        position: newPosition,
+        position: safePosition,
         data: {
           ...node.data,
-          position: newPosition
+          position: safePosition
         }
       };
     });
@@ -268,7 +334,7 @@ export const useFlowData = (initialData: FlowData) => {
     }));
     
     // Apply the improved distribution algorithm
-    const positionedNodes = distributeNodesIfNeeded(flowNodes);
+    const positionedNodes = distributeNodes(flowNodes);
     
     setNodes(positionedNodes);
     setEdges(flowEdges);
