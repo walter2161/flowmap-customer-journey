@@ -54,11 +54,45 @@ const Index = () => {
         <ChatPreview 
           isOpen={isChatOpen} 
           onOpenChange={setIsChatOpen} 
-          scriptContent={initialData.scriptContent || "Sem roteiro disponível."} 
+          scriptContent={initialData ? generateScriptFromData(initialData) : "Sem roteiro disponível."} 
         />
       </div>
     </AuthCheck>
   );
 };
+
+// Helper function to generate script content from flow data
+const generateScriptFromData = (data) => {
+  if (!data || !data.cards || data.cards.length === 0) {
+    return "Sem roteiro disponível.";
+  }
+
+  // Create a simple script based on the flow data cards
+  let script = "# Roteiro de Atendimento\n\n";
+  
+  // Add profile info if available
+  if (data.profile) {
+    script += `## Assistente: ${data.profile.name}\n`;
+    script += `Empresa: ${data.profile.company}\n`;
+    script += `Função: ${data.profile.profession}\n\n`;
+  }
+  
+  // Add each card to the script
+  data.cards.forEach(card => {
+    script += `## ${card.title}\n`;
+    if (card.description) script += `${card.description}\n`;
+    if (card.content) script += `${card.content}\n\n`;
+    
+    // Add fields if present
+    if (card.fields && Object.keys(card.fields).length > 0) {
+      Object.entries(card.fields).forEach(([key, value]) => {
+        if (value) script += `- ${key}: ${value}\n`;
+      });
+      script += '\n';
+    }
+  });
+  
+  return script;
+}
 
 export default Index;
