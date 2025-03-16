@@ -7,8 +7,8 @@ import { AssistantProfile } from '@/utils/flowTypes';
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
-// OpenAI API key
-const OPENAI_API_KEY = "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";
+// Mistral API key
+const MISTRAL_API_KEY = "uVf0xInU0S6AbjC9WwCAWtnjRBReinIy";
 
 interface ChatPreviewProps {
   isOpen: boolean;
@@ -79,7 +79,7 @@ ${scriptContent}
     }
   }, [input]);
   
-  // Handle sending message to OpenAI API
+  // Handle sending message to Mistral AI API
   const handleSendMessage = async () => {
     if (input.trim() === '') return;
     
@@ -90,18 +90,18 @@ ${scriptContent}
     setIsLoading(true);
     
     try {
-      // Prepare messages for OpenAI
+      // Prepare messages for Mistral API
       const messagesForApi = messages.concat(userMessage);
       
-      // Call OpenAI API
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Call Mistral API
+      const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`
+          'Authorization': `Bearer ${MISTRAL_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'mistral-tiny',
           messages: messagesForApi,
           temperature: 0.7,
           max_tokens: 800
@@ -110,7 +110,7 @@ ${scriptContent}
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Erro ao conectar com a OpenAI');
+        throw new Error(errorData.error?.message || 'Erro ao conectar com a Mistral AI');
       }
       
       const data = await response.json();
@@ -127,7 +127,7 @@ ${scriptContent}
       console.error('Erro ao processar resposta:', error);
       toast({
         title: "Erro na API",
-        description: error instanceof Error ? error.message : "Ocorreu um erro ao conectar com a OpenAI",
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao conectar com a Mistral AI",
         variant: "destructive"
       });
       
@@ -154,7 +154,7 @@ ${scriptContent}
         <DialogHeader className="px-4 py-2 bg-white border-b">
           <DialogTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
-            {profile?.name || "Assistente"} - ChatGPT
+            {profile?.name || "Assistente"} - Mistral AI
           </DialogTitle>
           <div className="flex gap-2">
             <Button 

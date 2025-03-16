@@ -54,7 +54,7 @@ const Index = () => {
         <ChatPreview 
           isOpen={isChatOpen} 
           onOpenChange={setIsChatOpen} 
-          scriptContent={initialData.script || "Sem roteiro disponível."} 
+          scriptContent={initialData.scriptContent || "Sem roteiro disponível."} 
         />
       </div>
     </AuthCheck>
