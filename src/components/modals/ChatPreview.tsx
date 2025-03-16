@@ -1,8 +1,10 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SendHorizontal, Bot, User, Loader2, FolderTree, Brain } from 'lucide-react';
 import { AssistantProfile } from '@/utils/flowTypes';
+import { useToast } from "@/components/ui/use-toast";
 
 interface ChatPreviewProps {
   isOpen: boolean;
@@ -17,6 +19,7 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
   scriptContent,
   profile
 }) => {
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant' | 'system', content: string }>>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -54,10 +57,15 @@ ${scriptContent}
         welcomeMessage = 'Olá! Como posso ajudar você hoje?';
       }
       
+      // Reset state when modal opens
       setChatHistory([systemMessage]);
       setMessages([
         { role: 'assistant', content: welcomeMessage }
       ]);
+      setInput('');
+      setIsLoading(false);
+      setAgentThoughts('');
+      setIsAgentThinking(false);
     }
   }, [isOpen, scriptContent, profile]);
   
@@ -86,8 +94,8 @@ ${scriptContent}
       // Generate "thoughts" step by step
       await simulateAgentThinking(userMessage.content, updatedHistory, scriptContent);
       
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Simulate processing time - reduced for better responsiveness
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // Create a more intelligent simulated response based on the user's message, chat history, and script content
       let botResponse = processNLPResponse(userMessage.content, updatedHistory, scriptContent, profile);
@@ -99,6 +107,13 @@ ${scriptContent}
       const assistantMessage = { role: 'assistant' as const, content: botResponse };
       setMessages(prev => [...prev, assistantMessage]);
       setChatHistory([...updatedHistory, assistantMessage]);
+      
+      // Notification for successful processing
+      toast({
+        title: "Processamento concluído",
+        description: "O chatbot processou sua mensagem com sucesso.",
+        duration: 2000
+      });
     } catch (error) {
       console.error('Error generating response:', error);
       setIsAgentThinking(false);
@@ -107,6 +122,12 @@ ${scriptContent}
         role: 'assistant', 
         content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.' 
       }]);
+      
+      toast({
+        title: "Erro no processamento",
+        description: "Houve um problema ao processar sua mensagem.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -140,8 +161,8 @@ ${scriptContent}
     
     for (const step of thinkingSteps) {
       setAgentThoughts(prev => prev + step + '\n\n');
-      // Random delay between thinking steps
-      await new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 500));
+      // Random delay between thinking steps - reduced for better UX
+      await new Promise(resolve => setTimeout(resolve, 150 + Math.random() * 300));
     }
     
     // Extract key information from the script for more advanced response
@@ -301,8 +322,8 @@ ${scriptContent}
       }
     }
     
-    // If no specific information found, provide a more helpful fallback
-    return "Entendi sua pergunta. Com base no nosso roteiro de atendimento, posso ajudar a encontrar a melhor solução para você. Para que eu possa ser mais preciso, poderia me dar mais detalhes sobre o que está procurando especificamente?";
+    // Fallback response - make it more responsive to the user's query
+    return `Entendi sua pergunta sobre "${userMessage.substring(0, 30)}${userMessage.length > 30 ? '...' : ''}". Com base no nosso roteiro de atendimento, posso ajudar a encontrar a melhor solução para você. Para que eu possa ser mais preciso, poderia me dar mais detalhes sobre o que está procurando especificamente?`;
   };
 
   // Function to build a simple keyword index from script lines
@@ -347,7 +368,7 @@ ${scriptContent}
       }
     });
     
-    // If we found relevant lines, return the most relevant one (simplified version)
+    // If we found relevant lines, return the most relevant one
     if (allRelevantLines.length > 0) {
       // Sort by relevance (number of keyword matches)
       const mostRelevantLine = allRelevantLines.sort((a, b) => {
@@ -538,8 +559,14 @@ ${scriptContent}
               onKeyDown={handleKeyDown}
               placeholder="Digite sua mensagem..."
               className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              disabled={isLoading}
             />
-            <Button onClick={handleSendMessage} variant="default" size="icon">
+            <Button 
+              onClick={handleSendMessage} 
+              variant="default" 
+              size="icon"
+              disabled={isLoading || input.trim() === ''}
+            >
               <SendHorizontal className="h-5 w-5" />
             </Button>
           </div>
