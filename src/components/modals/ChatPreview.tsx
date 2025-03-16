@@ -41,20 +41,27 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
   // Initialize chat with system and welcome messages when modal opens
   useEffect(() => {
     if (isOpen && !initialized) {
-      // Create system message with instructions
+      // Create system message with instructions and strict limitations
       const systemMessage: ChatMessage = {
         role: 'system',
         content: `Instruções para o assistente virtual:
         
-1. Você é um assistente com conhecimento baseado no seguinte roteiro:
+1. Você é um assistente com conhecimento EXCLUSIVAMENTE baseado no seguinte roteiro:
 ${scriptContent}
 
-2. Use as informações acima para responder perguntas dos usuários.
-3. Se uma pergunta estiver fora do escopo do roteiro, informe gentilmente que não pode ajudar com isso.
+2. IMPORTANTE: Você NÃO DEVE fornecer informações sobre serviços, produtos ou quaisquer detalhes que NÃO estejam explicitamente mencionados no roteiro acima.
+
+3. Se uma pergunta estiver fora do escopo do roteiro, informe gentilmente que não pode ajudar com isso, dizendo: "Desculpe, não tenho informações sobre isso no meu roteiro de atendimento. Posso ajudar com algo que esteja no escopo do nosso fluxo de atendimento?"
+
 4. Mantenha um tom conversacional e amigável.
+
 5. Seja conciso nas respostas.
-6. Use análise de linguagem natural (NLP) para interpretar a intenção do usuário e encontrar informações relevantes no roteiro.
-7. Mantenha contexto da conversa para proporcionar respostas coerentes ao longo da interação.`,
+
+6. Use análise de linguagem natural (NLP) para interpretar a intenção do usuário e encontrar informações relevantes APENAS no roteiro fornecido.
+
+7. Mantenha contexto da conversa para proporcionar respostas coerentes ao longo da interação.
+
+8. Nunca invente informações ou forneça detalhes que não estejam explicitamente no roteiro.`,
         timestamp: new Date()
       };
       
@@ -62,9 +69,9 @@ ${scriptContent}
       let welcomeMessage = '';
       
       if (profile) {
-        welcomeMessage = `Olá! Eu sou ${profile.name} ${profile.profession ? `da ${profile.profession}` : ''} ${profile.company ? `na ${profile.company}` : ''}. Como posso ajudar você hoje?`;
+        welcomeMessage = `Olá! Eu sou ${profile.name} ${profile.profession ? `da ${profile.profession}` : ''} ${profile.company ? `na ${profile.company}` : ''}. Como posso ajudar você hoje? Estarei fornecendo informações de acordo com nosso roteiro de atendimento.`;
       } else {
-        welcomeMessage = 'Olá! Como posso ajudar você hoje?';
+        welcomeMessage = 'Olá! Como posso ajudar você hoje? Estarei fornecendo informações de acordo com nosso roteiro de atendimento.';
       }
       
       const assistantWelcome: ChatMessage = {
@@ -131,7 +138,7 @@ ${scriptContent}
         body: JSON.stringify({
           model: 'mistral-tiny',
           messages: messagesForApi,
-          temperature: 0.7,
+          temperature: 0.5, // Slightly reduce temperature for more factual responses
           max_tokens: 800
         })
       });
