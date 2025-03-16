@@ -1,16 +1,18 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import { getTemplateData } from '@/utils/templateData';
 import { AuthCheck } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ChatPreview from '@/components/modals/ChatPreview';
 
 const Index = () => {
-  // Use the Beauty Salon template as the default initial data
+  // Use o template do Salão de Beleza como dados iniciais
   const initialData = getTemplateData('salao');
   const navigate = useNavigate();
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
@@ -27,16 +29,33 @@ const Index = () => {
               <h1 className="text-2xl font-bold tracking-tight text-gray-900">Criador de Fluxo de Atendimento</h1>
               <p className="text-sm text-gray-500">Crie e edite fluxos de atendimento para sua empresa</p>
             </div>
-            <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
-              <LogOut size={16} />
-              Sair
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsChatOpen(true)} 
+                className="gap-2"
+              >
+                <Bot size={16} />
+                Chatbot IA
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
+                <LogOut size={16} />
+                Sair
+              </Button>
+            </div>
           </div>
         </header>
         
         <main className="w-full h-full pt-20 bg-gray-100">
           <FlowEditor initialData={initialData} />
         </main>
+        
+        <ChatPreview 
+          isOpen={isChatOpen} 
+          onOpenChange={setIsChatOpen} 
+          scriptContent={initialData.script || "Sem roteiro disponível."} 
+        />
       </div>
     </AuthCheck>
   );
