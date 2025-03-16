@@ -1,3 +1,4 @@
+
 import { FlowData } from './flowTypes';
 import { nanoid } from 'nanoid';
 
@@ -554,4 +555,68 @@ export const templates = {
         content: "Para finalizar o agendamento, preciso registrar ou atualizar seu cadastro. Por favor, informe: nome completo, CPF, data de nascimento, endereço, telefone e email.",
         position: { x: 938.00, y: 418.00 },
         type: "briefing",
-        outputPorts
+        outputPorts: [
+          { id: "port-clinic8-1", label: "Dados enviados" }
+        ]
+      },
+      {
+        id: "clinic-9",
+        title: "Confirmação de Agendamento",
+        description: "Consulta agendada",
+        content: "Sua consulta foi agendada com sucesso! Um lembrete será enviado para seu email e celular um dia antes da data marcada.",
+        position: { x: 750, y: 600 },
+        type: "briefing",
+        outputPorts: [
+          { id: "port-clinic9-1", label: "Confirmar" }
+        ]
+      },
+      {
+        id: "clinic-10",
+        title: "Preparo para Exames",
+        description: "Instruções para exames",
+        content: "Para a maioria dos exames de sangue é necessário jejum de 8 a 12 horas. Para exames específicos, enviaremos as instruções por email.",
+        position: { x: 550, y: 650 },
+        type: "html",
+        outputPorts: [
+          { id: "port-clinic10-1", label: "Entendi" }
+        ]
+      },
+      {
+        id: "clinic-11",
+        title: "Valores Particulares",
+        description: "Preços sem convênio",
+        content: "Oferecemos valores especiais para pacientes particulares e opções de pagamento parcelado. Consultas a partir de R$ 250,00.",
+        position: { x: 950, y: 300 },
+        type: "briefing",
+        outputPorts: [
+          { id: "port-clinic11-1", label: "Agendar como particular" },
+          { id: "port-clinic11-2", label: "Mais informações" }
+        ]
+      },
+      {
+        id: "clinic-12",
+        title: "Finalização",
+        description: "Encerramento do atendimento",
+        content: "Agradecemos seu contato. Estamos à disposição para qualquer outra informação que precisar sobre nossos serviços!",
+        position: { x: 1050, y: 500 },
+        type: "end"
+      }
+    ],
+    connections: [
+      { id: "clinic-conn-1", start: "clinic-1", end: "clinic-2", type: "custom", sourceHandle: "port-clinic1-1", sourcePortLabel: "Agendar consulta" },
+      { id: "clinic-conn-2", start: "clinic-1", end: "clinic-3", type: "custom", sourceHandle: "port-clinic1-2", sourcePortLabel: "Dúvidas sobre serviços" },
+      { id: "clinic-conn-3", start: "clinic-1", end: "clinic-4", type: "custom", sourceHandle: "port-clinic1-3", sourcePortLabel: "Resultados de exames" },
+      { id: "clinic-conn-4", start: "clinic-1", end: "clinic-5", type: "custom", sourceHandle: "port-clinic1-4", sourcePortLabel: "Informações sobre convênios" },
+      { id: "clinic-conn-5", start: "clinic-2", end: "clinic-6", type: "custom", sourceHandle: "port-clinic2-1", sourcePortLabel: "Cardiologia" },
+      { id: "clinic-conn-6", start: "clinic-3", end: "clinic-7", type: "custom", sourceHandle: "port-clinic3-1", sourcePortLabel: "Exames laboratoriais" },
+      { id: "clinic-conn-7", start: "clinic-6", end: "clinic-8", type: "custom", sourceHandle: "port-clinic6-1", sourcePortLabel: "Agendar consulta" },
+      { id: "clinic-conn-8", start: "clinic-8", end: "clinic-9", type: "custom", sourceHandle: "port-clinic8-1", sourcePortLabel: "Dados enviados" },
+      { id: "clinic-conn-9", start: "clinic-9", end: "clinic-12", type: "custom", sourceHandle: "port-clinic9-1", sourcePortLabel: "Confirmar" },
+      { id: "clinic-conn-10", start: "clinic-7", end: "clinic-10", type: "custom", sourceHandle: "port-clinic7-2", sourcePortLabel: "Tirar dúvidas sobre preparo" },
+      { id: "clinic-conn-11", start: "clinic-5", end: "clinic-11", type: "custom", sourceHandle: "port-clinic5-4", sourcePortLabel: "Não tenho convênio" },
+      { id: "clinic-conn-12", start: "clinic-11", end: "clinic-2", type: "custom", sourceHandle: "port-clinic11-1", sourcePortLabel: "Agendar como particular" },
+      { id: "clinic-conn-13", start: "clinic-4", end: "clinic-12", type: "custom", sourceHandle: "port-clinic4-1", sourcePortLabel: "Dados confirmados" },
+      { id: "clinic-conn-14", start: "clinic-10", end: "clinic-8", type: "custom", sourceHandle: "port-clinic10-1", sourcePortLabel: "Entendi" }
+    ]
+  }
+};
