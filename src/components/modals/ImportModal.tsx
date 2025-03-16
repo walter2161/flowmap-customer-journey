@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InfoIcon } from 'lucide-react';
 
 interface ImportModalProps {
   isOpen: boolean;
@@ -41,6 +43,12 @@ const ImportModal: React.FC<ImportModalProps> = ({
           </TabsList>
           
           <TabsContent value="paste" className="space-y-4">
+            <Alert className="bg-blue-50 text-blue-700 mb-4">
+              <InfoIcon className="h-4 w-4 mr-2" />
+              <AlertDescription>
+                Certifique-se de que o JSON inclui a propriedade "position" para cada cartão, com valores "x" e "y" para garantir o posicionamento correto.
+              </AlertDescription>
+            </Alert>
             <Textarea
               placeholder="Cole o conteúdo JSON aqui..."
               value={jsonImportContent}
@@ -50,6 +58,12 @@ const ImportModal: React.FC<ImportModalProps> = ({
           </TabsContent>
           
           <TabsContent value="upload" className="space-y-4">
+            <Alert className="bg-blue-50 text-blue-700 mb-4">
+              <InfoIcon className="h-4 w-4 mr-2" />
+              <AlertDescription>
+                Os arquivos JSON importados devem incluir a propriedade "position" para cada cartão para preservar o layout.
+              </AlertDescription>
+            </Alert>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
               <Input
                 ref={fileInputRef}

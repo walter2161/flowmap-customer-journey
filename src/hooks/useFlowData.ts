@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useNodesState, useEdgesState, addEdge, Connection, Edge } from 'reactflow';
 import { FlowData, FlowCard, AssistantProfile } from '@/utils/flowTypes';
@@ -43,7 +42,7 @@ export const useFlowData = (initialData: FlowData) => {
         }
       }));
       
-      // When initializing, distribute nodes in a grid if they're piled up
+      // Only distribute nodes in a grid if they don't have explicit positions
       const positionedNodes = distributeNodesIfNeeded(flowNodes);
       
       setNodes(positionedNodes);
@@ -58,6 +57,19 @@ export const useFlowData = (initialData: FlowData) => {
   
   // Function to check if nodes are piled up and distribute them if needed
   const distributeNodesIfNeeded = (nodes) => {
+    // Check if most nodes have explicit positions
+    const nodesWithPositions = nodes.filter(node => 
+      node.position && 
+      typeof node.position.x === 'number' && 
+      typeof node.position.y === 'number' &&
+      (node.position.x !== 0 || node.position.y !== 0)
+    );
+    
+    // If most nodes already have positions, return them as is
+    if (nodesWithPositions.length > nodes.length * 0.7) {
+      return nodes;
+    }
+    
     // Check if nodes are piled up (too many with the same position)
     const positions = {};
     let needsRedistribution = false;
@@ -81,6 +93,11 @@ export const useFlowData = (initialData: FlowData) => {
     const GRID_COLS = Math.ceil(Math.sqrt(nodes.length)); // Number of columns in grid
     
     return nodes.map((node, index) => {
+      // If the node already has a non-zero position, keep it
+      if (node.position.x !== 0 || node.position.y !== 0) {
+        return node;
+      }
+      
       // Calculate position in grid
       const col = index % GRID_COLS;
       const row = Math.floor(index / GRID_COLS);
@@ -245,7 +262,7 @@ export const useFlowData = (initialData: FlowData) => {
       }
     }));
     
-    // Check if nodes need distribution (if they're piled up)
+    // Only apply grid distribution if nodes don't have explicit positions
     const positionedNodes = distributeNodesIfNeeded(flowNodes);
     
     setNodes(positionedNodes);

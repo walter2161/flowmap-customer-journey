@@ -80,6 +80,12 @@ const generateScriptFromData = (data) => {
   // Add each card to the script
   data.cards.forEach(card => {
     script += `## ${card.title}\n`;
+    
+    // Add position information
+    if (card.position) {
+      script += `**Posição:** x: ${card.position.x.toFixed(2)}, y: ${card.position.y.toFixed(2)}\n`;
+    }
+    
     if (card.description) script += `${card.description}\n`;
     if (card.content) script += `${card.content}\n\n`;
     
