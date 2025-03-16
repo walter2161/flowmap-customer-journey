@@ -1,11 +1,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SendHorizontal, Bot, User, Loader2, FolderTree } from 'lucide-react';
 import { AssistantProfile } from '@/utils/flowTypes';
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mistral API key
 const MISTRAL_API_KEY = "uVf0xInU0S6AbjC9WwCAWtnjRBReinIy";
@@ -17,25 +18,32 @@ interface ChatPreviewProps {
   profile?: AssistantProfile | null;
 }
 
+interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp?: Date;
+}
+
 const ChatPreview: React.FC<ChatPreviewProps> = ({
   isOpen,
   onOpenChange,
   scriptContent,
   profile
 }) => {
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant' | 'system', content: string }>>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isContextExpanded, setIsContextExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [initialized, setInitialized] = useState(false);
   
-  // Start with assistant welcome message and system message when modal opens
+  // Initialize chat with system and welcome messages when modal opens
   useEffect(() => {
-    if (isOpen) {
-      // Create system message based on script content
-      const systemMessage = {
-        role: 'system' as const,
+    if (isOpen && !initialized) {
+      // Create system message with instructions
+      const systemMessage: ChatMessage = {
+        role: 'system',
         content: `Instruções para o assistente virtual:
         
 1. Você é um assistente com conhecimento baseado no seguinte roteiro:
@@ -46,10 +54,11 @@ ${scriptContent}
 4. Mantenha um tom conversacional e amigável.
 5. Seja conciso nas respostas.
 6. Use análise de linguagem natural (NLP) para interpretar a intenção do usuário e encontrar informações relevantes no roteiro.
-7. Mantenha contexto da conversa para proporcionar respostas coerentes ao longo da interação.`
+7. Mantenha contexto da conversa para proporcionar respostas coerentes ao longo da interação.`,
+        timestamp: new Date()
       };
       
-      // Create welcome message based on profile if available
+      // Create welcome message based on profile
       let welcomeMessage = '';
       
       if (profile) {
@@ -58,17 +67,28 @@ ${scriptContent}
         welcomeMessage = 'Olá! Como posso ajudar você hoje?';
       }
       
+      const assistantWelcome: ChatMessage = {
+        role: 'assistant',
+        content: welcomeMessage,
+        timestamp: new Date()
+      };
+      
       // Set initial messages
-      setMessages([
-        systemMessage,
-        { role: 'assistant', content: welcomeMessage }
-      ]);
+      setMessages([systemMessage, assistantWelcome]);
+      setInitialized(true);
     }
-  }, [isOpen, scriptContent, profile]);
+    
+    // Reset initialized state when modal closes
+    if (!isOpen) {
+      setInitialized(false);
+    }
+  }, [isOpen, scriptContent, profile, initialized]);
   
-  // Scroll to bottom on new messages
+  // Scroll to bottom whenever messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
   
   // Auto resize textarea
@@ -84,14 +104,22 @@ ${scriptContent}
     if (input.trim() === '') return;
     
     // Add user message to chat
-    const userMessage = { role: 'user' as const, content: input.trim() };
+    const userMessage: ChatMessage = { 
+      role: 'user', 
+      content: input.trim(),
+      timestamp: new Date()
+    };
+    
+    // Update messages state with user message
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
     
     try {
-      // Prepare messages for Mistral API
-      const messagesForApi = messages.concat(userMessage);
+      // Prepare messages for Mistral API (exclude timestamps)
+      const messagesForApi = messages
+        .concat(userMessage)
+        .map(({ role, content }) => ({ role, content }));
       
       // Call Mistral API
       const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
@@ -114,12 +142,15 @@ ${scriptContent}
       }
       
       const data = await response.json();
+      console.log('Mistral API response:', data);
+      
       const assistantResponse = data.choices[0]?.message?.content || 'Desculpe, não consegui processar sua solicitação.';
       
       // Add assistant response to messages
-      const assistantMessage = { 
-        role: 'assistant' as const, 
-        content: assistantResponse
+      const assistantMessage: ChatMessage = { 
+        role: 'assistant', 
+        content: assistantResponse,
+        timestamp: new Date()
       };
       
       setMessages(prev => [...prev, assistantMessage]);
@@ -134,7 +165,8 @@ ${scriptContent}
       // Add error message to chat
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.' 
+        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente mais tarde.',
+        timestamp: new Date()
       }]);
     } finally {
       setIsLoading(false);
@@ -156,6 +188,9 @@ ${scriptContent}
             <Bot className="h-5 w-5 text-primary" />
             {profile?.name || "Assistente"} - Mistral AI
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Converse com o assistente virtual baseado no roteiro de atendimento
+          </DialogDescription>
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
@@ -176,51 +211,58 @@ ${scriptContent}
           </div>
         )}
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.filter(msg => msg.role !== 'system').map((message, index) => (
-            <div 
-              key={index} 
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">
+            {messages.filter(msg => msg.role !== 'system').map((message, index) => (
               <div 
-                className={`max-w-[80%] p-3 rounded-lg ${
-                  message.role === 'user' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-white border border-gray-200'
-                }`}
+                key={index} 
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                  {message.role === 'user' ? (
-                    <>
-                      <User className="h-3 w-3" /> Você
-                    </>
-                  ) : (
-                    <>
-                      <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
-                    </>
-                  )}
+                <div 
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    message.role === 'user' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-white border border-gray-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                    {message.role === 'user' ? (
+                      <>
+                        <User className="h-3 w-3" /> Você
+                      </>
+                    ) : (
+                      <>
+                        <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
+                      </>
+                    )}
+                    {message.timestamp && (
+                      <span className="ml-auto">
+                        {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               </div>
-            </div>
-          ))}
-          
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="max-w-[80%] p-3 rounded-lg bg-white border border-gray-200">
-                <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                  <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <p className="text-sm">Processando resposta...</p>
+            ))}
+            
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[80%] p-3 rounded-lg bg-white border border-gray-200">
+                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                    <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <p className="text-sm">Processando resposta...</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
         
         <div className="p-4 border-t bg-white">
           <div className="relative">
