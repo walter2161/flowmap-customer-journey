@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -135,7 +134,7 @@ ${scriptContent}
     }
   };
   
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -411,7 +410,7 @@ ${scriptContent}
         message.includes('agendar') || 
         message.includes('marcar') ||
         message.includes('disponibilidade') ||
-        message.includes('quando') && (message.includes('atende') || message.includes('atendimento'))) {
+        (message.includes('quando') && (message.includes('atende') || message.includes('atendimento')))) {
       return 'scheduling';
     }
     
@@ -555,7 +554,6 @@ ${scriptContent}
         <div className="p-4 border-t bg-white">
           <div className="flex gap-2">
             <Input
-              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
