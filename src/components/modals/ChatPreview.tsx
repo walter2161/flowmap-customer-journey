@@ -134,7 +134,7 @@ ${scriptContent}
     }
   };
   
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -551,25 +551,33 @@ ${scriptContent}
           <div ref={messagesEndRef} />
         </div>
         
+        {/* Completely redesigned input area */}
         <div className="p-4 border-t bg-white">
-          <div className="flex gap-2">
+          <form 
+            className="flex gap-2" 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+          >
             <Input
+              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
               placeholder="Digite sua mensagem..."
               className="flex-1"
               disabled={isLoading}
+              autoComplete="off"
             />
             <Button 
-              onClick={handleSendMessage} 
+              type="submit"
               variant="default" 
               size="icon"
               disabled={isLoading || input.trim() === ''}
             >
               <SendHorizontal className="h-5 w-5" />
             </Button>
-          </div>
+          </form>
           <div className="mt-2 text-xs text-gray-500 italic text-center">
             Este é um preview simulando integração com AutoGPT. As respostas são baseadas no roteiro do fluxo com processamento de linguagem natural.
           </div>
