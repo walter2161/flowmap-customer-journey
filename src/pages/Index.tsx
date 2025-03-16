@@ -81,7 +81,7 @@ const generateScriptFromData = (data) => {
   data.cards.forEach(card => {
     script += `## ${card.title}\n`;
     
-    // Add position information
+    // Add position information with clearer formatting
     if (card.position) {
       script += `**Posição:** x: ${card.position.x.toFixed(2)}, y: ${card.position.y.toFixed(2)}\n`;
     }

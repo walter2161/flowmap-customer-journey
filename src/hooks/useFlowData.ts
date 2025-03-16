@@ -29,8 +29,11 @@ export const useFlowData = (initialData: FlowData) => {
         }
       }));
       
-      // Convert connections to edges
-      const flowEdges = initialData.connections.map(conn => ({
+      // Always distribute nodes to ensure proper layout
+      const positionedNodes = distributeNodesIfNeeded(flowNodes);
+      
+      setNodes(positionedNodes);
+      setEdges(initialData.connections.map(conn => ({
         id: conn.id,
         source: conn.start,
         target: conn.end,
@@ -40,13 +43,7 @@ export const useFlowData = (initialData: FlowData) => {
           type: conn.type,
           sourcePortLabel: conn.sourcePortLabel
         }
-      }));
-      
-      // Only distribute nodes in a grid if they don't have explicit positions
-      const positionedNodes = distributeNodesIfNeeded(flowNodes);
-      
-      setNodes(positionedNodes);
-      setEdges(flowEdges);
+      })));
       
       // Set the profile if it exists in the initialData
       if (initialData.profile) {
@@ -55,58 +52,66 @@ export const useFlowData = (initialData: FlowData) => {
     }
   }, [initialData, setNodes, setEdges]);
   
-  // Function to check if nodes are piled up and distribute them if needed
+  // Function to distribute nodes in a better layout
   const distributeNodesIfNeeded = (nodes) => {
-    // Check if most nodes have explicit positions
-    const nodesWithPositions = nodes.filter(node => 
+    // First check if nodes have defined positions
+    const nodesWithDefinedPositions = nodes.filter(node => 
       node.position && 
       typeof node.position.x === 'number' && 
       typeof node.position.y === 'number' &&
-      (node.position.x !== 0 || node.position.y !== 0)
+      (Math.abs(node.position.x) > 10 || Math.abs(node.position.y) > 10) // Positions must be significantly non-zero
     );
     
-    // If most nodes already have positions, return them as is
-    if (nodesWithPositions.length > nodes.length * 0.7) {
+    // If most nodes already have meaningful positions, use those
+    if (nodesWithDefinedPositions.length > nodes.length * 0.7) {
       return nodes;
     }
     
-    // Check if nodes are piled up (too many with the same position)
-    const positions = {};
-    let needsRedistribution = false;
+    // If we need to distribute the nodes, do it in a more natural flow layout
     
-    nodes.forEach(node => {
-      const posKey = `${Math.round(node.position.x)},${Math.round(node.position.y)}`;
-      positions[posKey] = (positions[posKey] || 0) + 1;
+    // Define some layout parameters for different node types
+    const typePositions = {
+      'initial': { x: -300, y: -80 },     // Boas-vindas (initial node)
+      'servico': { x: 200, y: -250 },     // Services (like Corte de Cabelo, Coloração, etc)
+      'agendar': { x: 1250, y: 90 },      // Agendar Horário
+      'confirmacao': { x: 1780, y: 55 },  // Agendamento Confirmado
+      'promocao': { x: 150, y: 240 },     // Promoções
+      'produto': { x: 940, y: 420 }       // Produtos Profissionais
+    };
+    
+    // Distribution parameters
+    const serviceOffsetX = 450;  // Horizontal spacing between service nodes
+    const serviceOffsetY = -100; // Vertical offset for additional service nodes
+    
+    // Count for different types
+    let serviceCounts = 0;
+    
+    return nodes.map(node => {
+      // Get node type (default to 'default' if not found)
+      const nodeType = node.data.type || 'default';
       
-      // If more than 2 nodes in same position, we need redistribution
-      if (positions[posKey] > 2) {
-        needsRedistribution = true;
-      }
-    });
-    
-    if (!needsRedistribution || nodes.length <= 1) {
-      return nodes;
-    }
-    
-    // Distribute nodes in a grid layout
-    const GRID_SPACING = 250; // Space between nodes
-    const GRID_COLS = Math.ceil(Math.sqrt(nodes.length)); // Number of columns in grid
-    
-    return nodes.map((node, index) => {
-      // If the node already has a non-zero position, keep it
-      if (node.position.x !== 0 || node.position.y !== 0) {
+      // If the node already has a significant non-zero position, keep it
+      if (Math.abs(node.position.x) > 10 || Math.abs(node.position.y) > 10) {
         return node;
       }
       
-      // Calculate position in grid
-      const col = index % GRID_COLS;
-      const row = Math.floor(index / GRID_COLS);
+      // Set position based on node type
+      let newPosition;
       
-      // Set new position
-      const newPosition = {
-        x: col * GRID_SPACING + 50, // Add some margin
-        y: row * GRID_SPACING + 50  // Add some margin
-      };
+      if (nodeType === 'servico') {
+        // Position services in a row with offset
+        newPosition = {
+          x: typePositions.servico.x + (serviceCounts * serviceOffsetX),
+          y: typePositions.servico.y + (serviceCounts * serviceOffsetY)
+        };
+        serviceCounts++;
+      } else {
+        // Use predefined positions for other types, or fallback
+        newPosition = typePositions[nodeType] || { 
+          x: Math.random() * 800, 
+          y: Math.random() * 500 
+        };
+      }
       
       // Update both node position and the position in the data
       return {
@@ -262,7 +267,7 @@ export const useFlowData = (initialData: FlowData) => {
       }
     }));
     
-    // Only apply grid distribution if nodes don't have explicit positions
+    // Apply the improved distribution algorithm
     const positionedNodes = distributeNodesIfNeeded(flowNodes);
     
     setNodes(positionedNodes);
