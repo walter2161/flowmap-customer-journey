@@ -54,19 +54,22 @@ ${scriptContent}
    - Atue como se este conhecimento fosse natural para você.
    - Nunca mencione os "cartões", "cards" ou a existência de um fluxograma.
    - Nunca repita trechos do roteiro diretamente, reformule com suas próprias palavras.
+   - Suas respostas devem ser MUITO CURTAS e DIRETAS (máximo 1-2 frases).
+   - NÃO inclua comentários entre parênteses como "(Se o cliente precisar...)" nas suas respostas.
+   - NÃO ENUMERE opções diferentes nas suas respostas.
 
 3. Use o conteúdo dos cartões, seus títulos, descrições e as conexões entre eles como guia para sua conversa.
 
 4. Quando o usuário expressar uma intenção específica, identifique qual conexão do fluxo deve seguir e direcione a conversa conforme o conteúdo do próximo cartão.
 
-5. Seja conversacional, dinâmico e intuitivo:
-   - Evite respostas repetitivas ou mecânicas.
-   - Adapte seu tom para ser amigável e natural.
-   - Faça perguntas relevantes para guiar o usuário pelo fluxo.
+5. Seja conversacional e natural:
+   - Use uma linguagem simples e direta.
+   - Evite respostas longas ou explicativas demais.
+   - Faça apenas uma pergunta por vez para guiar o usuário.
 
-6. Se uma pergunta estiver fora do escopo, diga: "Não tenho essa informação no momento. Posso ajudar com algo relacionado a [mencione tópicos do roteiro]?"
+6. Se uma pergunta estiver fora do escopo, diga apenas: "Não tenho essa informação. Posso ajudar com [mencione tópico principal do roteiro]?"
 
-7. Seja conciso nas respostas. Prefira respostas breves e objetivas.
+7. IMPORTANTE: Mantenha suas respostas extremamente concisas (máximo 1-2 frases).
 
 8. Nunca invente informações além do que está no roteiro.`,
         timestamp: new Date()
@@ -76,9 +79,9 @@ ${scriptContent}
       let welcomeMessage = '';
       
       if (profile) {
-        welcomeMessage = `Olá! Eu sou ${profile.name} ${profile.profession ? `da ${profile.profession}` : ''} ${profile.company ? `na ${profile.company}` : ''}. Como posso ajudar você hoje?`;
+        welcomeMessage = `Olá! Sou ${profile.name}. Como posso ajudar?`;
       } else {
-        welcomeMessage = 'Olá! Como posso ajudar você hoje?';
+        welcomeMessage = 'Olá! Como posso ajudar?';
       }
       
       const assistantWelcome: ChatMessage = {
@@ -145,8 +148,8 @@ ${scriptContent}
         body: JSON.stringify({
           model: 'mistral-tiny',
           messages: messagesForApi,
-          temperature: 0.7, // Increased slightly to encourage more dynamic responses
-          max_tokens: 800
+          temperature: 0.5, // Lower temperature for more concise responses
+          max_tokens: 100  // Limit token generation for shorter responses
         })
       });
       
@@ -158,7 +161,14 @@ ${scriptContent}
       const data = await response.json();
       console.log('Mistral API response:', data);
       
-      const assistantResponse = data.choices[0]?.message?.content || 'Desculpe, não consegui processar sua solicitação.';
+      // Get assistant response and remove any parenthetical instructions
+      let assistantResponse = data.choices[0]?.message?.content || 'Desculpe, não consegui processar sua solicitação.';
+      
+      // Process response to remove parenthetical instructions and ensure brevity
+      assistantResponse = assistantResponse
+        .replace(/\([^)]*\)/g, '') // Remove parenthetical comments
+        .replace(/^\s+|\s+$/g, '') // Trim whitespace
+        .split('\n\n')[0]; // Take only the first paragraph
       
       // Add assistant response to messages
       const assistantMessage: ChatMessage = { 
