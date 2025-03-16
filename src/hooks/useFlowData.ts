@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { useNodesState, useEdgesState, addEdge, Connection, Edge } from 'reactflow';
 import { FlowData, FlowCard, AssistantProfile } from '@/utils/flowTypes';
@@ -57,9 +58,9 @@ export const useFlowData = (initialData: FlowData) => {
     }
   }, [initialData, setNodes, setEdges]);
   
-  // Improved function to distribute nodes with proper spacing
+  // Completely rewritten function to distribute nodes with proper spacing and collision detection
   const distributeNodes = (nodes) => {
-    // Define base positions for different node types
+    // Define base positions for different node types with more spacing between them
     const typePositions = {
       'initial': { x: -339, y: -77 },         // Boas-vindas
       'servico': { x: 90, y: -176 },          // Services (like Corte de Cabelo)
@@ -69,7 +70,7 @@ export const useFlowData = (initialData: FlowData) => {
       'produto': { x: 938, y: 418 }           // Produtos Profissionais
     };
     
-    // Specific service positions for common services
+    // Specific service positions for common services - with wider spacing
     const specificServicePositions = {
       'Corte de Cabelo': { x: 90, y: -176 },
       'Coloração': { x: 552, y: -300 },
@@ -79,22 +80,39 @@ export const useFlowData = (initialData: FlowData) => {
     // Track occupied positions to avoid overlaps
     const occupiedPositions = [];
     
-    // Minimum distance between nodes (50px as requested)
-    const minDistance = 50;
+    // Minimum distance between nodes - increased to 150px for better visibility
+    const minDistance = 150;
     
-    // Count different types
-    let serviceCounts = 0;
-    let defaultCounts = 0;
+    // Create a copy of the nodes with valid positions
+    const nodesWithValidPositions = [];
+    const nodesWithoutPositions = [];
+    
+    // First, separate nodes into those with valid positions and those without
+    for (const node of nodes) {
+      if (
+        node.position && 
+        typeof node.position.x === 'number' && 
+        typeof node.position.y === 'number' && 
+        (Math.abs(node.position.x) > 10 || Math.abs(node.position.y) > 10)
+      ) {
+        nodesWithValidPositions.push(node);
+      } else {
+        nodesWithoutPositions.push(node);
+      }
+    }
     
     // Function to check if a position is too close to any occupied position
     const isTooClose = (pos) => {
-      return occupiedPositions.some(occupiedPos => 
-        Math.abs(occupiedPos.x - pos.x) < minDistance && 
-        Math.abs(occupiedPos.y - pos.y) < minDistance
-      );
+      return occupiedPositions.some(occupiedPos => {
+        const distance = Math.sqrt(
+          Math.pow(occupiedPos.x - pos.x, 2) + 
+          Math.pow(occupiedPos.y - pos.y, 2)
+        );
+        return distance < minDistance;
+      });
     };
     
-    // Function to find a safe position
+    // Function to find a safe position that doesn't overlap with others
     const findSafePosition = (basePos, attempts = 0) => {
       // If this is a valid position, return it
       if (!isTooClose(basePos)) {
@@ -102,8 +120,8 @@ export const useFlowData = (initialData: FlowData) => {
       }
       
       // If we've tried too many times, add some random offset
-      if (attempts > 10) {
-        const randomOffset = 100 + Math.random() * 200;
+      if (attempts > 15) {
+        const randomOffset = 150 + Math.random() * 300;
         const randomAngle = Math.random() * Math.PI * 2;
         return {
           x: basePos.x + Math.cos(randomAngle) * randomOffset,
@@ -111,84 +129,81 @@ export const useFlowData = (initialData: FlowData) => {
         };
       }
       
-      // Try shifting the position
-      const shiftDistance = minDistance + 20;
-      const directions = [
-        { x: shiftDistance, y: 0 },
-        { x: 0, y: shiftDistance },
-        { x: -shiftDistance, y: 0 },
-        { x: 0, y: -shiftDistance },
-        { x: shiftDistance, y: shiftDistance },
-        { x: -shiftDistance, y: shiftDistance },
-        { x: shiftDistance, y: -shiftDistance },
-        { x: -shiftDistance, y: -shiftDistance }
-      ];
+      // Try shifting the position in a spiral pattern
+      const angle = (Math.PI * 2 * attempts) / 8; // 8 directions
+      const radius = minDistance * (1 + Math.floor(attempts / 8)); // Increase radius after going around once
       
       const newPos = {
-        x: basePos.x + directions[attempts % directions.length].x,
-        y: basePos.y + directions[attempts % directions.length].y
+        x: basePos.x + Math.cos(angle) * radius,
+        y: basePos.y + Math.sin(angle) * radius
       };
       
       return findSafePosition(newPos, attempts + 1);
     };
     
-    return nodes.map(node => {
-      // Get node type 
+    // First process nodes with valid positions
+    for (const node of nodesWithValidPositions) {
+      const safePosition = findSafePosition(node.position);
+      occupiedPositions.push(safePosition);
+      
+      node.position = safePosition;
+      node.data.position = safePosition;
+    }
+    
+    // Track counts for different types
+    let typeCounts = {
+      servico: 0,
+      promocao: 0,
+      produto: 0,
+      default: 0
+    };
+    
+    // Process nodes without positions
+    for (const node of nodesWithoutPositions) {
       const nodeType = node.data.type || 'default';
       const nodeTitle = node.data.title || '';
-      
-      // If the node already has a significant non-zero position that's not close to others, keep it
-      if (
-        node.position && 
-        Math.abs(node.position.x) > 10 && 
-        Math.abs(node.position.y) > 10 && 
-        !isTooClose(node.position)
-      ) {
-        occupiedPositions.push(node.position);
-        return node;
-      }
       
       // Determine the base position based on node type and title
       let basePosition;
       
       if (specificServicePositions[nodeTitle]) {
         // If this is a known service with a specific position
-        basePosition = specificServicePositions[nodeTitle];
+        basePosition = { ...specificServicePositions[nodeTitle] };
       } else if (nodeType === 'servico') {
         // Position services with consistent offset
         basePosition = {
-          x: typePositions.servico.x + (serviceCounts * 180),
-          y: typePositions.servico.y + (serviceCounts * -20)
+          x: typePositions.servico.x + (typeCounts.servico * 180),
+          y: typePositions.servico.y - (typeCounts.servico * 120)
         };
-        serviceCounts++;
+        typeCounts.servico++;
       } else if (typePositions[nodeType]) {
-        // Use predefined positions for known types
-        basePosition = typePositions[nodeType];
+        // For other known types, offset from the base position
+        const basePos = typePositions[nodeType];
+        basePosition = {
+          x: basePos.x + (typeCounts[nodeType] || 0) * 180,
+          y: basePos.y + (typeCounts[nodeType] || 0) * 100
+        };
+        typeCounts[nodeType] = (typeCounts[nodeType] || 0) + 1;
       } else {
         // Default positioning for unknown types
         basePosition = {
-          x: 200 + (defaultCounts * 180),
-          y: 100 + (defaultCounts * 100)
+          x: 200 + (typeCounts.default * 220),
+          y: 100 + (typeCounts.default * 150)
         };
-        defaultCounts++;
+        typeCounts.default++;
       }
       
-      // Find a safe position that's not too close to other nodes
+      // Find a safe position that doesn't overlap with others
       const safePosition = findSafePosition(basePosition);
-      
-      // Track this position
       occupiedPositions.push(safePosition);
       
       // Update both node position and the position in the data
-      return {
-        ...node,
-        position: safePosition,
-        data: {
-          ...node.data,
-          position: safePosition
-        }
-      };
-    });
+      node.position = safePosition;
+      node.data.position = safePosition;
+    }
+    
+    // Return all nodes with their updated positions
+    return [...nodesWithValidPositions, ...nodesWithoutPositions];
   };
   
   // Handle connection between nodes

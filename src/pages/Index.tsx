@@ -83,7 +83,8 @@ const generateScriptFromData = (data) => {
     
     // Add position information with precise formatting
     if (card.position) {
-      script += `**Posição:** x: ${card.position.x.toFixed(2)}, y: ${card.position.y.toFixed(2)}\n`;
+      script += `**Posição:** x: ${typeof card.position.x === 'number' ? card.position.x.toFixed(2) : 0}, `;
+      script += `y: ${typeof card.position.y === 'number' ? card.position.y.toFixed(2) : 0}\n`;
     }
     
     if (card.description) script += `${card.description}\n`;
