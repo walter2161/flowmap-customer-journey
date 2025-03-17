@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import { getTemplateData } from '@/utils/templateData';
 import { AuthCheck } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, Bot, MessageSquare } from 'lucide-react';
+import { LogOut, MessageSquare, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ChatPreview from '@/components/modals/ChatPreview';
 import WhatsAppSync from '@/components/modals/WhatsAppSync';

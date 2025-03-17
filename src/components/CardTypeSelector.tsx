@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardType } from '@/utils/flowTypes';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -42,7 +41,8 @@ const cardTypeLabels: Record<CardType, string> = {
   'solucoes': 'Soluções',
   'chamado': 'Chamado',
   'faq': 'FAQ',
-  'arquivo': 'Arquivo'
+  'arquivo': 'Arquivo',
+  'profile': 'Perfil do Assistente'
 };
 
 // Define colors for card types
@@ -78,12 +78,13 @@ const cardTypeColors: Record<CardType, string> = {
   'solucoes': 'bg-teal-100 border-teal-500',
   'chamado': 'bg-orange-100 border-orange-500',
   'faq': 'bg-gray-100 border-gray-500',
-  'arquivo': 'bg-blue-100 border-blue-500'
+  'arquivo': 'bg-blue-100 border-blue-500',
+  'profile': 'bg-pink-100 border-pink-500'
 };
 
 // Card categories
 const cardCategories = {
-  "Básicos": ['initial', 'regular', 'end'],
+  "Básicos": ['initial', 'regular', 'end', 'profile'],
   "Imóveis": ['imovel', 'imovel-lancamento', 'imovel-usado', 'imovel-comercial'],
   "Produtos e Serviços": ['produto', 'servico', 'ordem-servico'],
   "Interação": ['multipla-escolha', 'pergunta-respostas', 'acao', 'confirmacao', 'duvidas', 'faq'],
@@ -251,6 +252,47 @@ const CardTypeSelector: React.FC<CardTypeSelectorProps> = ({ onSelect, onClose }
                       Email
                     </Label>
                     <Input id="contato_email" value={formData.contato_email || ''} onChange={handleInputChange} className="col-span-3" />
+                  </div>
+                </>
+              )}
+
+              {selectedType === 'profile' && (
+                <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="profile_name" className="text-right">
+                      Nome
+                    </Label>
+                    <Input id="profile_name" value={formData.profile_name || ''} onChange={handleInputChange} className="col-span-3" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="profile_profession" className="text-right">
+                      Profissão
+                    </Label>
+                    <Input id="profile_profession" value={formData.profile_profession || ''} onChange={handleInputChange} className="col-span-3" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="profile_company" className="text-right">
+                      Empresa
+                    </Label>
+                    <Input id="profile_company" value={formData.profile_company || ''} onChange={handleInputChange} className="col-span-3" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="profile_contacts" className="text-right">
+                      Contatos
+                    </Label>
+                    <Input id="profile_contacts" value={formData.profile_contacts || ''} onChange={handleInputChange} className="col-span-3" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="profile_avatar" className="text-right">
+                      Avatar URL
+                    </Label>
+                    <Input id="profile_avatar" value={formData.profile_avatar || ''} onChange={handleInputChange} className="col-span-3" placeholder="https://example.com/avatar.png" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="profile_guidelines" className="text-right">
+                      Diretrizes
+                    </Label>
+                    <Textarea id="profile_guidelines" value={formData.profile_guidelines || ''} onChange={handleInputChange} className="col-span-3" rows={3} />
                   </div>
                 </>
               )}
