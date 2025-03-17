@@ -708,4 +708,4 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-xs">Descrição</TableHead>
-                      <TableHead className="text-xs">
+                      <TableHead className="text
