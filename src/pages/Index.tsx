@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import { getTemplateData } from '@/utils/templateData';
 import { AuthCheck } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, MessageSquare, Bot } from 'lucide-react';
+import { LogOut, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ChatPreview from '@/components/modals/ChatPreview';
 import WhatsAppSync from '@/components/modals/WhatsAppSync';
@@ -46,7 +47,10 @@ const Index = () => {
                 onClick={() => setIsChatOpen(true)} 
                 className="gap-2"
               >
-                <Bot size={16} />
+                <span className="relative flex h-2 w-2 mr-1">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                </span>
                 Chatbot IA
               </Button>
               <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">

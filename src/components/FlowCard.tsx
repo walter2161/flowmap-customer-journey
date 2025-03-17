@@ -198,7 +198,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
 
   // Listen for profile updates
   useEffect(() => {
-    const handleProfileUpdate = (e: CustomEvent) => {
+    const handleProfileUpdate = (e: CustomEvent<AssistantProfile>) => {
       if (data.type === 'profile') {
         setProfile(e.detail);
       }
