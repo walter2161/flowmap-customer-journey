@@ -33,7 +33,7 @@ export type CardType =
   | 'chamado'
   | 'faq'
   | 'arquivo'
-  | 'profile';  // Added 'profile' as a card type
+  | 'profile';
 
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 
@@ -41,12 +41,6 @@ export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 export interface OutputPort {
   id: string;
   label: string;
-}
-
-// Type for the position
-export interface Position {
-  x: number;
-  y: number;
 }
 
 // Type for the assistant profile
@@ -66,7 +60,7 @@ export interface FlowCard {
   title: string;
   description: string;
   content: string;
-  position: Position;
+  position: { x: number; y: number };
   type: CardType;
   outputPorts?: OutputPort[];
   fields?: Record<string, any>;
@@ -88,23 +82,4 @@ export interface FlowData {
   cards: FlowCard[];
   connections: FlowConnection[];
   profile?: AssistantProfile;
-}
-
-// Add compatibility with new edge type for ReactFlow
-export interface Edge {
-  id: string;
-  source: string;
-  target: string;
-  label?: string;
-}
-
-// Add compatibility with new CardData type
-export interface CardData {
-  id: string;
-  type: CardType;
-  position: Position;
-  title: string;
-  description?: string;
-  content?: string;
-  fields?: Record<string, any>;
 }
