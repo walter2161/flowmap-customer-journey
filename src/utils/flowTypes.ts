@@ -32,7 +32,8 @@ export type CardType =
   | 'solucoes'
   | 'chamado'
   | 'faq'
-  | 'arquivo';
+  | 'arquivo'
+  | 'profile';
 
 export type ConnectionType = 'positive' | 'negative' | 'neutral' | 'custom';
 

@@ -1,8 +1,7 @@
-
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
-import { FlowCard, OutputPort } from '@/utils/flowTypes';
-import { Edit, Plus, Trash, Upload, Image, FileText } from 'lucide-react';
+import { FlowCard, OutputPort, AssistantProfile } from '@/utils/flowTypes';
+import { Edit, Plus, Trash, Upload, Image, FileText, UserCircle } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import {
   AlertDialog,
@@ -14,9 +13,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useReactFlow } from 'reactflow';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const cardTypeClasses = {
   initial: 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-500',
@@ -50,7 +62,8 @@ const cardTypeClasses = {
   solucoes: 'bg-gradient-to-br from-lime-50 to-lime-100 border-2 border-lime-500',
   chamado: 'bg-gradient-to-br from-rose-50 to-rose-100 border-2 border-rose-500',
   faq: 'bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-500',
-  arquivo: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500'
+  arquivo: 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-500',
+  profile: 'bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-600'
 };
 
 const cardTypeHeaders = {
@@ -85,7 +98,8 @@ const cardTypeHeaders = {
   solucoes: 'bg-lime-500 text-white',
   chamado: 'bg-rose-500 text-white',
   faq: 'bg-gray-500 text-white',
-  arquivo: 'bg-blue-500 text-white'
+  arquivo: 'bg-blue-500 text-white',
+  profile: 'bg-purple-600 text-white'
 };
 
 const cardTypeLabels = {
@@ -120,11 +134,26 @@ const cardTypeLabels = {
   solucoes: 'SOLUÇÕES',
   chamado: 'CHAMADO',
   faq: 'FAQ',
-  arquivo: 'ARQUIVO'
+  arquivo: 'ARQUIVO',
+  profile: 'PERFIL DO ASSISTENTE'
 };
 
 // Array de letras para identifcar as portas
 const portLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+// Default profile (if needed)
+const defaultProfile: AssistantProfile = {
+  name: "Assistente Virtual",
+  profession: "Atendente",
+  company: "Minha Empresa",
+  contacts: "assistente@empresa.com",
+  avatar: "",
+  guidelines: "Este assistente deve ser cordial e respeitoso. Deve fornecer informações precisas e úteis. Não deve usar linguagem inapropriada ou compartilhar informações sensíveis.",
+  scriptGuidelines: [
+    "Sempre entender a intenção do cliente antes de responder, adaptando o fluxo conforme necessário.",
+    "Navegar entre os cartões de maneira lógica, seguindo as conexões definidas no fluxo."
+  ]
+};
 
 interface FlowCardProps {
   data: FlowCard;
@@ -133,6 +162,7 @@ interface FlowCardProps {
 
 const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
   const [title, setTitle] = useState(data.title);
   const [description, setDescription] = useState(data.description);
   const [content, setContent] = useState(data.content);
@@ -141,8 +171,45 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
   const [newPortLabel, setNewPortLabel] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [files, setFiles] = useState<any[]>(data.files || []);
+  const [profile, setProfile] = useState<AssistantProfile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [newGuideline, setNewGuideline] = useState("");
   
   const { getNodes, setNodes, getEdges, setEdges } = useReactFlow();
+
+  // Load profile data when component mounts
+  useEffect(() => {
+    // For profile card type, try to load from localStorage
+    if (data.type === 'profile') {
+      const savedProfile = localStorage.getItem('assistantProfile');
+      const profileData = savedProfile ? JSON.parse(savedProfile) : defaultProfile;
+      
+      setProfile(profileData);
+      
+      // Ensure the profile has scriptGuidelines
+      if (!profileData.scriptGuidelines) {
+        setProfile(prev => ({
+          ...prev!,
+          scriptGuidelines: defaultProfile.scriptGuidelines
+        }));
+      }
+    }
+  }, [data.type]);
+
+  // Listen for profile updates
+  useEffect(() => {
+    const handleProfileUpdate = (e: CustomEvent) => {
+      if (data.type === 'profile') {
+        setProfile(e.detail);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate as EventListener);
+    };
+  }, [data.type]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -243,6 +310,115 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
 
   const removeOutputPort = (portId: string) => {
     setOutputPorts(outputPorts.filter(port => port.id !== portId));
+  };
+
+  // Profile specific methods
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !profile) return;
+    
+    // Only accept image files
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione apenas imagens.');
+      return;
+    }
+    
+    // Resize and convert to base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Maintain aspect ratio
+        if (width > height) {
+          if (width > 350) {
+            height = height * (350 / width);
+            width = 350;
+          }
+        } else {
+          if (height > 350) {
+            width = width * (350 / height);
+            height = 350;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        setProfile({...profile, avatar: dataUrl});
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const handleSaveProfile = () => {
+    if (profile) {
+      localStorage.setItem('assistantProfile', JSON.stringify(profile));
+      
+      // Dispatch custom event to notify other components
+      const event = new CustomEvent('profileUpdated', { detail: profile });
+      window.dispatchEvent(event);
+      
+      setIsProfileEditorOpen(false);
+    }
+  };
+  
+  // Add a new script guideline
+  const addScriptGuideline = () => {
+    if (!profile || newGuideline.trim() === "") return;
+    
+    setProfile({
+      ...profile,
+      scriptGuidelines: [...(profile.scriptGuidelines || []), newGuideline.trim()]
+    });
+    
+    setNewGuideline("");
+  };
+  
+  // Remove a script guideline
+  const removeScriptGuideline = (index: number) => {
+    if (!profile) return;
+    
+    const updatedGuidelines = [...(profile.scriptGuidelines || [])];
+    updatedGuidelines.splice(index, 1);
+    
+    setProfile({
+      ...profile,
+      scriptGuidelines: updatedGuidelines
+    });
+  };
+  
+  // Update a script guideline
+  const updateScriptGuideline = (index: number, value: string) => {
+    if (!profile) return;
+    
+    const updatedGuidelines = [...(profile.scriptGuidelines || [])];
+    updatedGuidelines[index] = value;
+    
+    setProfile({
+      ...profile,
+      scriptGuidelines: updatedGuidelines
+    });
   };
 
   const renderTypeSpecificFields = () => {
@@ -488,6 +664,37 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     if (isEditing) return null;
 
     switch (data.type) {
+      case 'profile':
+        return (
+          <div className="mt-3 border-t pt-2 border-gray-200">
+            {profile && (
+              <div className="flex flex-col items-center">
+                <Avatar className="h-24 w-24 border-2 border-primary/30 mb-3">
+                  {profile.avatar ? (
+                    <AvatarImage src={profile.avatar} alt={profile.name} />
+                  ) : (
+                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                      {getInitials(profile.name)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <p className="text-sm font-medium">{profile.name}</p>
+                <p className="text-xs text-gray-500">{profile.profession}</p>
+                <p className="text-xs text-gray-500">{profile.company}</p>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={() => setIsProfileEditorOpen(true)}
+                >
+                  Editar Perfil
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      
       case 'imovel':
         if (!fields) return null;
         return (
@@ -735,7 +942,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
       <div className={`px-3 py-1 ${cardTypeHeaders[data.type]} flex justify-between items-center`}>
         <div className="text-xs font-semibold">{cardTypeLabels[data.type]}</div>
         <div className="flex gap-1">
-          {!isEditing && (
+          {!isEditing && data.type !== 'profile' && (
             <button
               onClick={handleEdit}
               className="text-white p-1 rounded hover:bg-white hover:bg-opacity-20"
@@ -895,6 +1102,149 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
           </div>
         )}
       </div>
+
+      {/* Profile Editor Dialog */}
+      {data.type === 'profile' && profile && (
+        <>
+          <Dialog open={isProfileEditorOpen} onOpenChange={setIsProfileEditorOpen}>
+            <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Editar Perfil do Assistente</DialogTitle>
+                <DialogDescription>
+                  Configure as informações e diretrizes do seu assistente virtual
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 mt-4">
+                <div className="flex flex-col items-center mb-4">
+                  <div 
+                    className="relative cursor-pointer group" 
+                    onClick={handleAvatarClick}
+                  >
+                    <Avatar className="h-24 w-24 border-2 border-primary/30">
+                      {profile.avatar ? (
+                        <AvatarImage src={profile.avatar} alt={profile.name} />
+                      ) : (
+                        <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                          {getInitials(profile.name)}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                      Editar
+                    </div>
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                  />
+                  <p className="text-xs mt-2 text-muted-foreground">
+                    Clique para alterar (máx. 350px)
+                  </p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="name">Nome</Label>
+                  <Input 
+                    id="name" 
+                    value={profile.name}
+                    onChange={(e) => setProfile({...profile, name: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="profession">Profissão</Label>
+                  <Input 
+                    id="profession" 
+                    value={profile.profession}
+                    onChange={(e) => setProfile({...profile, profession: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="company">Empresa</Label>
+                  <Input 
+                    id="company" 
+                    value={profile.company}
+                    onChange={(e) => setProfile({...profile, company: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="contacts">Contatos</Label>
+                  <Input 
+                    id="contacts" 
+                    value={profile.contacts}
+                    onChange={(e) => setProfile({...profile, contacts: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="guidelines">Diretrizes Gerais</Label>
+                  <Textarea 
+                    id="guidelines" 
+                    value={profile.guidelines}
+                    onChange={(e) => setProfile({...profile, guidelines: e.target.value})}
+                    className="h-32"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Diretrizes de Interpretação do Fluxo</Label>
+                  
+                  {(profile.scriptGuidelines || []).map((guideline, index) => (
+                    <div key={index} className="flex gap-2 items-start">
+                      <Textarea 
+                        value={guideline}
+                        onChange={(e) => updateScriptGuideline(index, e.target.value)}
+                        className="flex-1 min-h-[60px]"
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => removeScriptGuideline(index)}
+                        className="mt-2"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  <div className="flex gap-2 items-start">
+                    <Textarea 
+                      value={newGuideline}
+                      onChange={(e) => setNewGuideline(e.target.value)}
+                      placeholder="Adicione uma nova diretriz..."
+                      className="flex-1 min-h-[60px]"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={addScriptGuideline}
+                      className="mt-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-3 mt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsProfileEditorOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={handleSaveProfile}>Salvar Perfil</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
