@@ -5,8 +5,13 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, QrCode, Loader2, Check, X, RefreshCcw } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+// Configuração padrão do servidor WAHA
+const DEFAULT_WAHA_CONFIG = {
+  url: "https://waha-service.onrender.com", // URL do servidor WAHA público
+  sessionId: "default",                     // ID de sessão padrão
+  apiKey: ""                                // Sem chave API para servidor público
+};
 
 interface WhatsAppSyncProps {
   isOpen: boolean;
@@ -20,44 +25,30 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
   const { toast } = useToast();
   const [syncStep, setSyncStep] = useState<'initial' | 'connecting' | 'connected' | 'error'>('initial');
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
-  const [wahaUrl, setWahaUrl] = useState<string>(localStorage.getItem('wahaUrl') || '');
-  const [wahaToken, setWahaToken] = useState<string>(localStorage.getItem('wahaToken') || '');
-  const [sessionId, setSessionId] = useState<string>(localStorage.getItem('wahaSessionId') || 'default');
   const [lastStatus, setLastStatus] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [statusCheckInterval, setStatusCheckInterval] = useState<number | null>(null);
   
   const handleStartSync = async () => {
-    if (!wahaUrl) {
-      toast({
-        title: "Erro",
-        description: "Por favor, informe a URL do servidor WAHA",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Salvar URL, token e sessão no localStorage
-    localStorage.setItem('wahaUrl', wahaUrl);
-    localStorage.setItem('wahaToken', wahaToken);
-    localStorage.setItem('wahaSessionId', sessionId);
-    
     setIsLoading(true);
     setSyncStep('connecting');
     
     try {
       // Verificar se o servidor está online
-      const baseUrl = wahaUrl.endsWith('/') ? wahaUrl.slice(0, -1) : wahaUrl;
+      const baseUrl = DEFAULT_WAHA_CONFIG.url.endsWith('/') 
+        ? DEFAULT_WAHA_CONFIG.url.slice(0, -1) 
+        : DEFAULT_WAHA_CONFIG.url;
+      
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
       
-      if (wahaToken) {
-        headers['Authorization'] = `Bearer ${wahaToken}`;
+      if (DEFAULT_WAHA_CONFIG.apiKey) {
+        headers['Authorization'] = `Bearer ${DEFAULT_WAHA_CONFIG.apiKey}`;
       }
       
       // Verificar status da sessão
-      const statusResponse = await fetch(`${baseUrl}/api/sessions/${sessionId}/status`, {
+      const statusResponse = await fetch(`${baseUrl}/api/sessions/${DEFAULT_WAHA_CONFIG.sessionId}/status`, {
         headers
       });
       
@@ -68,7 +59,7 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
             method: 'POST',
             headers,
             body: JSON.stringify({
-              name: sessionId,
+              name: DEFAULT_WAHA_CONFIG.sessionId,
               config: {
                 restartOnAuthFailure: true,
               }
@@ -115,7 +106,7 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
       setLastStatus(`Erro: ${error instanceof Error ? error.message : String(error)}`);
       toast({
         title: "Erro de Conexão",
-        description: "Não foi possível conectar ao servidor WAHA. Verifique a URL e token.",
+        description: "Não foi possível conectar ao servidor WAHA. Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {
@@ -125,17 +116,20 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
   
   const fetchQRCode = async () => {
     try {
-      const baseUrl = wahaUrl.endsWith('/') ? wahaUrl.slice(0, -1) : wahaUrl;
+      const baseUrl = DEFAULT_WAHA_CONFIG.url.endsWith('/') 
+        ? DEFAULT_WAHA_CONFIG.url.slice(0, -1) 
+        : DEFAULT_WAHA_CONFIG.url;
+        
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
       
-      if (wahaToken) {
-        headers['Authorization'] = `Bearer ${wahaToken}`;
+      if (DEFAULT_WAHA_CONFIG.apiKey) {
+        headers['Authorization'] = `Bearer ${DEFAULT_WAHA_CONFIG.apiKey}`;
       }
       
       // Gerar o QR Code para a sessão
-      const qrResponse = await fetch(`${baseUrl}/api/sessions/${sessionId}/qr`, {
+      const qrResponse = await fetch(`${baseUrl}/api/sessions/${DEFAULT_WAHA_CONFIG.sessionId}/qr`, {
         headers,
       });
       
@@ -163,16 +157,19 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
   
   const checkConnectionStatus = async () => {
     try {
-      const baseUrl = wahaUrl.endsWith('/') ? wahaUrl.slice(0, -1) : wahaUrl;
+      const baseUrl = DEFAULT_WAHA_CONFIG.url.endsWith('/') 
+        ? DEFAULT_WAHA_CONFIG.url.slice(0, -1) 
+        : DEFAULT_WAHA_CONFIG.url;
+        
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
       
-      if (wahaToken) {
-        headers['Authorization'] = `Bearer ${wahaToken}`;
+      if (DEFAULT_WAHA_CONFIG.apiKey) {
+        headers['Authorization'] = `Bearer ${DEFAULT_WAHA_CONFIG.apiKey}`;
       }
       
-      const statusResponse = await fetch(`${baseUrl}/api/sessions/${sessionId}/status`, {
+      const statusResponse = await fetch(`${baseUrl}/api/sessions/${DEFAULT_WAHA_CONFIG.sessionId}/status`, {
         headers,
       });
       
@@ -209,17 +206,20 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
     setIsLoading(true);
     
     try {
-      const baseUrl = wahaUrl.endsWith('/') ? wahaUrl.slice(0, -1) : wahaUrl;
+      const baseUrl = DEFAULT_WAHA_CONFIG.url.endsWith('/') 
+        ? DEFAULT_WAHA_CONFIG.url.slice(0, -1) 
+        : DEFAULT_WAHA_CONFIG.url;
+        
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
       
-      if (wahaToken) {
-        headers['Authorization'] = `Bearer ${wahaToken}`;
+      if (DEFAULT_WAHA_CONFIG.apiKey) {
+        headers['Authorization'] = `Bearer ${DEFAULT_WAHA_CONFIG.apiKey}`;
       }
       
       // Desconectar/excluir a sessão
-      const logoutResponse = await fetch(`${baseUrl}/api/sessions/${sessionId}/stop`, {
+      const logoutResponse = await fetch(`${baseUrl}/api/sessions/${DEFAULT_WAHA_CONFIG.sessionId}/stop`, {
         method: 'POST',
         headers,
       });
@@ -269,90 +269,27 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
     }
   }, [isOpen, statusCheckInterval]);
   
+  // Iniciar sincronização automaticamente quando o modal abrir
+  useEffect(() => {
+    if (isOpen && syncStep === 'initial') {
+      handleStartSync();
+    }
+  }, [isOpen]);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-green-600" />
-            Sincronização com WhatsApp (WAHA)
+            Sincronização com WhatsApp
           </DialogTitle>
           <DialogDescription>
-            Conecte o chatbot ao WhatsApp para responder mensagens automaticamente usando o WAHA
+            Conecte o chatbot ao WhatsApp para responder mensagens automaticamente
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 py-4">
-          {syncStep === 'initial' && (
-            <div className="text-center space-y-6">
-              <div className="rounded-lg border p-6 bg-gray-50">
-                <MessageSquare className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">Configure a integração WAHA</h3>
-                
-                <div className="space-y-4 text-left mb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="waha-url">URL do Servidor WAHA</Label>
-                    <Input 
-                      id="waha-url"
-                      placeholder="http://seu-servidor-waha:3000"
-                      value={wahaUrl}
-                      onChange={(e) => setWahaUrl(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500">
-                      Informe a URL completa do seu servidor WAHA
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="waha-token">Token API (opcional)</Label>
-                    <Input 
-                      id="waha-token"
-                      placeholder="seu-token-secreto"
-                      value={wahaToken}
-                      onChange={(e) => setWahaToken(e.target.value)}
-                      type="password"
-                    />
-                    <p className="text-xs text-gray-500">
-                      Se seu servidor WAHA usa autenticação, informe o token
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="session-id">ID da Sessão</Label>
-                    <Input 
-                      id="session-id"
-                      placeholder="default"
-                      value={sessionId}
-                      onChange={(e) => setSessionId(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500">
-                      Identificador para esta sessão do WhatsApp
-                    </p>
-                  </div>
-                </div>
-                
-                <Button 
-                  onClick={handleStartSync} 
-                  className="gap-2 w-full"
-                  disabled={isLoading}
-                >
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode size={16} />}
-                  Iniciar Sincronização
-                </Button>
-              </div>
-              
-              <div className="text-sm text-gray-500">
-                <h4 className="font-medium mb-2">Importante:</h4>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>Você precisa ter um servidor WAHA rodando</li>
-                  <li>A URL deve ser acessível por esta aplicação</li>
-                  <li>Cada sessão pode ter apenas um WhatsApp conectado</li>
-                  <li>Para mais informações, consulte a documentação do <a href="https://github.com/devlikeapro/whatsapp-http-api" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">WAHA</a></li>
-                </ul>
-              </div>
-            </div>
-          )}
-          
           {syncStep === 'connecting' && (
             <div className="text-center space-y-6">
               <div className="flex flex-col items-center justify-center">
@@ -434,15 +371,6 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
                   <h4 className="font-medium text-sm mb-2">Detalhes da conexão:</h4>
                   <div className="text-xs text-left text-gray-600 space-y-1">
                     <div className="flex justify-between">
-                      <span>Servidor:</span>
-                      <span className="font-medium">{wahaUrl}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sessão:</span>
-                      <span className="font-medium">{sessionId}</span>
-                    </div>
-                    <Separator className="my-2" />
-                    <div className="flex justify-between">
                       <span>Status:</span>
                       <span className="font-medium text-green-600">{lastStatus}</span>
                     </div>
@@ -490,7 +418,7 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
                 </div>
                 
                 <Button 
-                  onClick={() => setSyncStep('initial')} 
+                  onClick={handleStartSync} 
                   className="gap-2 w-full"
                 >
                   <RefreshCcw size={16} />
@@ -503,10 +431,7 @@ const WhatsAppSync: React.FC<WhatsAppSyncProps> = ({
         
         <DialogFooter className="sm:justify-start">
           <div className="w-full text-xs text-gray-500 text-center">
-            Esta integração utiliza WAHA (WhatsApp HTTP API) para conectar ao WhatsApp. 
-            <a href="https://github.com/devlikeapro/whatsapp-http-api" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-              Saiba mais
-            </a>
+            Esta integração conecta seu chatbot diretamente ao WhatsApp para atendimento automático.
           </div>
         </DialogFooter>
       </DialogContent>
