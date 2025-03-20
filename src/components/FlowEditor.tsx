@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -278,8 +277,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
 
   // Criar props para FlowControls incluindo a nova função
   const flowControlsProps: FlowControlsProps = {
-    onZoomIn,
-    onZoomOut,
+    onZoomIn: zoomIn,
+    onZoomOut: zoomOut,
     onReset: onResetView,
     onSave: onSaveFlow,
     onLoad,
