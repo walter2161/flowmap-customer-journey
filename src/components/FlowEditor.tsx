@@ -12,13 +12,14 @@ import FlowCardComponent from './FlowCard';
 import FlowConnector from './FlowConnector';
 import CardTypeSelector from './CardTypeSelector';
 import { nanoid } from 'nanoid';
-import FlowControls from './FlowControls';
+import FlowControls, { FlowControlsProps } from './FlowControls';
 import { useFlowData } from '@/hooks/useFlowData';
 import { useFileSystem } from '@/hooks/useFileSystem';
 import TemplateModal from './modals/TemplateModal';
 import ImportModal from './modals/ImportModal';
 import ScriptModal from './modals/ScriptModal';
 import ExportModal from './modals/ExportModal';
+import GoogleSheetsManager from './modals/GoogleSheetsManager';
 import { useToast } from "@/components/ui/use-toast";
 
 // Define node types
@@ -87,6 +88,9 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   // State for export modal
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportJsonData, setExportJsonData] = useState("");
+  
+  // State for Google Sheets modal
+  const [isGoogleSheetsModalOpen, setIsGoogleSheetsModalOpen] = useState(false);
   
   // ReactFlow instance ref
   const reactFlowInstance = useRef(null);
@@ -261,6 +265,31 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
       description: `O template foi aplicado com sucesso ao seu fluxo!`,
     });
   }, [templatePreviewData, processImportedData, toast]);
+  
+  // Abrir modal do Google Sheets
+  const handleOpenGoogleSheets = useCallback(() => {
+    setIsGoogleSheetsModalOpen(true);
+  }, []);
+  
+  // Carregar flow do Google Sheets
+  const handleLoadFlowFromSheets = useCallback((flowData: FlowData) => {
+    processImportedData(flowData);
+  }, [processImportedData]);
+
+  // Criar props para FlowControls incluindo a nova função
+  const flowControlsProps: FlowControlsProps = {
+    onZoomIn,
+    onZoomOut,
+    onReset: onResetView,
+    onSave: onSaveFlow,
+    onLoad,
+    onExport: onExportFlow,
+    onScript: onGenerateScript,
+    onTemplate: () => setIsTemplateModalOpen(true),
+    onNewCard: handleNewCard,
+    onGoogleSheets: handleOpenGoogleSheets,
+    currentProfile
+  };
 
   return (
     <ReactFlowProvider>
@@ -280,18 +309,7 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           <MiniMap />
           <Background gap={16} size={1} />
           
-          <FlowControls
-            onZoomIn={zoomIn}
-            onZoomOut={zoomOut}
-            onReset={onResetView}
-            onSave={onSaveFlow}
-            onLoad={onLoad}
-            onExport={onExportFlow}
-            onScript={onGenerateScript}
-            onTemplate={() => setIsTemplateModalOpen(true)}
-            onNewCard={handleNewCard}
-            currentProfile={currentProfile}
-          />
+          <FlowControls {...flowControlsProps} />
         </ReactFlow>
         
         {isCardSelectorOpen && (
@@ -343,6 +361,14 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           handleExportFileSelect={handleExportFileSelect}
           handleDirectDownload={handleDirectDownloadWrapper}
           handleUpdateExistingFile={handleUpdateExistingFileWrapper}
+        />
+        
+        {/* Google Sheets Modal */}
+        <GoogleSheetsManager
+          isOpen={isGoogleSheetsModalOpen}
+          onOpenChange={setIsGoogleSheetsModalOpen}
+          currentFlowData={prepareExportData() || initialData}
+          onFlowLoad={handleLoadFlowFromSheets}
         />
       </div>
     </ReactFlowProvider>

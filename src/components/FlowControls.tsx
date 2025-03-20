@@ -1,12 +1,9 @@
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { ZoomIn, ZoomOut, RotateCcw, Save, Upload, Download, FileCode, LayoutTemplate, Plus } from 'lucide-react';
+import { AssistantProfile } from '@/utils/flowTypes';
 
-import React, { useState } from 'react';
-import { Panel } from 'reactflow';
-import { Plus, Minus, RotateCw, Download, Upload, Save, FileText, LayoutTemplate, PlusCircle, MessageCircle } from 'lucide-react';
-import AssistantProfile from '@/components/AssistantProfile';
-import { AssistantProfile as AssistantProfileType } from '@/utils/flowTypes';
-import ChatPreview from './modals/ChatPreview';
-
-interface FlowControlsProps {
+export interface FlowControlsProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onReset: () => void;
@@ -16,7 +13,8 @@ interface FlowControlsProps {
   onScript: () => void;
   onTemplate: () => void;
   onNewCard: () => void;
-  currentProfile?: AssistantProfileType | null;
+  onGoogleSheets?: () => void; // Nova prop
+  currentProfile?: AssistantProfile;
 }
 
 const FlowControls: React.FC<FlowControlsProps> = ({
@@ -29,127 +27,49 @@ const FlowControls: React.FC<FlowControlsProps> = ({
   onScript,
   onTemplate,
   onNewCard,
+  onGoogleSheets,
   currentProfile
 }) => {
-  // Add state for chat preview modal
-  const [isChatPreviewOpen, setIsChatPreviewOpen] = useState(false);
-  const [scriptContent, setScriptContent] = useState('');
-
-  // Function to fetch and generate script content when chat is opened
-  const handleOpenChat = async () => {
-    try {
-      // Generate script content from flow
-      // This is a simplified version for now
-      const generatedScript = "Este é um roteiro de atendimento baseado no fluxo atual.";
-      setScriptContent(generatedScript);
-      setIsChatPreviewOpen(true);
-    } catch (error) {
-      console.error("Erro ao gerar script para o chat:", error);
-    }
-  };
-
   return (
-    <>
-      {/* File operations */}
-      <Panel position="top-right" className="p-2">
-        <div className="flex flex-col gap-2">
-          <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
-            {/* Assistant Profile first - above Save button */}
-            <div className="flex justify-center mb-1">
-              <AssistantProfile initialProfile={currentProfile} />
-            </div>
-            
-            <button
-              onClick={onSave}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Save Flow"
-            >
-              <Save className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onLoad}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Load Flow"
-            >
-              <Upload className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onExport}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Export Flow"
-            >
-              <Download className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
-
-          <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
-            <button
-              onClick={onNewCard}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Criar Novo Cartão"
-            >
-              <PlusCircle className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onScript}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Gerar Script AI"
-            >
-              <FileText className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={onTemplate}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Escolher Template"
-            >
-              <LayoutTemplate className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={handleOpenChat}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              title="Abrir Chat Preview"
-            >
-              <MessageCircle className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
+    <aside className="absolute left-4 bottom-4 bg-white/80 backdrop-blur-md rounded shadow-md p-2 flex flex-col gap-2 z-50">
+      <Button variant="outline" size="icon" onClick={onZoomIn} title="Zoom In">
+        <ZoomIn className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onZoomOut} title="Zoom Out">
+        <ZoomOut className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onReset} title="Reset View">
+        <RotateCcw className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onSave} title="Save Flow">
+        <Save className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onLoad} title="Load Flow">
+        <Upload className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onExport} title="Export Flow">
+        <Download className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onScript} title="Generate Script">
+        <FileCode className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onTemplate} title="Load Template">
+        <LayoutTemplate className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" onClick={onNewCard} title="New Card">
+        <Plus className="h-4 w-4" />
+      </Button>
+      {onGoogleSheets && (
+        <Button variant="outline" size="icon" onClick={onGoogleSheets} title="Google Sheets">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-table"><path d="M12 22H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h9"/><path d="M21 22h-9V2"/><path d="M2 12h20"/></svg>
+        </Button>
+      )}
+      {currentProfile && (
+        <div className="text-xs text-gray-500 mt-2">
+          Assistente: {currentProfile.name}
         </div>
-      </Panel>
-
-      {/* Zoom controls - moved to bottom left */}
-      <Panel position="bottom-left" className="p-2 mb-4 ml-4">
-        <div className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-100 flex flex-col gap-2">
-          <button
-            onClick={onZoomIn}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            title="Zoom In"
-          >
-            <Plus className="w-5 h-5 text-gray-700" />
-          </button>
-          <button
-            onClick={onZoomOut}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            title="Zoom Out"
-          >
-            <Minus className="w-5 h-5 text-gray-700" />
-          </button>
-          <button
-            onClick={onReset}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            title="Reset View"
-          >
-            <RotateCw className="w-5 h-5 text-gray-700" />
-          </button>
-        </div>
-      </Panel>
-
-      {/* Chat Preview Modal */}
-      <ChatPreview 
-        isOpen={isChatPreviewOpen} 
-        onOpenChange={setIsChatPreviewOpen} 
-        scriptContent={scriptContent}
-        profile={currentProfile}
-      />
-    </>
+      )}
+    </aside>
   );
 };
 
