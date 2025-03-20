@@ -44,7 +44,8 @@ const cardTypeColors: Record<CardType, string> = {
   solucoes: '#20c997',
   chamado: '#fd7e14',
   faq: '#424242',
-  arquivo: '#795548'
+  arquivo: '#795548',
+  profile: '#8e44ad' // Adding the missing profile color
 };
 
 const FlowConnector: React.FC<FlowConnectorProps> = ({
