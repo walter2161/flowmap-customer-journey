@@ -14,7 +14,7 @@ const cardTypeColors = {
 };
 
 // Default connector component for flow edges
-const FlowConnector = ({
+export const FlowConnector = ({
   id,
   sourceX,
   sourceY,
@@ -27,6 +27,7 @@ const FlowConnector = ({
 }: EdgeProps) => {
   // Get connection type from edge data
   const connectionType = data?.type || 'positive';
+  const sourceCardType = data?.sourceCardType || 'regular';
   
   // Get path for the edge
   const [edgePath] = getBezierPath({
@@ -38,7 +39,7 @@ const FlowConnector = ({
     targetPosition,
   });
   
-  // Get color based on connection type
+  // Get color based on connection type or card type
   let strokeColor = '#aaa';
   
   if (connectionType === 'positive') {
@@ -47,6 +48,34 @@ const FlowConnector = ({
     strokeColor = '#ef4444'; // red
   } else if (connectionType === 'neutral') {
     strokeColor = '#3b82f6'; // blue
+  } else if (sourceCardType && cardTypeColors[sourceCardType as keyof typeof cardTypeColors]) {
+    // Use card type color if connection type is not specified but we know the source card type
+    const colorName = cardTypeColors[sourceCardType as keyof typeof cardTypeColors];
+    switch (colorName) {
+      case "blue":
+        strokeColor = '#3b82f6';
+        break;
+      case "green":
+        strokeColor = '#10b981';
+        break;
+      case "purple":
+        strokeColor = '#8b5cf6';
+        break;
+      case "indigo":
+        strokeColor = '#6366f1';
+        break;
+      case "orange":
+        strokeColor = '#f97316';
+        break;
+      case "red":
+        strokeColor = '#ef4444';
+        break;
+      case "yellow":
+        strokeColor = '#eab308';
+        break;
+      default:
+        strokeColor = '#3b82f6'; // Default to blue
+    }
   }
   
   return (
@@ -54,7 +83,9 @@ const FlowConnector = ({
       id={id}
       style={{ 
         stroke: strokeColor,
-        strokeWidth: 2
+        strokeWidth: 2,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round'
       }}
       className="react-flow__edge-path"
       d={edgePath}
@@ -63,5 +94,3 @@ const FlowConnector = ({
   );
 };
 
-// Export as named export
-export { FlowConnector };

@@ -43,6 +43,16 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Card type color variables */
+    --card-initial: 221 83% 53%;
+    --card-servico: 142 69% 58%;  
+    --card-agendar: 271 91% 65%;
+    --card-confirmacao: 226 100% 64%;
+    --card-promocao: 24 95% 53%;
+    --card-produto: 4 90% 58%;
+    --card-arquivo: 48 96% 53%;
+    --card-profile: 221 83% 53%;
   }
 
   .dark {
@@ -81,6 +91,16 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Card type color variables - darker for dark mode */
+    --card-initial: 221 70% 55%;
+    --card-servico: 142 60% 55%;
+    --card-agendar: 271 80% 60%;
+    --card-confirmacao: 226 90% 60%;
+    --card-promocao: 24 85% 55%;
+    --card-produto: 4 80% 55%;
+    --card-arquivo: 48 85% 55%;
+    --card-profile: 221 70% 55%;
   }
 }
 
@@ -213,12 +233,15 @@
   marker: none !important;
   fill: none;
   stroke-width: 3px !important;
-  stroke-linecap: round !important; /* Changed back to round for smoother appearance */
+  stroke-linecap: round !important; /* Changed to round for smoother appearance */
+  stroke-linejoin: round !important; /* Added for consistent corners */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); /* Added subtle shadow */
 }
 
 .react-flow__connectionline {
   stroke-width: 3;
-  stroke-linecap: round; /* Changed back to round for smoother appearance */
+  stroke-linecap: round;
+  stroke-linejoin: round;
   marker-end: none !important;
   fill: none;
 }
@@ -254,6 +277,39 @@ svg[data-id^="edge-"] * {
 /* Force all SVG paths to have no fill */
 .react-flow__edge path {
   fill: none !important;
+}
+
+/* Card type styles for nodes */
+.react-flow__node-flowCard[data-type="initial"] {
+  border-left: 4px solid hsl(var(--card-initial)) !important;
+}
+
+.react-flow__node-flowCard[data-type="servico"] {
+  border-left: 4px solid hsl(var(--card-servico)) !important;
+}
+
+.react-flow__node-flowCard[data-type="agendar"] {
+  border-left: 4px solid hsl(var(--card-agendar)) !important;
+}
+
+.react-flow__node-flowCard[data-type="confirmacao"] {
+  border-left: 4px solid hsl(var(--card-confirmacao)) !important;
+}
+
+.react-flow__node-flowCard[data-type="promocao"] {
+  border-left: 4px solid hsl(var(--card-promocao)) !important;
+}
+
+.react-flow__node-flowCard[data-type="produto"] {
+  border-left: 4px solid hsl(var(--card-produto)) !important;
+}
+
+.react-flow__node-flowCard[data-type="arquivo"] {
+  border-left: 4px solid hsl(var(--card-arquivo)) !important;
+}
+
+.react-flow__node-flowCard[data-type="profile"] {
+  border-left: 4px solid hsl(var(--card-profile)) !important;
 }
 
 /* Custom handle styles for positive/negative connections */

@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -142,7 +143,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ id, data }) => {
   };
   
   return (
-    <Card className="w-[400px]">
+    <Card className="w-[400px]" data-type={type}>
       <CardHeader>
         <CardTitle>
           <Input 
@@ -243,10 +244,20 @@ const FlowCard: React.FC<FlowCardProps> = ({ id, data }) => {
       </CardContent>
       
       {/* Input handle on the left */}
-      <Handle type="target" position={Position.Left} id="left" />
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        id="left"
+        className={`handle-${type}`}
+      />
       
       {/* Output handle on the right */}
-      <Handle type="source" position={Position.Right} id="right" />
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        id="right"
+        className={`handle-${type}`}
+      />
     </Card>
   );
 };
