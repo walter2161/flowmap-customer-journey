@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -273,6 +274,8 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
+          minZoom={0.1} // Allow zooming out to 10%
+          maxZoom={2}  // Allow zooming in to 200%
           attributionPosition="bottom-right"
           onInit={(instance) => { reactFlowInstance.current = instance; }}
         >
