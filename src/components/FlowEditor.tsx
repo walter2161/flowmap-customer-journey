@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -9,7 +8,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { FlowData, FlowCard } from '@/utils/flowTypes';
 import FlowCardComponent from './FlowCard';
-import FlowConnector from './FlowConnector';
+import { FlowConnector } from './FlowConnector';
 import CardTypeSelector from './CardTypeSelector';
 import { nanoid } from 'nanoid';
 import FlowControls from './FlowControls';
