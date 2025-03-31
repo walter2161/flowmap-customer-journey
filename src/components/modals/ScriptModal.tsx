@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Copy, Download, MessageCircle } from 'lucide-react';
+import { Copy, Download, MessageCircle, Share2 } from 'lucide-react';
 import ChatPreview from './ChatPreview';
 import { AssistantProfile } from '@/utils/flowTypes';
 import { useToast } from "@/hooks/use-toast";
+import ShareChatModal from './ShareChatModal';
 
 interface ScriptModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const ScriptModal: React.FC<ScriptModalProps> = ({
   currentProfile
 }) => {
   const [isChatPreviewOpen, setIsChatPreviewOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { toast } = useToast();
   
   const handleDownloadScript = () => {
@@ -64,14 +66,24 @@ const ScriptModal: React.FC<ScriptModalProps> = ({
             <pre className="p-4 bg-gray-50 rounded-lg whitespace-pre-wrap">{scriptContent}</pre>
           </div>
           <DialogFooter className="flex justify-between sm:justify-between">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsChatPreviewOpen(true)}
-              className="gap-2"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Preview Chat
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsChatPreviewOpen(true)}
+                className="gap-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Preview Chat
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsShareModalOpen(true)}
+                className="gap-2"
+              >
+                <Share2 className="h-4 w-4" />
+                Compartilhar
+              </Button>
+            </div>
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
@@ -95,6 +107,13 @@ const ScriptModal: React.FC<ScriptModalProps> = ({
         onOpenChange={setIsChatPreviewOpen}
         scriptContent={scriptContent}
         profile={currentProfile}
+      />
+      
+      <ShareChatModal
+        isOpen={isShareModalOpen}
+        onOpenChange={setIsShareModalOpen}
+        scriptContent={scriptContent}
+        currentProfile={currentProfile}
       />
     </>
   );

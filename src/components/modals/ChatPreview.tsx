@@ -2,11 +2,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { SendHorizontal, Bot, User, Loader2, FolderTree } from 'lucide-react';
+import { SendHorizontal, Bot, User, Loader2, FolderTree, Share2 } from 'lucide-react';
 import { AssistantProfile } from '@/utils/flowTypes';
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ShareChatModal from './ShareChatModal';
 
 // Mistral API key
 const MISTRAL_API_KEY = "uVf0xInU0S6AbjC9WwCAWtnjRBReinIy";
@@ -34,6 +35,7 @@ const ChatPreview: React.FC<ChatPreviewProps> = ({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isContextExpanded, setIsContextExpanded] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [initialized, setInitialized] = useState(false);
@@ -205,113 +207,132 @@ ${scriptContent}
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0 gap-0 bg-gray-50">
-        <DialogHeader className="px-4 py-2 bg-white border-b">
-          <DialogTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            {profile?.name || "Assistente"} - Mistral AI
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            Converse com o assistente virtual baseado no roteiro de atendimento
-          </DialogDescription>
-          <div className="flex gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center gap-1"
-              onClick={() => setIsContextExpanded(!isContextExpanded)}
-            >
-              <FolderTree className="h-4 w-4" />
-              {isContextExpanded ? "Ocultar Contexto" : "Ver Contexto"}
-            </Button>
-          </div>
-        </DialogHeader>
-        
-        {isContextExpanded && (
-          <div className="max-h-[200px] overflow-y-auto p-3 bg-gray-100 border-b text-xs">
-            <h4 className="font-semibold mb-1">Contexto do Script:</h4>
-            <pre className="whitespace-pre-wrap">{scriptContent}</pre>
-          </div>
-        )}
-        
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.filter(msg => msg.role !== 'system').map((message, index) => (
-              <div 
-                key={index} 
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+    <>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0 gap-0 bg-gray-50">
+          <DialogHeader className="px-4 py-2 bg-white border-b">
+            <DialogTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-primary" />
+              {profile?.name || "Assistente"} - Mistral AI
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              Converse com o assistente virtual baseado no roteiro de atendimento
+            </DialogDescription>
+            <div className="flex gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => setIsContextExpanded(!isContextExpanded)}
               >
+                <FolderTree className="h-4 w-4" />
+                {isContextExpanded ? "Ocultar Contexto" : "Ver Contexto"}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => setIsShareModalOpen(true)}
+              >
+                <Share2 className="h-4 w-4" />
+                Compartilhar
+              </Button>
+            </div>
+          </DialogHeader>
+          
+          {isContextExpanded && (
+            <div className="max-h-[200px] overflow-y-auto p-3 bg-gray-100 border-b text-xs">
+              <h4 className="font-semibold mb-1">Contexto do Script:</h4>
+              <pre className="whitespace-pre-wrap">{scriptContent}</pre>
+            </div>
+          )}
+          
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
+              {messages.filter(msg => msg.role !== 'system').map((message, index) => (
                 <div 
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    message.role === 'user' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-white border border-gray-200'
-                  }`}
+                  key={index} 
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                    {message.role === 'user' ? (
-                      <>
-                        <User className="h-3 w-3" /> Você
-                      </>
-                    ) : (
-                      <>
-                        <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
-                      </>
-                    )}
-                    {message.timestamp && (
-                      <span className="ml-auto">
-                        {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                </div>
-              </div>
-            ))}
-            
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] p-3 rounded-lg bg-white border border-gray-200">
-                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                    <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <p className="text-sm">Processando resposta...</p>
+                  <div 
+                    className={`max-w-[80%] p-3 rounded-lg ${
+                      message.role === 'user' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-white border border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                      {message.role === 'user' ? (
+                        <>
+                          <User className="h-3 w-3" /> Você
+                        </>
+                      ) : (
+                        <>
+                          <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
+                        </>
+                      )}
+                      {message.timestamp && (
+                        <span className="ml-auto">
+                          {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} />
+              ))}
+              
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] p-3 rounded-lg bg-white border border-gray-200">
+                    <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                      <Bot className="h-3 w-3" /> {profile?.name || "Assistente"}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <p className="text-sm">Processando resposta...</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+          
+          <div className="p-4 border-t bg-white">
+            <div className="relative">
+              <Textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Digite sua mensagem..."
+                className="pr-12 resize-none min-h-[60px] max-h-[180px] overflow-y-auto"
+                rows={1}
+              />
+              <Button 
+                onClick={handleSendMessage} 
+                variant="ghost" 
+                size="icon"
+                className="absolute right-2 bottom-2"
+                disabled={isLoading || input.trim() === ''}
+              >
+                <SendHorizontal className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
-        </ScrollArea>
-        
-        <div className="p-4 border-t bg-white">
-          <div className="relative">
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Digite sua mensagem..."
-              className="pr-12 resize-none min-h-[60px] max-h-[180px] overflow-y-auto"
-              rows={1}
-            />
-            <Button 
-              onClick={handleSendMessage} 
-              variant="ghost" 
-              size="icon"
-              className="absolute right-2 bottom-2"
-              disabled={isLoading || input.trim() === ''}
-            >
-              <SendHorizontal className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Share Chat Modal */}
+      <ShareChatModal
+        isOpen={isShareModalOpen}
+        onOpenChange={setIsShareModalOpen}
+        scriptContent={scriptContent}
+        currentProfile={profile}
+      />
+    </>
   );
 };
 
