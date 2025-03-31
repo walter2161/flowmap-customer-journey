@@ -10,7 +10,8 @@ const cardTypeColors = {
   promocao: "orange",
   produto: "red",
   arquivo: "yellow",
-  profile: "blue"   // Added missing 'profile' type
+  profile: "blue", // Added missing 'profile' type
+  basic: "gray"  // Added 'basic' type with gray color
 };
 
 // Default connector component for flow edges
@@ -73,6 +74,9 @@ export const FlowConnector = ({
       case "yellow":
         strokeColor = '#eab308';
         break;
+      case "gray":
+        strokeColor = '#6b7280';
+        break;
       default:
         strokeColor = '#3b82f6'; // Default to blue
     }
@@ -93,4 +97,3 @@ export const FlowConnector = ({
     />
   );
 };
-

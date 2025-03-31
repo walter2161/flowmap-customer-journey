@@ -312,6 +312,10 @@ svg[data-id^="edge-"] * {
   border-left: 4px solid hsl(var(--card-profile)) !important;
 }
 
+.react-flow__node-flowCard[data-type="basic"] {
+  border-left: 4px solid #6b7280 !important;
+}
+
 /* Custom handle styles for positive/negative connections */
 .handle-positive {
   background-color: #10B981 !important;
@@ -320,6 +324,52 @@ svg[data-id^="edge-"] * {
 
 .handle-negative {
   background-color: #EF4444 !important;
+  border-color: white !important;
+}
+
+/* Add type-specific handle classes */
+.handle-initial {
+  background-color: hsl(var(--card-initial)) !important;
+  border-color: white !important;
+}
+
+.handle-servico {
+  background-color: hsl(var(--card-servico)) !important;
+  border-color: white !important;
+}
+
+.handle-agendar {
+  background-color: hsl(var(--card-agendar)) !important;
+  border-color: white !important;
+}
+
+.handle-confirmacao {
+  background-color: hsl(var(--card-confirmacao)) !important;
+  border-color: white !important;
+}
+
+.handle-promocao {
+  background-color: hsl(var(--card-promocao)) !important;
+  border-color: white !important;
+}
+
+.handle-produto {
+  background-color: hsl(var(--card-produto)) !important;
+  border-color: white !important;
+}
+
+.handle-arquivo {
+  background-color: hsl(var(--card-arquivo)) !important;
+  border-color: white !important;
+}
+
+.handle-profile {
+  background-color: hsl(var(--card-profile)) !important;
+  border-color: white !important;
+}
+
+.handle-basic {
+  background-color: #6b7280 !important;
   border-color: white !important;
 }
 
