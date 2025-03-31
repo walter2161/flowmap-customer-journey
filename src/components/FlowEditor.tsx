@@ -9,7 +9,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { FlowData, FlowCard } from '@/utils/flowTypes';
 import FlowCardComponent from './FlowCard';
-import { FlowConnector } from './FlowConnector';
+import FlowConnector from './FlowConnector';
 import CardTypeSelector from './CardTypeSelector';
 import { nanoid } from 'nanoid';
 import FlowControls from './FlowControls';
@@ -225,21 +225,6 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
     }
   }, []);
   
-  // Custom connection function to pass source card type to the edge
-  const onConnectWithCardType = useCallback((params) => {
-    // Find the source node to get its type
-    const sourceNode = nodes.find(node => node.id === params.source);
-    if (sourceNode && sourceNode.data) {
-      // Add the source card type to the edge data
-      params.data = { 
-        ...params.data, 
-        sourceCardType: sourceNode.data.type
-      };
-    }
-    // Call the original onConnect function
-    onConnect(params);
-  }, [nodes, onConnect]);
-  
   // Handle card selection
   const handleCardSelect = useCallback((type, formData) => {
     const newCard: FlowCard = {
@@ -285,12 +270,10 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={onConnectWithCardType}
+          onConnect={onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
-          minZoom={0.1} // Allow zooming out to 10%
-          maxZoom={2}  // Allow zooming in to 200%
           attributionPosition="bottom-right"
           onInit={(instance) => { reactFlowInstance.current = instance; }}
         >
