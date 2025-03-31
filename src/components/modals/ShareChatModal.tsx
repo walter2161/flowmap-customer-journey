@@ -101,10 +101,10 @@ const ShareChatModal: React.FC<ShareChatModalProps> = ({
     const chatContainer = document.createElement('div');
     chatContainer.className = 'flowassistant-chat';
     
-    // Create iframe with encoded script data
+    // Create iframe with encoded script data - directly pointing to the chat interface only
     const chatIframe = document.createElement('iframe');
     chatIframe.className = 'flowassistant-iframe';
-    chatIframe.src = "https://led-flowmap.netlify.app/?script=${encodedScript}&name=${encodeURIComponent(profileName)}&company=${encodeURIComponent(profileCompany)}";
+    chatIframe.src = "https://led-flowmap.netlify.app/chat?script=${encodedScript}&name=${encodeURIComponent(profileName)}&company=${encodeURIComponent(profileCompany)}";
     
     // Append elements to DOM
     chatContainer.appendChild(chatIframe);
@@ -149,7 +149,7 @@ const ShareChatModal: React.FC<ShareChatModalProps> = ({
           <div className="p-4 mb-4 bg-gray-50 rounded-lg">
             <p className="mb-2 text-sm text-gray-600">
               Copie o código abaixo e cole-o em qualquer site para adicionar este chatbot como um botão flutuante.
-              Quando os visitantes clicarem no botão, o chatbot será aberto em uma janela de chat.
+              Quando os visitantes clicarem no botão, apenas o chatbot será aberto em uma janela de chat.
             </p>
           </div>
           <pre className="p-4 bg-gray-50 rounded-lg whitespace-pre-wrap overflow-x-auto text-xs border">{embedCode}</pre>
