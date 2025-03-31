@@ -6,12 +6,12 @@
 
 // Helper class that might be used in FlowCard.tsx
 export class CardUtility {
+  private value: any;
+
   constructor(initialValue: any = null) {
     // Ensure constructor can be called with or without arguments
     this.value = initialValue;
   }
-
-  private value: any;
 
   // Add methods that might be used in FlowCard.tsx
   getValue() {
