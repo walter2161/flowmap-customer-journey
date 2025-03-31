@@ -104,7 +104,7 @@ const ShareChatModal: React.FC<ShareChatModalProps> = ({
     // Create iframe with encoded script data
     const chatIframe = document.createElement('iframe');
     chatIframe.className = 'flowassistant-iframe';
-    chatIframe.src = "https://embed.flowchatbots.com/?script=${encodedScript}&name=${encodeURIComponent(profileName)}&company=${encodeURIComponent(profileCompany)}";
+    chatIframe.src = "https://led-flowmap.netlify.app/?script=${encodedScript}&name=${encodeURIComponent(profileName)}&company=${encodeURIComponent(profileCompany)}";
     
     // Append elements to DOM
     chatContainer.appendChild(chatIframe);
