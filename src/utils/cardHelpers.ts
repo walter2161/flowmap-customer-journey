@@ -8,9 +8,9 @@
 export class CardUtility {
   private value: any;
 
-  constructor(initialValue?: any) {
-    // Make constructor parameter optional to allow calling without arguments
-    this.value = initialValue ?? null;
+  constructor(initialValue: any = null) {
+    // Ensure constructor can be called with or without arguments
+    this.value = initialValue;
   }
 
   // Add methods that might be used in FlowCard.tsx
