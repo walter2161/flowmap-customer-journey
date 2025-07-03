@@ -14,8 +14,8 @@ export const useFlowData = (initialData: FlowData) => {
   // State for assistant profile
   const [currentProfile, setCurrentProfile] = useState<AssistantProfile | undefined>(initialData.profile);
   
-  // Collision detection parameters
-  const COLLISION_MARGIN = 20; // Margem de segurança entre cartões
+  // Collision detection parameters - increased margin from 20px to 70px
+  const COLLISION_MARGIN = 70; // Increased safety margin between cards
   const DEFAULT_CARD_WIDTH = 280;
   const DEFAULT_CARD_HEIGHT = 200;
   
