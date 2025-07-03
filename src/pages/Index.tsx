@@ -24,7 +24,7 @@ const Index = () => {
   
   return (
     <AuthCheck>
-      <div className="w-full h-screen overflow-hidden bg-gray-100">
+      <div className="w-full h-screen overflow-hidden bg-gray-200">
         <header className="absolute top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-md shadow-sm">
           <div className="container mx-auto py-4 px-6 flex justify-between items-center">
             <div>
@@ -58,7 +58,7 @@ const Index = () => {
           </div>
         </header>
         
-        <main className="w-full h-full pt-20 bg-gray-100">
+        <main className="w-full h-full pt-20 bg-gray-200">
           <FlowEditor initialData={initialData} />
         </main>
         

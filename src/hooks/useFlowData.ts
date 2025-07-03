@@ -473,7 +473,34 @@ export const useFlowData = (initialData: FlowData) => {
     let script = '';
     
     // Add title
-    script += `# Roteiro de Atendimento\n\n`;
+    script += `# Roteiro de Atendimento para Agente de IA\n\n`;
+    
+    // Add critical instructions for AI agents at the top
+    script += `## ⚠️ INSTRUÇÕES CRÍTICAS PARA O AGENTE DE IA\n\n`;
+    script += `### Como interpretar e usar este roteiro:\n\n`;
+    script += `**IMPORTANTE:** Este é um fluxo conversacional estruturado. Você deve:\n\n`;
+    script += `1. **Seguir o fluxo logicamente** - Começar pelos cartões marcados como "initial" (pontos de entrada)\n`;
+    script += `2. **Interpretar intenções do usuário** - Usar as "Possíveis Intenções do Usuário" para navegar entre cartões\n`;
+    script += `3. **Adaptar respostas** - Use o conteúdo dos cartões como base, mas adapte à situação específica\n`;
+    script += `4. **Manter contexto** - Lembre-se de informações coletadas em cartões anteriores\n`;
+    script += `5. **Confirmar ações importantes** - Sempre confirme agendamentos, dados pessoais, etc.\n`;
+    script += `6. **Ser flexível** - Se o usuário não seguir exatamente o fluxo, redirecione educadamente\n`;
+    script += `7. **Encerrar adequadamente** - Use cartões terminais para finalizar conversas\n\n`;
+    
+    script += `### Compatibilidade com CRMs:\n`;
+    script += `Este roteiro foi otimizado para funcionar com:\n`;
+    script += `- **Zaia.app** - Plataforma de automação conversacional\n`;
+    script += `- **Umbler Talk** - Sistema de comunicação empresarial\n`;
+    script += `- **Kommo CRM** - Gerenciamento de relacionamento com cliente\n`;
+    script += `- **SalesBot** - Automação de vendas conversacional\n\n`;
+    
+    script += `### Estrutura do Fluxo:\n`;
+    script += `- **Cartões (Nós):** Cada seção representa um ponto de interação\n`;
+    script += `- **Conexões:** Indicam o caminho baseado na resposta do usuário\n`;
+    script += `- **Intenções:** Palavras-chave ou frases que ativam cada conexão\n`;
+    script += `- **Conteúdo/Script:** O que você deve dizer ou perguntar ao usuário\n\n`;
+    
+    script += `---\n\n`;
     
     // Get profile from state or localStorage
     let profileToUse: AssistantProfile | null = null;
@@ -490,13 +517,13 @@ export const useFlowData = (initialData: FlowData) => {
     
     // Add assistant profile information if available
     if (profileToUse) {
-      script += `## Perfil do Assistente\n\n`;
+      script += `## 👤 Perfil do Assistente\n\n`;
       script += `**Nome:** ${profileToUse.name}  \n`;
       script += `**Profissão:** ${profileToUse.profession}  \n`;
       script += `**Empresa:** ${profileToUse.company}  \n`;
       script += `**Contatos:** ${profileToUse.contacts}  \n\n`;
       
-      script += `### Diretrizes Gerais do Assistente\n`;
+      script += `### 📋 Diretrizes Gerais do Assistente\n`;
       // Format guidelines as bullet points
       const guidelineLines = profileToUse.guidelines.split('\n')
         .filter(line => line.trim().length > 0)
@@ -506,12 +533,12 @@ export const useFlowData = (initialData: FlowData) => {
     }
     
     // Add interpretation section with custom guidelines from profile
-    script += `## Interpretação do Fluxo\n`;
+    script += `## 🤖 Diretrizes de Interpretação do Fluxo\n`;
     
     // Get the assistant name from profile
     const assistantName = profileToUse?.name || 'o assistente';
     
-    script += `### Como ${assistantName} deve interpretar o roteiro de atendimento:\n`;
+    script += `### Como ${assistantName} deve interpretar este roteiro:\n`;
     
     // Use script guidelines from profile if available
     if (profileToUse?.scriptGuidelines && profileToUse.scriptGuidelines.length > 0) {
@@ -519,13 +546,14 @@ export const useFlowData = (initialData: FlowData) => {
         script += `- ${guideline}\n`;
       });
     } else {
-      // Default guidelines if none are specified
-      script += `- Sempre entender a intenção do cliente antes de responder, adaptando o fluxo conforme necessário.\n`;
-      script += `- Navegar entre os cartões de maneira lógica, seguindo as conexões definidas no fluxo.\n`;
-      script += `- Se o cliente fornecer uma resposta inesperada, reformular a pergunta ou redirecioná-lo para uma opção próxima.\n`;
-      script += `- Voltar para etapas anteriores, se necessário, garantindo que o cliente tenha todas as informações antes de finalizar uma interação.\n`;
-      script += `- Confirmar sempre que possível as escolhas do cliente para evitar erros.\n`;
-      script += `- Encerrar a conversa de forma educada, sempre deixando um canal aberto para contato futuro.\n`;
+      // Enhanced default guidelines for AI agents
+      script += `- **Compreensão contextual:** Sempre entender a intenção real do cliente, mesmo que a resposta não seja exata\n`;
+      script += `- **Navegação inteligente:** Seguir as conexões definidas, mas ser flexível se o cliente precisar de outro caminho\n`;
+      script += `- **Tratamento de exceções:** Se o cliente der uma resposta inesperada, reformular ou redirecionar educadamente\n`;
+      script += `- **Recuperação de contexto:** Voltar para etapas anteriores quando necessário, mantendo informações já coletadas\n`;
+      script += `- **Confirmação ativa:** Sempre confirmar informações importantes (agendamentos, dados pessoais, preços)\n`;
+      script += `- **Encerramento profissional:** Finalizar interações de forma cordial, deixando canal aberto para contato futuro\n`;
+      script += `- **Personalização:** Adaptar o tom e linguagem ao perfil do cliente durante a conversa\n`;
     }
     script += '\n';
     
@@ -533,15 +561,15 @@ export const useFlowData = (initialData: FlowData) => {
     const initialCards = nodes.filter(node => node.data.type === 'initial');
     
     if (initialCards.length === 0) {
-      script += `> Nota: Este fluxo não possui cartões iniciais definidos! Considere adicionar um cartão do tipo 'initial' para marcar o início do fluxo.\n\n`;
+      script += `> ⚠️ **ATENÇÃO:** Este fluxo não possui cartões iniciais definidos! Considere adicionar um cartão do tipo 'initial' para marcar o início do fluxo.\n\n`;
       // If no initial cards, just use any card as a starting point
       if (nodes.length > 0) {
-        script += `## Pontos de Entrada (1)\n\n`;
+        script += `## 🚀 Pontos de Entrada (1)\n\n`;
         script += `### Entrada 1: ${nodes[0].data.title}\n\n`;
         processNode(nodes[0], 0, new Set());
       }
     } else {
-      script += `## Pontos de Entrada (${initialCards.length})\n\n`;
+      script += `## 🚀 Pontos de Entrada (${initialCards.length})\n\n`;
       // Process each initial card and its connections
       initialCards.forEach((initialNode, index) => {
         script += `### Entrada ${index + 1}: ${initialNode.data.title}\n\n`;
@@ -553,23 +581,23 @@ export const useFlowData = (initialData: FlowData) => {
     function processNode(node, depth, visited) {
       // Avoid infinite loops in cyclical graphs
       if (visited.has(node.id)) {
-        script += `**Nota:** Este nó já foi processado anteriormente (referência cíclica).\n\n`;
+        script += `**🔄 Nota:** Este nó já foi processado anteriormente (referência cíclica).\n\n`;
         return;
       }
       visited.add(node.id);
       
       const card = node.data;
       
-      script += `## ${card.title}  \n`;
-      script += `**Tipo de Cartão:** ${card.type}  \n`;
-      script += `**ID:** ${card.id}  \n\n`;
+      script += `## 💬 ${card.title}  \n`;
+      script += `**🏷️ Tipo de Cartão:** ${card.type}  \n`;
+      script += `**🆔 ID:** ${card.id}  \n\n`;
       
       if (card.description) {
-        script += `**Descrição:**  \n${card.description}  \n\n`;
+        script += `**📝 Descrição:**  \n${card.description}  \n\n`;
       }
       
       if (card.content) {
-        script += `**Conteúdo/Script:**  \n${card.content}  \n\n`;
+        script += `**💬 Conteúdo/Script para o Agente:**  \n${card.content}  \n\n`;
       }
       
       // Add specific fields based on card type
@@ -585,7 +613,7 @@ export const useFlowData = (initialData: FlowData) => {
         }
         
         if (hasNonStandardFields) {
-          script += `**Campos Específicos:**  \n`;
+          script += `**⚙️ Campos Específicos:**  \n`;
           
           for (const [key, value] of Object.entries(card.fields)) {
             // Skip empty values or title/description/content that are already shown
@@ -599,7 +627,7 @@ export const useFlowData = (initialData: FlowData) => {
       
       // Process files for arquivo card type
       if (card.type === 'arquivo' && card.files && card.files.length > 0) {
-        script += `**Arquivos:**  \n`;
+        script += `**📎 Arquivos:**  \n`;
         
         card.files.forEach((file, index) => {
           script += `- **Arquivo ${index + 1}:** ${file.name}  \n`;
@@ -623,17 +651,18 @@ export const useFlowData = (initialData: FlowData) => {
       const outgoingEdges = edges.filter(edge => edge.source === node.id);
       
       if (outgoingEdges.length > 0) {
-        script += `**Possíveis Intenções do Usuário:**  \n`;
+        script += `**🎯 Possíveis Intenções do Usuário:**  \n`;
+        script += `*Use estas intenções para navegar para o próximo cartão baseado na resposta do cliente:*  \n\n`;
         
         // Process each connection
-        outgoingEdges.forEach((edge) => {
+        outgoingEdges.forEach((edge, index) => {
           const targetNode = nodes.find(n => n.id === edge.target);
           if (targetNode) {
             // Obter o rótulo da porta de saída que representa a intenção do usuário
             const portLabel = edge.data?.sourcePortLabel || 'Resposta não especificada';
             
             // Formatar a informação da conexão destacando a intenção do usuário
-            script += `- Se o usuário expressar a intenção "${portLabel}", direcionar para o cartão "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
+            script += `${index + 1}. **Intenção: "${portLabel}"** → Ir para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
           }
         });
         
@@ -646,22 +675,44 @@ export const useFlowData = (initialData: FlowData) => {
             // Obter a informação da conexão
             const portLabel = edge.data?.sourcePortLabel || 'Resposta não especificada';
             
-            script += `### Fluxo para intenção "${portLabel}":\n\n`;
+            script += `### ➡️ Fluxo para intenção "${portLabel}":\n\n`;
             processNode(targetNode, depth + 1, new Set([...visited]));
           }
         });
       } else {
-        script += `**Nota:** Este é um nó terminal (sem conexões de saída).  \n\n`;
+        script += `**🔚 Nota:** Este é um nó terminal (sem conexões de saída). Finalize a conversa adequadamente.  \n\n`;
       }
     }
     
-    // Add a footer with generation information
+    // Add a footer with generation information and integration tips
     script += `---\n\n`;
+    script += `## 📊 Informações do Roteiro\n\n`;
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString() + ', ' + currentDate.toLocaleTimeString();
-    script += `Roteiro gerado em: ${formattedDate}  \n`;
-    script += `Total de nós: ${nodes.length}  \n`;
-    script += `Total de conexões: ${edges.length}  \n`;
+    script += `**Data de geração:** ${formattedDate}  \n`;
+    script += `**Total de nós:** ${nodes.length}  \n`;
+    script += `**Total de conexões:** ${edges.length}  \n\n`;
+    
+    script += `## 🔗 Dicas de Integração com CRMs\n\n`;
+    script += `### Para Zaia.app:\n`;
+    script += `- Importe este roteiro como base de conhecimento\n`;
+    script += `- Configure triggers baseados nas intenções mapeadas\n`;
+    script += `- Use os IDs dos cartões para criar automações específicas\n\n`;
+    
+    script += `### Para Umbler Talk:\n`;
+    script += `- Configure fluxos baseados na estrutura de cartões\n`;
+    script += `- Use as intenções como palavras-chave para roteamento\n`;
+    script += `- Integre com o sistema de tickets baseado nos cartões terminais\n\n`;
+    
+    script += `### Para Kommo CRM:\n`;
+    script += `- Configure pipelines baseados no fluxo de cartões\n`;
+    script += `- Use as informações do perfil para personalização\n`;
+    script += `- Automatize follow-ups baseados nos pontos de saída\n\n`;
+    
+    script += `### Para SalesBot:\n`;
+    script += `- Configure cenários baseados na árvore de decisão\n`;
+    script += `- Use as intenções para criar branches condicionais\n`;
+    script += `- Integre informações de produto/serviço dos cartões específicos\n\n`;
     
     return script;
   }, [nodes, edges, currentProfile]);
