@@ -1,41 +1,19 @@
 
-/**
- * Helper functions for FlowCard component
- * This file provides utility functions that might be needed by FlowCard.tsx
- */
-
-// Helper class that might be used in FlowCard.tsx
+// Utility class for card operations
 export class CardUtility {
-  private value: any;
+  private initialValue: any;
 
-  constructor(initialValue: any = null) {
-    // Ensure constructor can be called with or without arguments
-    this.value = initialValue;
+  constructor(initialValue?: any) {
+    this.initialValue = initialValue;
   }
 
-  // Add methods that might be used in FlowCard.tsx
+  // Add utility methods here as needed
   getValue() {
-    return this.value;
-  }
-
-  setValue(newValue: any) {
-    this.value = newValue;
-    return this;
+    return this.initialValue;
   }
 }
 
-// Helper function to safely create instances
-export function createCardUtility(initialValue?: any) {
+// Export utility functions
+export const createCardUtility = (initialValue?: any) => {
   return new CardUtility(initialValue);
-}
-
-// This provides a function that doesn't need 'new' keyword
-export function createDefaultCard(type: string, title: string = '') {
-  return {
-    type,
-    title,
-    content: '',
-    description: '',
-    // Add other default properties as needed
-  };
-}
+};

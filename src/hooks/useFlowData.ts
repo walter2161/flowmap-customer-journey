@@ -465,11 +465,11 @@ export const useFlowData = (initialData: FlowData) => {
     return true;
   }, [setNodes, setEdges]);
   
-  // Generate script
+  // Generate script - NOW DYNAMIC WITH CURRENT CARD CONTENT
   const generateScript = useCallback(() => {
     if (nodes.length === 0) return null;
     
-    // Convert flow to script text
+    // Convert flow to script text using CURRENT node data
     let script = '';
     
     // Add title
@@ -486,13 +486,6 @@ export const useFlowData = (initialData: FlowData) => {
     script += `5. **Confirmar ações importantes** - Sempre confirme agendamentos, dados pessoais, etc.\n`;
     script += `6. **Ser flexível** - Se o usuário não seguir exatamente o fluxo, redirecione educadamente\n`;
     script += `7. **Encerrar adequadamente** - Use cartões terminais para finalizar conversas\n\n`;
-    
-    script += `### Compatibilidade com CRMs:\n`;
-    script += `Este roteiro foi otimizado para funcionar com:\n`;
-    script += `- **Zaia.app** - Plataforma de automação conversacional\n`;
-    script += `- **Umbler Talk** - Sistema de comunicação empresarial\n`;
-    script += `- **Kommo CRM** - Gerenciamento de relacionamento com cliente\n`;
-    script += `- **SalesBot** - Automação de vendas conversacional\n\n`;
     
     script += `### Estrutura do Fluxo:\n`;
     script += `- **Cartões (Nós):** Cada seção representa um ponto de interação\n`;
@@ -586,17 +579,18 @@ export const useFlowData = (initialData: FlowData) => {
       }
       visited.add(node.id);
       
+      // Use CURRENT node data (this makes it dynamic)
       const card = node.data;
       
-      script += `## 💬 ${card.title}  \n`;
-      script += `**🏷️ Tipo de Cartão:** ${card.type}  \n`;
+      script += `## 💬 ${card.title || 'Cartão sem título'}  \n`;
+      script += `**🏷️ Tipo de Cartão:** ${card.type || 'não definido'}  \n`;
       script += `**🆔 ID:** ${card.id}  \n\n`;
       
-      if (card.description) {
+      if (card.description && card.description.trim()) {
         script += `**📝 Descrição:**  \n${card.description}  \n\n`;
       }
       
-      if (card.content) {
+      if (card.content && card.content.trim()) {
         script += `**💬 Conteúdo/Script para o Agente:**  \n${card.content}  \n\n`;
       }
       
@@ -662,7 +656,7 @@ export const useFlowData = (initialData: FlowData) => {
             const portLabel = edge.data?.sourcePortLabel || 'Resposta não especificada';
             
             // Formatar a informação da conexão destacando a intenção do usuário
-            script += `${index + 1}. **Intenção: "${portLabel}"** → Ir para "${targetNode.data.title}" (ID: ${targetNode.id})  \n`;
+            script += `${index + 1}. **Intenção: "${portLabel}"** → Ir para "${targetNode.data.title || 'Cartão sem título'}" (ID: ${targetNode.id})  \n`;
           }
         });
         
@@ -684,7 +678,7 @@ export const useFlowData = (initialData: FlowData) => {
       }
     }
     
-    // Add a footer with generation information and integration tips
+    // Add a footer with generation information
     script += `---\n\n`;
     script += `## 📊 Informações do Roteiro\n\n`;
     const currentDate = new Date();
@@ -692,27 +686,6 @@ export const useFlowData = (initialData: FlowData) => {
     script += `**Data de geração:** ${formattedDate}  \n`;
     script += `**Total de nós:** ${nodes.length}  \n`;
     script += `**Total de conexões:** ${edges.length}  \n\n`;
-    
-    script += `## 🔗 Dicas de Integração com CRMs\n\n`;
-    script += `### Para Zaia.app:\n`;
-    script += `- Importe este roteiro como base de conhecimento\n`;
-    script += `- Configure triggers baseados nas intenções mapeadas\n`;
-    script += `- Use os IDs dos cartões para criar automações específicas\n\n`;
-    
-    script += `### Para Umbler Talk:\n`;
-    script += `- Configure fluxos baseados na estrutura de cartões\n`;
-    script += `- Use as intenções como palavras-chave para roteamento\n`;
-    script += `- Integre com o sistema de tickets baseado nos cartões terminais\n\n`;
-    
-    script += `### Para Kommo CRM:\n`;
-    script += `- Configure pipelines baseados no fluxo de cartões\n`;
-    script += `- Use as informações do perfil para personalização\n`;
-    script += `- Automatize follow-ups baseados nos pontos de saída\n\n`;
-    
-    script += `### Para SalesBot:\n`;
-    script += `- Configure cenários baseados na árvore de decisão\n`;
-    script += `- Use as intenções para criar branches condicionais\n`;
-    script += `- Integre informações de produto/serviço dos cartões específicos\n\n`;
     
     return script;
   }, [nodes, edges, currentProfile]);
