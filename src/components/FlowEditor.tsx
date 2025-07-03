@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   MiniMap,
@@ -15,11 +14,14 @@ import { nanoid } from 'nanoid';
 import FlowControls from './FlowControls';
 import { useFlowData } from '@/hooks/useFlowData';
 import { useFileSystem } from '@/hooks/useFileSystem';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import TemplateModal from './modals/TemplateModal';
 import ImportModal from './modals/ImportModal';
 import ScriptModal from './modals/ScriptModal';
 import ExportModal from './modals/ExportModal';
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Moon, Sun } from 'lucide-react';
 
 // Define node types
 const nodeTypes = {
@@ -38,6 +40,9 @@ interface FlowEditorProps {
 const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
   // Toast notification
   const { toast } = useToast();
+  
+  // Dark mode hook
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   
   // Initialize flow data with custom hook
   const {
@@ -264,7 +269,21 @@ const FlowEditor: React.FC<FlowEditorProps> = ({ initialData }) => {
 
   return (
     <ReactFlowProvider>
-      <div className="w-full h-full">
+      <div className="w-full h-full relative">
+        {/* Dark mode toggle button */}
+        <Button
+          onClick={toggleDarkMode}
+          variant="outline"
+          size="sm"
+          className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm"
+        >
+          {isDarkMode ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
+        </Button>
+        
         <ReactFlow
           nodes={nodes}
           edges={edges}

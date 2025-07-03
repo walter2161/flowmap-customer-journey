@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useNodesState, useEdgesState, addEdge, Connection, Edge } from 'reactflow';
 import { FlowData, FlowCard, AssistantProfile } from '@/utils/flowTypes';
@@ -14,6 +13,100 @@ export const useFlowData = (initialData: FlowData) => {
   
   // State for assistant profile
   const [currentProfile, setCurrentProfile] = useState<AssistantProfile | undefined>(initialData.profile);
+  
+  // Collision detection parameters
+  const COLLISION_MARGIN = 20; // Margem de segurança entre cartões
+  const DEFAULT_CARD_WIDTH = 280;
+  const DEFAULT_CARD_HEIGHT = 200;
+  
+  // Check if two rectangles collide with margin
+  const checkCollision = (rect1: any, rect2: any) => {
+    return !(
+      rect1.x + rect1.width + COLLISION_MARGIN <= rect2.x ||
+      rect2.x + rect2.width + COLLISION_MARGIN <= rect1.x ||
+      rect1.y + rect1.height + COLLISION_MARGIN <= rect2.y ||
+      rect2.y + rect2.height + COLLISION_MARGIN <= rect1.y
+    );
+  };
+  
+  // Find a safe position for a node that doesn't collide with others
+  const findSafePosition = (targetNode: any, existingNodes: any[]) => {
+    const targetRect = {
+      x: targetNode.position.x,
+      y: targetNode.position.y,
+      width: DEFAULT_CARD_WIDTH,
+      height: DEFAULT_CARD_HEIGHT
+    };
+    
+    // Check collision with all existing nodes except itself
+    const otherNodes = existingNodes.filter(node => node.id !== targetNode.id);
+    let hasCollision = false;
+    
+    for (const otherNode of otherNodes) {
+      const otherRect = {
+        x: otherNode.position.x,
+        y: otherNode.position.y,
+        width: DEFAULT_CARD_WIDTH,
+        height: DEFAULT_CARD_HEIGHT
+      };
+      
+      if (checkCollision(targetRect, otherRect)) {
+        hasCollision = true;
+        break;
+      }
+    }
+    
+    if (!hasCollision) {
+      return targetNode.position;
+    }
+    
+    // If there's collision, try to find a safe position
+    const maxAttempts = 50;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      // Try positions in a spiral pattern around the original position
+      const angle = (attempts * Math.PI) / 6; // 30 degrees increment
+      const radius = 50 + (attempts * 30); // Increasing radius
+      
+      const newX = targetNode.position.x + Math.cos(angle) * radius;
+      const newY = targetNode.position.y + Math.sin(angle) * radius;
+      
+      const newRect = {
+        x: newX,
+        y: newY,
+        width: DEFAULT_CARD_WIDTH,
+        height: DEFAULT_CARD_HEIGHT
+      };
+      
+      let newHasCollision = false;
+      for (const otherNode of otherNodes) {
+        const otherRect = {
+          x: otherNode.position.x,
+          y: otherNode.position.y,
+          width: DEFAULT_CARD_WIDTH,
+          height: DEFAULT_CARD_HEIGHT
+        };
+        
+        if (checkCollision(newRect, otherRect)) {
+          newHasCollision = true;
+          break;
+        }
+      }
+      
+      if (!newHasCollision) {
+        return { x: newX, y: newY };
+      }
+      
+      attempts++;
+    }
+    
+    // If we can't find a safe position, offset significantly
+    return {
+      x: targetNode.position.x + (DEFAULT_CARD_WIDTH + COLLISION_MARGIN),
+      y: targetNode.position.y + (DEFAULT_CARD_HEIGHT + COLLISION_MARGIN)
+    };
+  };
   
   // Initialize flow data
   useEffect(() => {
@@ -58,7 +151,7 @@ export const useFlowData = (initialData: FlowData) => {
     }
   }, [initialData, setNodes, setEdges]);
   
-  // Completely rewritten function to distribute nodes with proper spacing and collision detection
+  // Enhanced distribute nodes function with collision detection
   const distributeNodes = (nodes) => {
     // Define base positions for different node types with more spacing between them
     const typePositions = {
@@ -76,12 +169,6 @@ export const useFlowData = (initialData: FlowData) => {
       'Coloração': { x: 552, y: -300 },
       'Manicure e Pedicure': { x: 1056, y: -399 },
     };
-    
-    // Track occupied positions to avoid overlaps
-    const occupiedPositions = [];
-    
-    // Minimum distance between nodes - increased to 150px for better visibility
-    const minDistance = 150;
     
     // Create a copy of the nodes with valid positions
     const nodesWithValidPositions = [];
@@ -101,53 +188,21 @@ export const useFlowData = (initialData: FlowData) => {
       }
     }
     
-    // Function to check if a position is too close to any occupied position
-    const isTooClose = (pos) => {
-      return occupiedPositions.some(occupiedPos => {
-        const distance = Math.sqrt(
-          Math.pow(occupiedPos.x - pos.x, 2) + 
-          Math.pow(occupiedPos.y - pos.y, 2)
-        );
-        return distance < minDistance;
-      });
-    };
-    
-    // Function to find a safe position that doesn't overlap with others
-    const findSafePosition = (basePos, attempts = 0) => {
-      // If this is a valid position, return it
-      if (!isTooClose(basePos)) {
-        return basePos;
-      }
+    // Apply collision detection to nodes with valid positions
+    const processedNodes = [];
+    for (const node of nodesWithValidPositions) {
+      const safePosition = findSafePosition(node, processedNodes);
       
-      // If we've tried too many times, add some random offset
-      if (attempts > 15) {
-        const randomOffset = 150 + Math.random() * 300;
-        const randomAngle = Math.random() * Math.PI * 2;
-        return {
-          x: basePos.x + Math.cos(randomAngle) * randomOffset,
-          y: basePos.y + Math.sin(randomAngle) * randomOffset
-        };
-      }
-      
-      // Try shifting the position in a spiral pattern
-      const angle = (Math.PI * 2 * attempts) / 8; // 8 directions
-      const radius = minDistance * (1 + Math.floor(attempts / 8)); // Increase radius after going around once
-      
-      const newPos = {
-        x: basePos.x + Math.cos(angle) * radius,
-        y: basePos.y + Math.sin(angle) * radius
+      const updatedNode = {
+        ...node,
+        position: safePosition,
+        data: {
+          ...node.data,
+          position: safePosition
+        }
       };
       
-      return findSafePosition(newPos, attempts + 1);
-    };
-    
-    // First process nodes with valid positions
-    for (const node of nodesWithValidPositions) {
-      const safePosition = findSafePosition(node.position);
-      occupiedPositions.push(safePosition);
-      
-      node.position = safePosition;
-      node.data.position = safePosition;
+      processedNodes.push(updatedNode);
     }
     
     // Track counts for different types
@@ -172,39 +227,79 @@ export const useFlowData = (initialData: FlowData) => {
       } else if (nodeType === 'servico') {
         // Position services with consistent offset
         basePosition = {
-          x: typePositions.servico.x + (typeCounts.servico * 180),
-          y: typePositions.servico.y - (typeCounts.servico * 120)
+          x: typePositions.servico.x + (typeCounts.servico * 300), // Increased spacing
+          y: typePositions.servico.y - (typeCounts.servico * 150)
         };
         typeCounts.servico++;
       } else if (typePositions[nodeType]) {
         // For other known types, offset from the base position
         const basePos = typePositions[nodeType];
         basePosition = {
-          x: basePos.x + (typeCounts[nodeType] || 0) * 180,
-          y: basePos.y + (typeCounts[nodeType] || 0) * 100
+          x: basePos.x + (typeCounts[nodeType] || 0) * 300, // Increased spacing
+          y: basePos.y + (typeCounts[nodeType] || 0) * 150
         };
         typeCounts[nodeType] = (typeCounts[nodeType] || 0) + 1;
       } else {
         // Default positioning for unknown types
         basePosition = {
-          x: 200 + (typeCounts.default * 220),
-          y: 100 + (typeCounts.default * 150)
+          x: 200 + (typeCounts.default * 350), // Increased spacing
+          y: 100 + (typeCounts.default * 200)
         };
         typeCounts.default++;
       }
       
-      // Find a safe position that doesn't overlap with others
-      const safePosition = findSafePosition(basePosition);
-      occupiedPositions.push(safePosition);
+      // Find a safe position that doesn't collide with others
+      const tempNode = { ...node, position: basePosition };
+      const safePosition = findSafePosition(tempNode, processedNodes);
       
-      // Update both node position and the position in the data
-      node.position = safePosition;
-      node.data.position = safePosition;
+      const updatedNode = {
+        ...node,
+        position: safePosition,
+        data: {
+          ...node.data,
+          position: safePosition
+        }
+      };
+      
+      processedNodes.push(updatedNode);
     }
     
-    // Return all nodes with their updated positions
-    return [...nodesWithValidPositions, ...nodesWithoutPositions];
+    return processedNodes;
   };
+  
+  // Custom onNodesChange with collision detection
+  const customOnNodesChange = useCallback((changes) => {
+    // Apply the changes first
+    onNodesChange(changes);
+    
+    // Check for position changes and apply collision detection
+    const positionChanges = changes.filter(change => change.type === 'position' && change.dragging === false);
+    
+    if (positionChanges.length > 0) {
+      setNodes(currentNodes => {
+        const updatedNodes = [...currentNodes];
+        
+        positionChanges.forEach(change => {
+          const nodeIndex = updatedNodes.findIndex(node => node.id === change.id);
+          if (nodeIndex !== -1 && change.position) {
+            const targetNode = { ...updatedNodes[nodeIndex], position: change.position };
+            const safePosition = findSafePosition(targetNode, updatedNodes);
+            
+            updatedNodes[nodeIndex] = {
+              ...updatedNodes[nodeIndex],
+              position: safePosition,
+              data: {
+                ...updatedNodes[nodeIndex].data,
+                position: safePosition
+              }
+            };
+          }
+        });
+        
+        return updatedNodes;
+      });
+    }
+  }, [onNodesChange, setNodes]);
   
   // Handle connection between nodes
   const onConnect = useCallback(
@@ -587,7 +682,7 @@ export const useFlowData = (initialData: FlowData) => {
   return {
     nodes,
     edges,
-    onNodesChange,
+    onNodesChange: customOnNodesChange,
     onEdgesChange,
     onConnect,
     setNodes,
