@@ -326,7 +326,7 @@ const FlowCardComponent: React.FC<FlowCardProps> = ({ data, selected }) => {
     // Resize and convert to base64
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
         let width = img.width;

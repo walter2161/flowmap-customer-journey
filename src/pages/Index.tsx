@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import FlowEditor from '@/components/FlowEditor';
 import { getTemplateData } from '@/utils/templateData';
@@ -8,6 +7,8 @@ import { LogOut, MessageSquare, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ChatPreview from '@/components/modals/ChatPreview';
 import WhatsAppSync from '@/components/modals/WhatsAppSync';
+import { WhatsAppChat } from '@/components/WhatsAppChat';
+import { WhatsAppChat as WhatsAppChatType } from '@/services/whatsappService';
 
 const Index = () => {
   // Use o template do Salão de Beleza como dados iniciais
@@ -15,6 +16,8 @@ const Index = () => {
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isWhatsAppSyncOpen, setIsWhatsAppSyncOpen] = useState(false);
+  const [isWhatsAppChatOpen, setIsWhatsAppChatOpen] = useState(false);
+  const [selectedWhatsAppChat, setSelectedWhatsAppChat] = useState<WhatsAppChatType | undefined>();
   
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
@@ -40,6 +43,15 @@ const Index = () => {
               >
                 <MessageSquare size={16} className="text-green-600" />
                 Sincronizar WhatsApp
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsWhatsAppChatOpen(true)} 
+                className="gap-2"
+              >
+                <MessageSquare size={16} className="text-blue-600" />
+                Conversas WhatsApp
               </Button>
               <Button 
                 variant="outline" 
@@ -72,13 +84,36 @@ const Index = () => {
           isOpen={isWhatsAppSyncOpen}
           onOpenChange={setIsWhatsAppSyncOpen}
         />
+
+        {isWhatsAppChatOpen && (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
+            <div className="fixed inset-4 bg-background border rounded-lg shadow-lg">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="text-lg font-semibold">Conversas WhatsApp</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsWhatsAppChatOpen(false)}
+                >
+                  ✕
+                </Button>
+              </div>
+              <div className="p-4 h-[calc(100%-80px)]">
+                <WhatsAppChat
+                  selectedChat={selectedWhatsAppChat}
+                  onChatSelect={setSelectedWhatsAppChat}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthCheck>
   );
 };
 
 // Helper function to generate script content from flow data
-const generateScriptFromData = (data) => {
+const generateScriptFromData = (data: any) => {
   if (!data || !data.cards || data.cards.length === 0) {
     return "Sem roteiro disponível.";
   }
@@ -94,7 +129,7 @@ const generateScriptFromData = (data) => {
   }
   
   // Add each card to the script with their positions
-  data.cards.forEach(card => {
+  data.cards.forEach((card: any) => {
     script += `## ${card.title}\n`;
     
     // Add position information with precise formatting
