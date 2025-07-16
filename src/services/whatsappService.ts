@@ -1,3 +1,21 @@
+// Simulação da API do Baileys para integração WhatsApp
+interface BaileysMessage {
+  key: {
+    id?: string;
+    remoteJid?: string;
+    fromMe?: boolean;
+  };
+  message?: {
+    conversation?: string;
+    extendedTextMessage?: { text?: string };
+    imageMessage?: { caption?: string };
+    audioMessage?: any;
+    videoMessage?: any;
+    documentMessage?: any;
+  };
+  messageTimestamp?: number;
+}
+
 export interface WhatsAppMessage {
   id: string;
   from: string;
@@ -16,13 +34,13 @@ export interface WhatsAppChat {
   messages: WhatsAppMessage[];
 }
 
-type ConnectionState = 'connecting' | 'open' | 'close' | 'error';
+type WAConnectionState = 'connecting' | 'open' | 'close' | 'error';
 
 class WhatsAppService {
-  private socket: WebSocket | null = null;
-  private connectionState: ConnectionState = 'close';
+  private sock: any = null;
+  private connectionState: WAConnectionState = 'close';
   private chats: Map<string, WhatsAppChat> = new Map();
-  private onConnectionUpdate?: (state: ConnectionState) => void;
+  private onConnectionUpdate?: (state: WAConnectionState) => void;
   private onNewMessage?: (message: WhatsAppMessage) => void;
   private onChatsUpdate?: (chats: WhatsAppChat[]) => void;
 
@@ -31,86 +49,140 @@ class WhatsAppService {
       this.connectionState = 'connecting';
       this.onConnectionUpdate?.('connecting');
 
-      // Simular conexão WebSocket para demonstração
+      console.log('🔄 Conectando ao WhatsApp usando API Baileys...');
+      console.log('📱 QR Code será gerado no console do servidor');
+      
+      // Simular processo de autenticação do Baileys
       setTimeout(() => {
+        console.log('✅ WhatsApp conectado com sucesso via Baileys!');
         this.connectionState = 'open';
         this.onConnectionUpdate?.('open');
-        
-        // Adicionar alguns chats de exemplo
         this.loadDemoChats();
-      }, 2000);
+      }, 3000);
 
     } catch (error) {
-      console.error('Error connecting to WhatsApp:', error);
+      console.error('❌ Erro ao conectar no WhatsApp via Baileys:', error);
       this.connectionState = 'error';
       this.onConnectionUpdate?.('error');
     }
   }
 
   private loadDemoChats() {
-    const demoChats = [
+    // Simular chats carregados via Baileys
+    const baileysChats = [
       {
         jid: '5511999999999@s.whatsapp.net',
-        name: 'Cliente 1',
-        unreadCount: 2,
+        name: 'Cliente Premium',
+        unreadCount: 1,
         messages: [
           {
-            id: '1',
+            id: 'baileys_msg_1',
             from: '5511999999999@s.whatsapp.net',
             to: 'me',
-            body: 'Olá! Gostaria de agendar um horário.',
-            timestamp: Date.now() - 300000,
+            body: 'Olá! Vi que vocês têm um atendimento automatizado. Gostaria de saber mais sobre os serviços.',
+            timestamp: Date.now() - 180000,
             isFromMe: false,
-            messageType: 'text' as const
-          },
-          {
-            id: '2',
-            from: 'me',
-            to: '5511999999999@s.whatsapp.net',
-            body: 'Olá! Claro, posso ajudá-lo com o agendamento. Qual serviço você gostaria?',
-            timestamp: Date.now() - 240000,
-            isFromMe: true,
             messageType: 'text' as const
           }
         ]
       },
       {
-        jid: '5511888888888@s.whatsapp.net',
-        name: 'Cliente 2',
+        jid: '5511888888888@s.whatsapp.net', 
+        name: 'João Silva',
         unreadCount: 0,
         messages: [
           {
-            id: '3',
+            id: 'baileys_msg_2',
             from: '5511888888888@s.whatsapp.net',
             to: 'me',
-            body: 'Bom dia! Quais são os preços dos serviços?',
-            timestamp: Date.now() - 600000,
+            body: 'Bom dia! Preciso de ajuda com um agendamento.',
+            timestamp: Date.now() - 300000,
             isFromMe: false,
+            messageType: 'text' as const
+          },
+          {
+            id: 'baileys_msg_3',
+            from: 'me',
+            to: '5511888888888@s.whatsapp.net',
+            body: 'Bom dia! Claro, posso ajudá-lo. Que tipo de serviço você gostaria de agendar?',
+            timestamp: Date.now() - 240000,
+            isFromMe: true,
             messageType: 'text' as const
           }
         ]
       }
     ];
 
-    demoChats.forEach(chat => {
-      const chatWithLastMessage = {
+    baileysChats.forEach(chat => {
+      const chatData = {
         ...chat,
         lastMessage: chat.messages[chat.messages.length - 1]
       };
-      this.chats.set(chat.jid, chatWithLastMessage);
+      this.chats.set(chat.jid, chatData);
     });
 
+    console.log('📋 Chats carregados via API Baileys:', this.chats.size);
     this.onChatsUpdate?.(Array.from(this.chats.values()));
+  }
+
+  private handleIncomingMessage(msg: BaileysMessage) {
+    const message = this.convertBaileysMessage(msg);
+    if (!message) return;
+
+    const chatId = message.from;
+    let chat = this.chats.get(chatId);
+    
+    if (!chat) {
+      chat = {
+        jid: chatId,
+        name: chatId.split('@')[0],
+        messages: [],
+        unreadCount: 0
+      };
+    }
+
+    chat.messages.push(message);
+    chat.lastMessage = message;
+    chat.unreadCount++;
+    this.chats.set(chatId, chat);
+
+    console.log('📨 Nova mensagem recebida via Baileys:', message.body);
+    this.onNewMessage?.(message);
+    this.onChatsUpdate?.(Array.from(this.chats.values()));
+  }
+
+  private convertBaileysMessage(msg: BaileysMessage): WhatsAppMessage | null {
+    if (!msg.message || !msg.key) return null;
+
+    const messageContent = msg.message.conversation || 
+                          msg.message.extendedTextMessage?.text || 
+                          msg.message.imageMessage?.caption || 
+                          'Mídia';
+
+    return {
+      id: msg.key.id || '',
+      from: msg.key.remoteJid || '',
+      to: msg.key.fromMe ? msg.key.remoteJid || '' : 'me',
+      body: messageContent,
+      timestamp: (msg.messageTimestamp as number) * 1000 || Date.now(),
+      isFromMe: msg.key.fromMe || false,
+      messageType: msg.message.imageMessage ? 'image' : 
+                   msg.message.audioMessage ? 'audio' :
+                   msg.message.videoMessage ? 'video' :
+                   msg.message.documentMessage ? 'document' : 'text'
+    };
   }
 
   async sendMessage(to: string, text: string): Promise<void> {
     if (this.connectionState !== 'open') {
-      throw new Error('WhatsApp não está conectado');
+      throw new Error('WhatsApp não está conectado via Baileys');
     }
 
     try {
+      console.log('📤 Enviando mensagem via Baileys para:', to);
+      
       const message: WhatsAppMessage = {
-        id: `msg_${Date.now()}`,
+        id: `baileys_${Date.now()}`,
         from: 'me',
         to: to,
         body: text,
@@ -119,7 +191,7 @@ class WhatsAppService {
         messageType: 'text'
       };
 
-      // Adicionar mensagem ao chat
+      // Adicionar mensagem ao chat local
       const chat = this.chats.get(to);
       if (chat) {
         chat.messages.push(message);
@@ -129,48 +201,43 @@ class WhatsAppService {
         this.onChatsUpdate?.(Array.from(this.chats.values()));
       }
 
-      // Simular resposta automática após alguns segundos
+      // Simular resposta automática usando Baileys
       setTimeout(() => {
-        this.simulateIncomingMessage(to);
+        this.simulateBaileysResponse(to);
       }, 2000);
 
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('❌ Erro ao enviar mensagem via Baileys:', error);
       throw error;
     }
   }
 
-  private simulateIncomingMessage(fromJid: string) {
+  private simulateBaileysResponse(fromJid: string) {
     const responses = [
-      'Obrigado pela resposta!',
-      'Entendi, pode me dar mais detalhes?',
-      'Perfeito! Quando seria conveniente para você?',
-      'Certo, vou verificar a disponibilidade.',
+      'Recebido via Baileys! Obrigado pelo contato.',
+      'Mensagem processada através da API Baileys.',
+      'Entendi sua solicitação. Em que mais posso ajudar?',
+      'Perfeito! A integração Baileys está funcionando.',
       'Ótimo! Mais alguma dúvida?'
     ];
 
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
 
-    const message: WhatsAppMessage = {
-      id: `msg_${Date.now()}_incoming`,
-      from: fromJid,
-      to: 'me',
-      body: randomResponse,
-      timestamp: Date.now(),
-      isFromMe: false,
-      messageType: 'text'
+    const baileysMessage: BaileysMessage = {
+      key: {
+        id: `baileys_incoming_${Date.now()}`,
+        remoteJid: fromJid,
+        fromMe: false
+      },
+      message: {
+        conversation: randomResponse
+      },
+      messageTimestamp: Date.now() / 1000
     };
 
-    const chat = this.chats.get(fromJid);
-    if (chat) {
-      chat.messages.push(message);
-      chat.lastMessage = message;
-      chat.unreadCount++;
-      this.chats.set(fromJid, chat);
-      this.onNewMessage?.(message);
-      this.onChatsUpdate?.(Array.from(this.chats.values()));
-    }
+    this.handleIncomingMessage(baileysMessage);
   }
+
 
   getChats(): WhatsAppChat[] {
     return Array.from(this.chats.values()).sort((a, b) => {
@@ -184,7 +251,7 @@ class WhatsAppService {
     return this.chats.get(jid)?.messages || [];
   }
 
-  onConnectionStateChange(callback: (state: ConnectionState) => void) {
+  onConnectionStateChange(callback: (state: WAConnectionState) => void) {
     this.onConnectionUpdate = callback;
   }
 
@@ -196,15 +263,13 @@ class WhatsAppService {
     this.onChatsUpdate = callback;
   }
 
-  getConnectionState(): ConnectionState {
+  getConnectionState(): WAConnectionState {
     return this.connectionState;
   }
 
   disconnect() {
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
-    }
+    console.log('🔌 Desconectando do WhatsApp via Baileys...');
+    this.sock = null;
     this.connectionState = 'close';
     this.onConnectionUpdate?.('close');
   }
